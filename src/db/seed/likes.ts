@@ -1,5 +1,5 @@
 import { db } from "..";
-import { updateLikeCounts } from "../controllers/like";
+import { updateLikeCounts } from "../controllers/like/count";
 import { likes } from "../schema/likes";
 import { posts } from "../schema/posts";
 import { users } from "../schema/users";

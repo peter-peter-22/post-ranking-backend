@@ -1,7 +1,7 @@
 import { eq, inArray } from "drizzle-orm";
-import { db } from "..";
-import { likes } from "../schema/likes";
-import { posts } from "../schema/posts";
+import { db } from "../..";
+import { likes } from "../../schema/likes";
+import { posts } from "../../schema/posts";
 
 export async function updateLikeCount(postId: string) {
     await db.update(posts)
