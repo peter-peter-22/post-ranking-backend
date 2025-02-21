@@ -1,5 +1,5 @@
-## all users
+### all users
 GET http://localhost:3000/users
 
-## all posts
+### all posts
 GET http://localhost:3000/posts

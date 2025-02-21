@@ -1,11 +1,11 @@
-## users
+### users
 GET http://localhost:3000/seed/users/10
 
-## posts
+### posts
 GET http://localhost:3000/seed/posts/10
 
-## likes
+### likes
 GET http://localhost:3000/seed/likes/10
 
-## follows
+### follows
 GET http://localhost:3000/seed/follows/10
