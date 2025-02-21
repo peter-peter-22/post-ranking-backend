@@ -6,3 +6,6 @@ GET http://localhost:3000/seed/posts/10
 
 ## likes
 GET http://localhost:3000/seed/likes/10
+
+## follows
+GET http://localhost:3000/seed/follows/10

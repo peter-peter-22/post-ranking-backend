@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, SQL } from "drizzle-orm";
 import { db } from "../..";
 import { likes } from "../../schema/likes";
 import { posts } from "../../schema/posts";
@@ -13,12 +13,15 @@ export async function updateLikeCount(postId: string) {
         )
 }
 
-export async function updateLikeCounts(postIds: string[]) {
+export async function updateLikeCounts(where: SQL | undefined) {
     await db.update(posts)
         .set({
             likeCount: db.$count(likes, eq(posts.id, likes.postId))
         })
         .where(
-            inArray(posts.id, postIds)
+            where
+        )
+        .catch(
+            error => console.error("error while updating likes:", error)
         )
 }

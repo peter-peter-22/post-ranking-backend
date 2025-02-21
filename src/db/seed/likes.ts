@@ -18,6 +18,5 @@ export async function seedLikes(count: number) {
     await db.insert(likes)
         .values(likesToInsert)
         .onConflictDoNothing();
-    updateLikeCounts(allPosts.map(post => post.id))
-        .catch(error => console.error("error while updating likes:", error))
+    updateLikeCounts(undefined)
 }
