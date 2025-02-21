@@ -1,0 +1,8 @@
+## users
+GET http://localhost:3000/seed/users/10
+
+## posts
+GET http://localhost:3000/seed/posts/10
+
+## likes
+GET http://localhost:3000/seed/likes/10
