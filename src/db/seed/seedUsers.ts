@@ -1,6 +1,6 @@
-import { db } from "../..";
+import { db } from "..";
 import { faker } from '@faker-js/faker';
-import { users } from "../../schema/users";
+import { users } from "../schema/users";
 
 function createRandomUser(): { handle: string, name: string } {
     return {
