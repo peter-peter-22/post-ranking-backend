@@ -1,11 +1,16 @@
 import { Request, Response, Router } from 'express';
-import { seedUsers } from '../db/seed/users';
+import { seedMainUser, seedUsers } from '../db/seed/users';
 import { countRoute } from '../zod/count';
 import { seedPosts } from '../db/seed/posts';
 import { seedLikes } from '../db/seed/likes';
 import { seedFollows } from '../db/seed/follows';
 
 const router = Router();
+
+router.get('/users/main', async (req: Request, res: Response) => {
+    await seedMainUser()
+    res.sendStatus(200)
+});
 
 router.get('/users/:count', async (req: Request, res: Response) => {
     const { count } = countRoute.parse(req.params);

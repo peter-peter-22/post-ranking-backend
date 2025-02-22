@@ -1,0 +1,9 @@
+### feed
+GET http://localhost:3000/feed HTTP/1.1
+Authorization: userhandle main-user22222
+
+### like
+POST http://localhost:3000/users/main-user/like/postId
+
+### follow
+POST http://localhost:3000/users/main-user/follow/main-user-2

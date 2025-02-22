@@ -1,6 +1,9 @@
 ### users
 GET http://localhost:3000/seed/users/10
 
+### main user
+GET http://localhost:3000/seed/users/main
+
 ### posts
 GET http://localhost:3000/seed/posts/10
 
