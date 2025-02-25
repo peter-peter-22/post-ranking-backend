@@ -1,13 +1,15 @@
 import { db } from "..";
 import { faker } from '@faker-js/faker';
-import { users } from "../schema/users";
+import { users, UserToInsert } from "../schema/users";
 
 const mainUser = { handle: "main-user", name: "Main User" }
 
-function createRandomUser(): { handle: string, name: string } {
+function createRandomUser(): UserToInsert {
     return {
         handle: faker.internet.username(),
         name: faker.person.fullName(),
+        interests: Array(2).fill(null).map(() => randomTopic()),
+        bot: true
     };
 }
 
@@ -16,10 +18,27 @@ export async function seedUsers(count: number) {
     await db.insert(users)
         .values(usersToInsert)
         .onConflictDoNothing();
+    console.log(`Created ${count} users`)
 }
 
 export async function seedMainUser() {
     await db.insert(users)
         .values(mainUser)
         .onConflictDoNothing();
+    console.log("Created main user")
+}
+
+export const topics = [
+    "cars",
+    "sports",
+    "technology",
+    "music",
+    "popculture",
+    "animals",
+    "games",
+    "movies"
+]
+
+export function randomTopic() {
+    return topics[Math.floor(Math.random() * topics.length)]
 }

@@ -1,22 +1,50 @@
 import { db } from "..";
 import { updateLikeCounts } from "../controllers/like/count";
-import { likes } from "../schema/likes";
-import { posts } from "../schema/posts";
-import { users } from "../schema/users";
+import { likes, LikeToInsert } from "../schema/likes";
+import { Post, posts } from "../schema/posts";
+import { User } from "../schema/users";
+import { getAllBots, isEngaging } from "./utils";
 
-function createRandomLikes(users: { id: string }[], posts: { id: string }[]): { userId: string, postId: string } {
-    return {
-        userId: users[Math.floor(Math.random() * users.length)].id,
-        postId: posts[Math.floor(Math.random() * posts.length)].id,
-    };
+/**
+ * Creates organic likes for all posts.
+ * 
+ * @param users all users who can cast likes
+ * @param posts all likable posts
+ * @returns array of likes
+ */
+function createRandomLikes(users: User[], posts: Post[]): LikeToInsert[] {
+    return users.flatMap(user => createRandomLikesForUser(user, posts));
 }
 
-export async function seedLikes(count: number) {
-    const allUsers = await db.select().from(users);
+/**
+ * Creates the organic likes of a selected user.
+ * The reach of the posts is not taken into account.
+ * 
+ * @param user the user who casts likes
+ * @param posts all likable posts
+ * @returns array of likes
+ */
+function createRandomLikesForUser(user: User, posts: Post[]): LikeToInsert[] {
+    const likes: LikeToInsert[] = [];
+    posts.forEach(post => {
+        if (isEngaging({ post, user }))
+            likes.push({
+                postId: post.id,
+                userId: user.id
+            })
+    })
+    return likes
+}
+
+
+/**Create organic likes for all posts*/
+export async function seedLikes() {
+    const allBots = await getAllBots()
     const allPosts = await db.select().from(posts);
-    const likesToInsert = Array(count).fill(null).map(() => createRandomLikes(allUsers, allPosts))
+    const likesToInsert = createRandomLikes(allBots, allPosts)
     await db.insert(likes)
         .values(likesToInsert)
         .onConflictDoNothing();
     updateLikeCounts(undefined)
+    console.log(`Created ${likesToInsert.length} likes`)
 }

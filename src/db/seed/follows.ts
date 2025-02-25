@@ -1,7 +1,7 @@
 import { db } from "..";
 import { updateFollowCounts } from "../controllers/follow/count";
+import { getAllBots } from "./utils";
 import { follows } from "../schema/follows";
-import { users } from "../schema/users";
 
 function createRandomFollows(users: { id: string }[]): { followerId: string, followedId: string } {
     return {
@@ -11,10 +11,11 @@ function createRandomFollows(users: { id: string }[]): { followerId: string, fol
 }
 
 export async function seedFollows(count: number) {
-    const allUsers = await db.select().from(users);
-    const followsToInsert = Array(count).fill(null).map(() => createRandomFollows(allUsers))
+    const allBots = await getAllBots();
+    const followsToInsert = Array(count).fill(null).map(() => createRandomFollows(allBots))
     await db.insert(follows)
         .values(followsToInsert)
         .onConflictDoNothing();
     updateFollowCounts(undefined)
+    console.log(`Created ${count} follows`)
 }
