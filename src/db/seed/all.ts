@@ -12,7 +12,7 @@ export async function seedAll(multiplier: number = 1) {
     await seedMainUser()
     await seedUsers(1000 * multiplier)
     await seedPosts(10 * multiplier)
-    await seedLikes()
+    await seedLikes(false)
     await seedFollows(200 * multiplier)
     console.log("Seeded all tables")
 }

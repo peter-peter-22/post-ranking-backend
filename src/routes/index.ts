@@ -8,6 +8,7 @@ import seed from "./seed";
 import register from "./register";
 import feed from "./feed";
 import reset from "./reset";
+import bot from "./bots";
 
 //unauthenticated routes
 
@@ -17,6 +18,7 @@ router.use(home);
 router.use("/seed", seed);
 router.use("/reset", reset);
 router.use(register);
+router.use("/bots", bot);
 
 //protected routes
 

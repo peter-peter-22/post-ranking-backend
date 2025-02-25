@@ -8,7 +8,7 @@ GET http://localhost:3000/seed/users/main
 GET http://localhost:3000/seed/posts/10
 
 ### likes
-GET http://localhost:3000/seed/likes/10
+GET http://localhost:3000/seed/likes
 
 ### follows
 GET http://localhost:3000/seed/follows/10

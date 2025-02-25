@@ -24,9 +24,8 @@ router.get('/posts/:count', async (req: Request, res: Response) => {
     res.sendStatus(200)
 });
 
-router.get('/likes/:count', async (req: Request, res: Response) => {
-    const { count } = countRoute.parse(req.params);
-    await seedLikes(count)
+router.get('/likes', async (req: Request, res: Response) => {
+    await seedLikes()
     res.sendStatus(200)
 });
 

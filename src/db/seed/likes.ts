@@ -2,7 +2,7 @@ import { db } from "..";
 import { updateLikeCounts } from "../controllers/like/count";
 import { likes, LikeToInsert } from "../schema/likes";
 import { Post, posts } from "../schema/posts";
-import { User } from "../schema/users";
+import { User, users } from "../schema/users";
 import { getAllBots, isEngaging } from "./utils";
 
 /**
@@ -38,8 +38,11 @@ function createRandomLikesForUser(user: User, posts: Post[]): LikeToInsert[] {
 
 
 /**Create organic likes for all posts*/
-export async function seedLikes() {
-    const allBots = await getAllBots()
+export async function seedLikes(onlyBots: boolean = true) {
+    const allBots = onlyBots ?
+        await getAllBots()
+        :
+        await db.select().from(users);
     const allPosts = await db.select().from(posts);
     const likesToInsert = createRandomLikes(allBots, allPosts)
     await db.insert(likes)

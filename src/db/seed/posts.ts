@@ -21,7 +21,8 @@ function createRandomPost(users: { id: string, interests: string[] }[]): PostToI
         userId: user.id,
         text: `This post is about ${topic}.\n${faker.lorem.paragraphs(1)}`,
         topic: topic,
-        engaging: randomEngaging()
+        engaging: randomEngaging(),
+        createdAt: faker.date.recent({ days: 10 })
     };
 }
 
