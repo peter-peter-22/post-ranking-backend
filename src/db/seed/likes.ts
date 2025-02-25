@@ -38,11 +38,8 @@ function createRandomLikesForUser(user: User, posts: Post[]): LikeToInsert[] {
 
 
 /**Create organic likes for all posts*/
-export async function seedLikes(onlyBots: boolean = true) {
-    const allBots = onlyBots ?
-        await getAllBots()
-        :
-        await db.select().from(users);
+export async function seedLikes() {
+    const allBots = await getAllBots()
     const allPosts = await db.select().from(posts);
     const likesToInsert = createRandomLikes(allBots, allPosts)
     await db.insert(likes)

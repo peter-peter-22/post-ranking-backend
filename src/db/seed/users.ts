@@ -21,11 +21,17 @@ export async function seedUsers(count: number) {
     console.log(`Created ${count} users`)
 }
 
+/**
+ * Create the main user with it's specified handle and name.
+ * @returns The user object
+ */
 export async function seedMainUser() {
-    await db.insert(users)
+    const [user] = await db.insert(users)
         .values(mainUser)
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
     console.log("Created main user")
+    return user;
 }
 
 export const topics = [

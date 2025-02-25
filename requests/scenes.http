@@ -1,0 +1,8 @@
+### follow
+//in this scene, the main user follows a specified user.
+//the effect of the following on the post ranking is visible.
+GET http://localhost:3000/bots/scenes/follow
+
+### feed
+GET http://localhost:3000/feed HTTP/1.1
+Authorization: userhandle main-user
