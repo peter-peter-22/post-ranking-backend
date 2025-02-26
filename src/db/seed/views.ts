@@ -1,46 +1,64 @@
-import { aliasedTable, eq, exists, sql } from "drizzle-orm";
+import { aliasedTable, eq, exists, isNull, like } from "drizzle-orm";
 import { db } from "..";
 import { updateViewCounts } from "../controllers/views/count";
+import { likes } from "../schema/likes";
 import { posts } from "../schema/posts";
 import { users } from "../schema/users";
 import { views, ViewToInsert } from "../schema/views";
-import { getAllBots } from "./utils";
-import { likes } from "../schema/likes";
+import { updateClickCounts } from "../controllers/clicks/count";
+import { clicks } from "../schema/clicks";
 
 const comments = aliasedTable(posts, "comments")
 
-/**Create organic views for all posts.
- **Generates views based on the engagements and randomity. 
- */
+/**Create organic views and clicks for all posts based on the engagements and randomity. */
 export async function seedViews() {
-    /**the chance to view a post without interacting with it*/
-    const minChanceToView = 50;
+    /**The chance of viewing a post the user didn't interacted with. */
+    const chanceToView = 0.5;
+    /**The chance of clicking a post the viewed but didnt replied to. Relative to the engaging modifier of the post. */
+    const relativeChanceToClick = 1;
 
     /**What interactions the users did the posts.*/
     const userInteractions = await db
         .select({
             postId: posts.id,
             userId: users.id,
+            engaging: posts.engaging,
             commented: exists(db.select().from(comments).where(eq(comments.replyingTo, posts.id))),
             liked: exists(db.select().from(likes).where(eq(likes.postId, posts.id))),
         })
         .from(posts)
-        .leftJoin(users, sql<boolean>`true`)
+        .where(isNull(posts.replyingTo))
+        .leftJoin(users, eq(users.bot, true))
 
     /**What posts the users viewed. 
-     ** When a user reacted to a post, a view is be added regardless of randomity.
-     */
-    const viewsToInsert: ViewToInsert[] = userInteractions
-        .filter(({ commented, liked }) => (commented || liked || minChanceToView > Math.random() * 100))
-        .map(({ postId, userId }) => ({
-            postId,
-            userId,
-        }))
+    ** When a user reacted to a post, a view is be added regardless of randomity.
+    */
+    const viewsToInsert: ViewToInsert[] = []
 
+    /**What posts the clicked viewed. 
+    ** When a user commented to a post, a click is be added regardless of randomity.
+    */
+    const clicksToInsert: ViewToInsert[] = []
+
+    //generate the clicks and views 
+    userInteractions.forEach(({ postId, userId, engaging, commented, liked }) => {
+        const view = commented || liked || Math.random() < chanceToView;
+        const click = commented || view && Math.random() < relativeChanceToClick * engaging;
+        if (view) viewsToInsert.push({ postId, userId })
+        if (click) clicksToInsert.push({ postId, userId })
+    })
+
+    //insert views
     await db.insert(views)
         .values(viewsToInsert)
         .onConflictDoNothing();
     updateViewCounts()
 
-    console.log(`Created ${viewsToInsert.length} views`)
+    //insert clicks
+    await db.insert(clicks)
+        .values(clicksToInsert)
+        .onConflictDoNothing();
+    updateClickCounts()
+
+    console.log(`Created ${viewsToInsert.length} views and ${clicksToInsert.length} clicks`)
 }

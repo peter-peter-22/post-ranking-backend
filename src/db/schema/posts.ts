@@ -10,6 +10,7 @@ export const posts = pgTable('posts', {
     likeCount: integer().notNull().default(0),
     replyCount: integer().notNull().default(0),
     viewCount: integer().notNull().default(0),
+    clickCount: integer().notNull().default(0),
     topic: varchar({ length: 50 }),//the topic that the bots see on the posts. 
     engaging: real().notNull().default(0),//the engagement modifier that decides how much the bots engage with the post. 0-1
     replyingTo: uuid(),
