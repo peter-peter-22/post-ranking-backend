@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { db } from "..";
 import { getAllBots } from './utils';
 import { posts, PostToInsert } from "../schema/posts";
+import { User } from '../schema/users';
 
 /**
  * Returns a post with random values.
@@ -9,7 +10,7 @@ import { posts, PostToInsert } from "../schema/posts";
  * @param users possible publishers
  * @returns array of posts
  */
-function createRandomPost(users: { id: string, interests: string[] }[]): PostToInsert {
+function createRandomPost(users: User[]): PostToInsert {
 
     //randomly selected user
     const user = users[Math.floor(Math.random() * users.length)];
@@ -21,7 +22,7 @@ function createRandomPost(users: { id: string, interests: string[] }[]): PostToI
         userId: user.id,
         text: `This post is about ${topic}.\n${faker.lorem.paragraphs(1)}`,
         topic: topic,
-        engaging: randomEngaging(),
+        engaging: Math.random(),
         createdAt: faker.date.recent({ days: 10 })
     };
 }
@@ -39,14 +40,4 @@ export async function seedPosts(count: number) {
         .values(postsToInsert)
         .onConflictDoNothing();
     console.log(`Created ${count} posts`)
-}
-
-/**
- * Generates a random engagement modifier for a post. 
- * This defines how much chance the bots have to interact with the post.
- *
- * @returns number between 0 and 1
- */
-function randomEngaging(): number {
-    return Math.random()
 }

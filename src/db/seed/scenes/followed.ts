@@ -18,7 +18,7 @@ export async function followScene(multiplier: number = 1) {
     await clearAllTables()
     const mainUser = await seedMainUser()
     await seedUsers(1000 * multiplier)
-    await seedPosts(50 * multiplier)
+    await seedPosts(10 * multiplier)
     await createFollowedUser(mainUser)
     console.log("Seeded all tables")
 }

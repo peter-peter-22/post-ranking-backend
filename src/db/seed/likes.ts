@@ -45,6 +45,6 @@ export async function seedLikes() {
     await db.insert(likes)
         .values(likesToInsert)
         .onConflictDoNothing();
-    updateLikeCounts(undefined)
+    updateLikeCounts()
     console.log(`Created ${likesToInsert.length} likes`)
 }

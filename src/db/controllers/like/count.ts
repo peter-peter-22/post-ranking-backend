@@ -4,16 +4,10 @@ import { likes } from "../../schema/likes";
 import { posts } from "../../schema/posts";
 
 export async function updateLikeCount(postId: string) {
-    await db.update(posts)
-        .set({
-            likeCount: db.$count(posts, eq(posts.id, likes.postId))
-        })
-        .where(
-            eq(posts.id, postId)
-        )
+    await updateLikeCounts(eq(posts.id, postId))
 }
 
-export async function updateLikeCounts(where: SQL | undefined) {
+export async function updateLikeCounts(where: SQL | undefined=undefined) {
     await db.update(posts)
         .set({
             likeCount: db.$count(likes, eq(posts.id, likes.postId))
@@ -22,6 +16,6 @@ export async function updateLikeCounts(where: SQL | undefined) {
             where
         )
         .catch(
-            error => console.error("error while updating likes:", error)
+            error => console.error("error while updating like count:", error)
         )
 }

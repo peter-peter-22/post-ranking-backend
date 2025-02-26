@@ -1,4 +1,4 @@
-import { and, desc, eq, getTableColumns, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { follows } from "../db/schema/follows";
 import { likes } from "../db/schema/likes";
@@ -11,18 +11,18 @@ export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, li
         user: getTableColumns(users),
         score: sql<number>`(
             ${posts.likeCount}
+            +
+            ${posts.replyCount} * 5
             + 
             EXTRACT(EPOCH FROM (${posts.createdAt})) / ${3600} - ${480000}
             +
-            CASE 
-                WHEN ${isNotNull(follows)} THEN 200 
-                ELSE 0 
-            END
+            CASE WHEN ${isNotNull(follows)} THEN ${200} ELSE 0 END
         )`.as('score'),
         likedByUser: isNotNull(likes),
         followedByUser: isNotNull(follows)
     })
         .from(posts)
+        .where(isNull(posts.replyingTo))
         .orderBy(desc(sql`score`))
         .leftJoin(likes, and(eq(posts.id, likes.postId), eq(likes.userId, user.id)))
         .leftJoin(users, eq(posts.userId, users.id))

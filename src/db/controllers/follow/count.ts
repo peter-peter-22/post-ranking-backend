@@ -16,6 +16,6 @@ export async function updateFollowCounts(where: SQL | undefined) {
             where
         )
         .catch(
-            error => console.error("error while updating likes:", error)
+            error => console.error("error while updating follow count:", error)
         )
 }

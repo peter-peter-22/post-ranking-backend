@@ -1,3 +1,4 @@
+import { seedReplies } from "./comments";
 import { seedFollows } from "./follows";
 import { seedLikes } from "./likes";
 import { seedPosts } from "./posts";
@@ -13,6 +14,7 @@ export async function seedAll(multiplier: number = 1) {
     await seedUsers(1000 * multiplier)
     await seedPosts(10 * multiplier)
     await seedLikes()
+    await seedReplies()
     await seedFollows(200 * multiplier)
     console.log("Seeded all tables")
 }
