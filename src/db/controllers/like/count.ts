@@ -3,10 +3,12 @@ import { db } from "../..";
 import { likes } from "../../schema/likes";
 import { posts } from "../../schema/posts";
 
+/**Recalculate the like count on a post. */
 export async function updateLikeCount(postId: string) {
     await updateLikeCounts(eq(posts.id, postId))
 }
 
+/**Recalculate the like count on the selected posts. */
 export async function updateLikeCounts(where: SQL | undefined=undefined) {
     await db.update(posts)
         .set({
