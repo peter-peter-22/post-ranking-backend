@@ -1,5 +1,2 @@
 ### reset without seeding
 GET http://localhost:3000/reset/all
-
-### reset with seeding
-GET http://localhost:3000/reset/all?seed=true

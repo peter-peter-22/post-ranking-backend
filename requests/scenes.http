@@ -1,3 +1,7 @@
+### default
+//all kinds of data, empty main user
+GET http://localhost:3000/bots/scenes/default?multiplier=1
+
 ### follow
 //in this scene, the main user follows a specified user.
 //the effect of the following on the post ranking is visible.
