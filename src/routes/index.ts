@@ -25,7 +25,7 @@ router.use("/bots", bot);
 const authenticatedRouter = Router();
 authenticatedRouter.use(protectedMiddleware)
 
-authenticatedRouter.use(feed);
+authenticatedRouter.use("/feed", feed);
 
 //connect the authenticatin router to the base
 router.use(authenticatedRouter)

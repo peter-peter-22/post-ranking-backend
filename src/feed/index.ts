@@ -5,6 +5,7 @@ import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
 
+/** Get posts from the main feed of a user. */
 export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, limit?: number, offset?: number }) {
     return await db.select({
         ...getTableColumns(posts),
@@ -29,4 +30,23 @@ export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, li
         .leftJoin(follows, and(eq(follows.followedId, posts.userId), eq(follows.followerId, user.id)))
         .limit(limit)
         .offset(offset);
+}
+
+/** The posts from the main feed of a user in a more readable format.  */
+export async function getFeedSimplified({ user }: { user: User }) {
+    return (await getFeed({ user })).map(({ likedByUser, followedByUser, likeCount, user: publisher, score, topic, viewCount, createdAt, clickCount }) => ({
+        handle: publisher?.handle,
+        topic,
+        score,
+        createdAt: createdAt.getDay(),
+        counts: {
+            likeCount,
+            clickCount,
+            viewCount,
+        },
+        personal: {
+            followedByUser,
+            likedByUser
+        }
+    }))
 }
