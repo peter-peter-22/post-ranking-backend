@@ -13,7 +13,7 @@ import { seedViews } from "./views";
 export async function seedAll(multiplier: number = 1) {
     await seedMainUser()
     await seedUsers(1000 * multiplier)
-    await seedPosts(10 * multiplier)
+    await seedPosts(100 * multiplier)
     await seedViews()
     await seedLikes()
     await seedReplies()

@@ -6,7 +6,8 @@ import { posts } from "../schema/posts";
 import { users } from "../schema/users";
 import { views, ViewToInsert } from "../schema/views";
 import { updateClickCounts } from "../controllers/clicks/count";
-import { clicks } from "../schema/clicks";
+import { clicks, ClicksToInsert } from "../schema/clicks";
+import { chunkedInsert } from "../chunkedInsert";
 
 const comments = aliasedTable(posts, "comments")
 
@@ -49,15 +50,19 @@ export async function seedViews() {
     })
 
     //insert views
-    await db.insert(views)
-        .values(viewsToInsert)
-        .onConflictDoNothing();
+    await chunkedInsert(viewsToInsert, async (rows: ViewToInsert[]) => {
+        await db.insert(views)
+            .values(rows)
+            .onConflictDoNothing();
+    })
     updateViewCounts()
 
     //insert clicks
-    await db.insert(clicks)
-        .values(clicksToInsert)
-        .onConflictDoNothing();
+    await chunkedInsert(clicksToInsert, async (rows: ClicksToInsert[]) => {
+        await db.insert(clicks)
+            .values(rows)
+            .onConflictDoNothing();
+    })
     updateClickCounts()
 
     console.log(`Created ${viewsToInsert.length} views and ${clicksToInsert.length} clicks`)

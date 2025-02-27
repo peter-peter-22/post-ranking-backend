@@ -18,7 +18,7 @@ export async function followScene(multiplier: number = 1) {
     await clearAllTables()
     const mainUser = await seedMainUser()
     await seedUsers(1000 * multiplier)
-    await seedPosts(10 * multiplier)
+    await seedPosts(100 * multiplier)
     await createFollowedUser(mainUser)
     console.log("Seeded all tables")
 }
@@ -49,7 +49,7 @@ async function createFollowedUser(mainUser: User) {
     //create the posts of the followed user
     const postCount = 5;
     /**Dates from the creation of the oldest post to the creation of the newest post */
-    const postDates = Array.from({length:5}).map((_, i) => {
+    const postDates = Array.from({ length: 5 }).map((_, i) => {
         const t = i / (postCount - 1);
         return newest.createdAt.getTime() + (oldest.createdAt.getTime() - newest.createdAt.getTime()) * t
     })

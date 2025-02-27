@@ -2,13 +2,13 @@
 GET http://localhost:3000/feed/simplified HTTP/1.1
 Authorization: userhandle main-user
 
-### empty
+### new user
 //normal data, empty main user
 GET http://localhost:3000/bots/scenes/default?multiplier=1
 
-### fan of topic
+### fan of a topic
 //normal data, the main user interacted with the "techonology" topic and follows related users
-GET http://localhost:3000/bots/scenes/default?multiplier=1
+GET http://localhost:3000/bots/scenes/fan?multiplier=1
 
 ### follow
 //in this scene, the main user follows a specified user.
