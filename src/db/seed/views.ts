@@ -1,13 +1,13 @@
-import { aliasedTable, eq, exists, isNull, like } from "drizzle-orm";
+import { aliasedTable, eq, exists, isNull } from "drizzle-orm";
 import { db } from "..";
+import { chunkedInsert } from "../chunkedInsert";
+import { updateClickCounts } from "../controllers/clicks/count";
 import { updateViewCounts } from "../controllers/views/count";
+import { clicks, ClicksToInsert } from "../schema/clicks";
 import { likes } from "../schema/likes";
 import { posts } from "../schema/posts";
 import { users } from "../schema/users";
 import { views, ViewToInsert } from "../schema/views";
-import { updateClickCounts } from "../controllers/clicks/count";
-import { clicks, ClicksToInsert } from "../schema/clicks";
-import { chunkedInsert } from "../chunkedInsert";
 
 const comments = aliasedTable(posts, "comments")
 
