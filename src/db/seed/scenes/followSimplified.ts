@@ -1,25 +1,22 @@
-import { asc, desc, sql } from "drizzle-orm"
+import { asc, desc } from "drizzle-orm"
 import { db } from "../.."
 import { follow } from "../../../user_actions/follow"
+import { clearAllTables } from "../../reset/clearTables"
 import { posts, PostToInsert } from "../../schema/posts"
 import { User, users } from "../../schema/users"
 import { seedPosts } from "../posts"
-import { seedMainUser, seedUsers } from "../users"
-import { uuid } from "drizzle-orm/pg-core"
-import { clearAllTables } from "../../reset/clearTables"
+import { seedMainUser, seedUsers, topics } from "../users"
 
 /**
- * In this scene, the main user follows a specified user.
- ** The posts of the followed user will get higher rank on the feed.
- ** Other ranking factors are minimized.
+ * In this scene, the main used follows one user within a simplified environment.
  * @param multiplier multiplies the count of all generated rows.
  */
-export async function followScene(multiplier: number = 1) {
+export async function followOneSimplifiedScene(multiplier: number = 1) {
     await clearAllTables()
     const mainUser = await seedMainUser()
     await seedUsers(1000 * multiplier)
     await seedPosts(100 * multiplier)
-    await createFollowedUser(mainUser)
+    await createFollowedUser({mainUser})
     console.log("Seeded all tables")
 }
 
@@ -28,12 +25,14 @@ export async function followScene(multiplier: number = 1) {
  ** Make the main user follow it
  ** Insert it's posts
  */
-async function createFollowedUser(mainUser: User) {
+export async function createFollowedUser({mainUser}:{mainUser:User}) {
     //insert the followed user into the database
     const [followedUser] = await db.insert(users)
         .values({
             handle: "followed",
             name: "Followed",
+            bot:true,
+            interests:[topics[0]]
         })
         .returning()
 

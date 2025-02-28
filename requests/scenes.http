@@ -4,13 +4,16 @@ Authorization: userhandle main-user
 
 ### new user
 //normal data, empty main user
-GET http://localhost:3000/bots/scenes/default?multiplier=1
+GET http://localhost:3000/bots/scenes/default
 
 ### fan of a topic
 //normal data, the main user interacted with the "techonology" topic and follows related users
-GET http://localhost:3000/bots/scenes/fan?multiplier=1
+GET http://localhost:3000/bots/scenes/fan
 
-### follow
-//in this scene, the main user follows a specified user.
-//the effect of the following on the post ranking is visible.
-GET http://localhost:3000/bots/scenes/follow
+### follow one simplified
+//in this scene, the main user follows a specified user within a simplified environment.
+GET http://localhost:3000/bots/scenes/followOneSimplified
+
+### follow one
+//in this scene, the main user follows a specified user within a normal environment.
+GET http://localhost:3000/bots/scenes/followOne
