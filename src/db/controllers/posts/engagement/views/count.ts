@@ -1,12 +1,7 @@
 import { eq, SQL } from "drizzle-orm";
-import { db } from "../..";
-import { posts } from "../../schema/posts";
-import { views } from "../../schema/views";
-
-/**Recalculate the view count on a post. */
-export async function updateViewCount(postId: string) {
-    await updateViewCounts(eq(posts.id, postId))
-}
+import { db } from "../../../..";
+import { posts } from "../../../../schema/posts";
+import { views } from "../../../../schema/views";
 
 /**Recalculate the view count on the selected posts. */
 export async function updateViewCounts(where: SQL | undefined = undefined) {

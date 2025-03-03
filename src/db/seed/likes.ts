@@ -1,5 +1,5 @@
 import { db } from "..";
-import { updateLikeCounts } from "../controllers/like/count";
+import { updateLikeCounts } from "../controllers/posts/engagement/like/count";
 import { likes, LikeToInsert } from "../schema/likes";
 import { Post, posts } from "../schema/posts";
 import { User, users } from "../schema/users";
@@ -45,6 +45,6 @@ export async function seedLikes() {
     await db.insert(likes)
         .values(likesToInsert)
         .onConflictDoNothing();
-    updateLikeCounts()
+    await updateLikeCounts()
     console.log(`Created ${likesToInsert.length} likes`)
 }

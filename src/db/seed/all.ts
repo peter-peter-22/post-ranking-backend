@@ -1,3 +1,4 @@
+import { updateEngagementAggregations } from "../controllers/posts/engagement/engagements";
 import { seedReplies } from "./comments";
 import { seedFollows } from "./follows";
 import { seedLikes } from "./likes";
@@ -14,9 +15,10 @@ export async function seedAll(multiplier: number = 1) {
     await seedMainUser()
     await seedUsers(1000 * multiplier)
     await seedPosts(100 * multiplier)
-    await seedViews()
     await seedLikes()
     await seedReplies()
     await seedFollows(200 * multiplier)
+    await seedViews()
+    await updateEngagementAggregations();
     console.log("Seeded all tables")
 }

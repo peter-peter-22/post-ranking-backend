@@ -5,9 +5,9 @@ import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
 
-const scorePerClick = 1
-const scorePerLike = 3
-const scorePerReply = 6
+export const scorePerClick = 1
+export const scorePerLike = 3
+export const scorePerReply = 6
 
 /** Get posts from the main feed of a user. */
 export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, limit?: number, offset?: number }) {

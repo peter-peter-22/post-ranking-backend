@@ -1,8 +1,8 @@
 import { aliasedTable, eq, exists, isNull } from "drizzle-orm";
 import { db } from "..";
 import { chunkedInsert } from "../chunkedInsert";
-import { updateClickCounts } from "../controllers/clicks/count";
-import { updateViewCounts } from "../controllers/views/count";
+import { updateClickCounts } from "../controllers/posts/engagement/clicks/count";
+import { updateViewCounts } from "../controllers/posts/engagement/views/count";
 import { clicks, ClicksToInsert } from "../schema/clicks";
 import { likes } from "../schema/likes";
 import { posts } from "../schema/posts";
@@ -55,7 +55,7 @@ export async function seedViews() {
             .values(rows)
             .onConflictDoNothing();
     })
-    updateViewCounts()
+    await updateViewCounts()
 
     //insert clicks
     await chunkedInsert(clicksToInsert, async (rows: ClicksToInsert[]) => {
@@ -63,7 +63,7 @@ export async function seedViews() {
             .values(rows)
             .onConflictDoNothing();
     })
-    updateClickCounts()
+    await updateClickCounts()
 
     console.log(`Created ${viewsToInsert.length} views and ${clicksToInsert.length} clicks`)
 }

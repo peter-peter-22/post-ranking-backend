@@ -1,3 +1,4 @@
+import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements"
 import { clearAllTables } from "../../reset/clearTables"
 import { seedReplies } from "../comments"
 import { seedFollows } from "../follows"
@@ -21,5 +22,6 @@ export async function followOneScene(multiplier: number = 1) {
     await seedLikes()
     await seedReplies()
     await seedFollows(200 * multiplier)
+    updateEngagementAggregations()
     console.log("Seeded all tables")
 }

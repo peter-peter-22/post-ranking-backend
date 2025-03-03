@@ -1,12 +1,7 @@
 import { eq, SQL } from "drizzle-orm";
-import { db } from "../..";
-import { follows } from "../../schema/follows";
-import { users } from "../../schema/users";
-
-/**Recalculate the follow count on a user. */
-export async function updateFollowCount(userId: string) {
-    await updateFollowCounts(eq(users.id, userId))
-}
+import { db } from "../../../..";
+import { follows } from "../../../../schema/follows";
+import { users } from "../../../../schema/users";
 
 /**Recalculate the follow count on the selected users. */
 export async function updateFollowCounts(where: SQL | undefined) {

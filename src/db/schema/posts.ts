@@ -14,6 +14,10 @@ export const posts = pgTable('posts', {
     topic: varchar({ length: 50 }),//the topic that the bots see on the posts. 
     engaging: real().notNull().default(0),//the engagement modifier that decides how much the bots engage with the post. 0-1
     replyingTo: uuid(),
+    engagementScoreFrequency: real().notNull().default(0),//engagements score per time since the post was created in hours. determines when a post is viral
+    engagementScore: real().notNull().default(0),//the total engagement score
+    engagementCount: real().notNull().default(0),//the total engagement count. all kinds of engagements worth 1 point
+    engagementScoreRate: real().notNull().default(0),//engagement score per view count. determines the theorical engagingness of the post
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({

@@ -1,5 +1,5 @@
 import { db } from "..";
-import { updateFollowCounts } from "../controllers/follow/count";
+import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { getAllBots } from "./utils";
 import { follows } from "../schema/follows";
 
@@ -16,6 +16,6 @@ export async function seedFollows(count: number) {
     await db.insert(follows)
         .values(followsToInsert)
         .onConflictDoNothing();
-    updateFollowCounts(undefined)
+    await updateFollowCounts(undefined)
     console.log(`Created ${count} follows`)
 }

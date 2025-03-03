@@ -51,6 +51,6 @@ export async function seedReplies() {
     await db.insert(posts)
         .values(repliesToInsert)
         .onConflictDoNothing()
-    updateReplyCounts()
+    await updateReplyCounts()
     console.log(`Created ${repliesToInsert.length} replies`)
 }

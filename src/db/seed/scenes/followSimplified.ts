@@ -6,6 +6,7 @@ import { posts, PostToInsert } from "../../schema/posts"
 import { User, users } from "../../schema/users"
 import { seedPosts } from "../posts"
 import { seedMainUser, seedUsers, topics } from "../users"
+import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements"
 
 /**
  * In this scene, the main used follows one user within a simplified environment.
@@ -17,6 +18,7 @@ export async function followOneSimplifiedScene(multiplier: number = 1) {
     await seedUsers(1000 * multiplier)
     await seedPosts(100 * multiplier)
     await createFollowedUser({mainUser})
+    updateEngagementAggregations();
     console.log("Seeded all tables")
 }
 

@@ -1,12 +1,7 @@
 import { eq, SQL } from "drizzle-orm";
-import { db } from "../..";
-import { clicks } from "../../schema/clicks";
-import { posts } from "../../schema/posts";
-
-/**Recalculate the click count on a post. */
-export async function updateClickCount(postId: string) {
-    await updateClickCounts(eq(posts.id, postId))
-}
+import { db } from "../../../..";
+import { clicks } from "../../../../schema/clicks";
+import { posts } from "../../../../schema/posts";
 
 /**Recalculate the click count on the selected posts. */
 export async function updateClickCounts(where: SQL | undefined = undefined) {

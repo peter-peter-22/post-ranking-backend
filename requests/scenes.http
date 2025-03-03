@@ -12,7 +12,7 @@ GET http://localhost:3000/bots/scenes/fan
 
 ### follow one simplified
 //in this scene, the main user follows a specified user within a simplified environment.
-GET http://localhost:3000/bots/scenes/followOneSimplified
+GET http://localhost:3000/bots/scenes/followOneSimplifiedj
 
 ### follow one
 //in this scene, the main user follows a specified user within a normal environment.
