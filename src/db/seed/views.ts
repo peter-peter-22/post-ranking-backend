@@ -1,4 +1,4 @@
-import { aliasedTable, eq, exists, isNull } from "drizzle-orm";
+import { aliasedTable, and, eq, exists, isNull } from "drizzle-orm";
 import { db } from "..";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateClickCounts } from "../controllers/posts/engagement/clicks/count";
@@ -24,8 +24,8 @@ export async function seedViews() {
             postId: posts.id,
             userId: users.id,
             engaging: posts.engaging,
-            commented: exists(db.select().from(comments).where(eq(comments.replyingTo, posts.id))),
-            liked: exists(db.select().from(likes).where(eq(likes.postId, posts.id))),
+            commented: exists(db.select().from(comments).where(and(eq(comments.replyingTo, posts.id), eq(users.id, comments.userId)))),
+            liked: exists(db.select().from(likes).where(and(eq(likes.postId, posts.id), eq(likes.userId, users.id)))),
         })
         .from(posts)
         .where(isNull(posts.replyingTo))
