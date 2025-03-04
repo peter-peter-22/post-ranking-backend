@@ -2,9 +2,17 @@
 GET http://localhost:3000/feed HTTP/1.1
 Authorization: userhandle main-user
 
+### feed global
+GET http://localhost:3000/feed/global HTTP/1.1
+Authorization: userhandle main-user
+
+### feed local
+GET http://localhost:3000/feed/local HTTP/1.1
+Authorization: userhandle main-user
+
 ### like user
 GET http://localhost:3000/bots/likeUser/Pearline_Fadel HTTP/1.1
 Authorization: userhandle main-user
 
 ### follow
-POST http://localhost:3000/users/main-user/follow/main-user-2
+POST http://localhost:3000/users/main-user/follow/followed

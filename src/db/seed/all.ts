@@ -17,7 +17,7 @@ export async function seedAll(multiplier: number = 1) {
     await seedPosts(100 * multiplier)
     await seedLikes()
     await seedReplies()
-    await seedFollows(200 * multiplier)
+    await seedFollows()
     await seedViews()
     await updateEngagementAggregations();
     console.log("Seeded all tables")

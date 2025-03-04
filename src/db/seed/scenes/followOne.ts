@@ -21,7 +21,7 @@ export async function followOneScene(multiplier: number = 1) {
     await seedViews()
     await seedLikes()
     await seedReplies()
-    await seedFollows(200 * multiplier)
+    await seedFollows()
     updateEngagementAggregations()
     console.log("Seeded all tables")
 }

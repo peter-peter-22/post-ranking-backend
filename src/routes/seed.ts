@@ -29,9 +29,8 @@ router.get('/likes', async (req: Request, res: Response) => {
     res.sendStatus(200)
 });
 
-router.get('/follows/:count', async (req: Request, res: Response) => {
-    const { count } = countRoute.parse(req.params);
-    await seedFollows(count)
+router.get('/follows', async (req: Request, res: Response) => {
+    await seedFollows()
     res.sendStatus(200)
 });
 
