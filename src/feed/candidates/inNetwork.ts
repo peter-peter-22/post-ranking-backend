@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
-import { noReplies } from "./filters";
+import { isPost } from "./filters";
 
 /** Max count of posts */
 const count = 750;
@@ -15,7 +15,7 @@ export async function getInNetworkCandidates({ user, followedUsers }: { user: Us
         .from(posts)
         .where(
             and(
-                noReplies,
+                isPost,
                 inArray(posts.userId, followedUsers)
             )
         )

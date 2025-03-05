@@ -9,6 +9,7 @@ import register from "./register";
 import feed from "./feed";
 import reset from "./reset";
 import bot from "./bots";
+import candidates from "./candidates";
 
 //unauthenticated routes
 
@@ -19,6 +20,7 @@ router.use("/seed", seed);
 router.use("/reset", reset);
 router.use(register);
 router.use("/bots", bot);
+router.use("/candidates", candidates);
 
 //protected routes
 

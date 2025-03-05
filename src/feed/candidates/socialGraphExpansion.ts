@@ -1,10 +1,9 @@
-import { and, desc, inArray, isNull, notInArray } from "drizzle-orm";
+import { and, desc, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
+import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
-import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
-import { noReplies } from "./filters";
+import { isPost, minimalEngagement } from "./filters";
 
 /** Max count of posts */
 const count = 350;
@@ -17,8 +16,9 @@ export async function getSocialGraphExpansionCandidates({ user, followedUsers }:
         .from(posts)
         .where(
             and(
-                noReplies,
-                inArray(posts.userId, indirectlyFollowedUsers)
+                isPost,
+                minimalEngagement,
+                inArray(posts.userId, indirectlyFollowedUsers),
             )
         )
         .orderBy(desc(posts.createdAt))
