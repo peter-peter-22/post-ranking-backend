@@ -1,4 +1,4 @@
-import { desc, inArray } from "drizzle-orm";
+import { and, desc, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { posts } from "../../db/schema/posts";
@@ -15,7 +15,10 @@ export async function getInNetworkCandidates({ user }: { user: User, limit?: num
         .select()
         .from(posts)
         .where(
-            inArray(posts.userId, followedUsers)
+            and(
+                isNull(posts.replyingTo),
+                inArray(posts.userId, followedUsers)
+            )
         )
         .orderBy(desc(posts.createdAt))
         .limit(count)
