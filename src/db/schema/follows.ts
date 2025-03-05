@@ -3,8 +3,8 @@ import { users } from './users';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 export const follows = pgTable('follows', {
-    followerId: uuid().references(() => users.id),
-    followedId: uuid().references(() => users.id),
+    followerId: uuid().notNull().references(() => users.id),
+    followedId: uuid().notNull().references(() => users.id),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.followerId, t.followedId),
