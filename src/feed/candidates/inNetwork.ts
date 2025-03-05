@@ -3,20 +3,19 @@ import { db } from "../../db";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
+import { noReplies } from "./filters";
 
 /** Max count of posts */
 const count = 750;
 
-export async function getInNetworkCandidates({ user }: { user: User, limit?: number, offset?: number }) {
-
-    const followedUsers = await getFollowedUsers({ user })
-
+/** Selecting candidate posts from the users those the viewer follows */
+export async function getInNetworkCandidates({ user, followedUsers }: { user: User, followedUsers:string[] }) {
     return await db
         .select()
         .from(posts)
         .where(
             and(
-                isNull(posts.replyingTo),
+                noReplies,
                 inArray(posts.userId, followedUsers)
             )
         )
