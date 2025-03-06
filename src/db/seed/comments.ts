@@ -44,10 +44,8 @@ function createRandomRepliesForUser(user: User, posts: Post[]): PostToInsert[] {
 /**
  * Creates random replies to all posts using the accounts of the bot users.
  */
-export async function seedReplies() {
-    const allBots = await getAllBots()
-    const allPosts = await db.select().from(posts);
-    const repliesToInsert = createRandomReplies(allBots, allPosts)
+export async function seedReplies({users, posts:postsToReply}:{users:User[],posts:Post[]}) {
+    const repliesToInsert = createRandomReplies(users, postsToReply)
     await db.insert(posts)
         .values(repliesToInsert)
         .onConflictDoNothing()

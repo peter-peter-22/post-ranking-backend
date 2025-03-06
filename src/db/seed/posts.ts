@@ -8,13 +8,21 @@ import { User } from '../schema/users';
  * Returns a post with random values.
  * 
  * @param users possible publishers
- * @returns array of posts
+ * @returns post to insert
  */
-function createRandomPost(users: User[]): PostToInsert {
-
+function createRandomPostFromRandomUser(users: User[]): PostToInsert {
     //randomly selected user
     const user = users[Math.floor(Math.random() * users.length)];
+    return createRandomPost(user)
+}
 
+/**
+ * Returns a post with random values.
+ * 
+ * @param users the publisher
+ * @returns post to insert
+ */
+export function createRandomPost(user: User) {
     //random topic from the selected user
     const topic = user.interests[Math.floor(Math.random() * user.interests.length)]
 
@@ -35,9 +43,11 @@ function createRandomPost(users: User[]): PostToInsert {
  */
 export async function seedPosts(count: number) {
     const allBots = await getAllBots()
-    const postsToInsert = Array(count).fill(null).map(() => createRandomPost(allBots))
-    await db.insert(posts)
+    const postsToInsert = Array(count).fill(null).map(() => createRandomPostFromRandomUser(allBots))
+    const allPosts=await db.insert(posts)
         .values(postsToInsert)
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
     console.log(`Created ${count} posts`)
+    return allPosts;
 }

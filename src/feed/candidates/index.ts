@@ -1,4 +1,3 @@
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { User } from "../../db/schema/users";
 import { getInNetworkCandidates } from "./inNetwork";
 import { getSocialGraphExpansionCandidates } from "./socialGraphExpansion";

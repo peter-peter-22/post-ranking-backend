@@ -1,9 +1,8 @@
 import { db } from "..";
+import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
-import { getAllBots } from "./utils";
 import { follows, FollowToInsert } from "../schema/follows";
 import { User } from "../schema/users";
-import { chunkedInsert } from "../chunkedInsert";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
 const chanceToFollowInterest = 0.5
@@ -44,9 +43,8 @@ function createRandomFollowsForUser(user: User, followables: User[]): FollowToIn
     return follows
 }
 
-export async function seedFollows() {
-    const allBots = await getAllBots();
-    const followsToInsert = createRandomFollows(allBots, allBots)
+export async function seedFollows({ from, to }: { from: User[], to: User[] }) {
+    const followsToInsert = createRandomFollows(from, to)
     await chunkedInsert(followsToInsert, async data => {
         await db.insert(follows)
             .values(data)

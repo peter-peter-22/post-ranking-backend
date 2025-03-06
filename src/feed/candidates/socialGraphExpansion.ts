@@ -11,7 +11,7 @@ const count = 350;
 /** Selecting candidate posts from the users those the user follows indirectly.*/
 export async function getSocialGraphExpansionCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
     const indirectlyFollowedUsers = await getIndirectFollowedUsers({ followedUsers })
-    return await db
+    const candidates = await db
         .select()
         .from(posts)
         .where(
@@ -23,4 +23,6 @@ export async function getSocialGraphExpansionCandidates({ user, followedUsers }:
         )
         .orderBy(desc(posts.createdAt))
         .limit(count)
+    console.log(`Social graph expansion candidates: ${candidates.length}`)
+    return candidates
 }

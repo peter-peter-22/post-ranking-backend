@@ -8,8 +8,8 @@ import { isPost } from "./filters";
 const count = 750;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export async function getInNetworkCandidates({ user, followedUsers }: { user: User, followedUsers:string[] }) {
-    return await db
+export async function getInNetworkCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
+    const candidates = await db
         .select()
         .from(posts)
         .where(
@@ -20,4 +20,6 @@ export async function getInNetworkCandidates({ user, followedUsers }: { user: Us
         )
         .orderBy(desc(posts.createdAt))
         .limit(count)
+    console.log(`In network candidates: ${candidates.length}`)
+    return candidates
 }

@@ -2,6 +2,7 @@
 GET http://localhost:3000/bots/userType/new
 
 ### follows one
+GET http://localhost:3000/bots/userType/followsOne
 
 ### follows multiple in a topic
 

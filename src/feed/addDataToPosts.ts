@@ -5,11 +5,18 @@ import { User, users } from "../db/schema/users";
 import { removeDuplicates } from "../utilities/removeDuplicates";
 import { likes } from "../db/schema/likes";
 
+/** Post with the user object and additional metadata. */
 type FullPost = Post & {
     isLiked?: boolean,
-    user?: User
+    user?: FullUser
 }
 
+/** User with additional viewer-specific data. */
+type FullUser = User & {
+    isFollowed: boolean
+}
+
+/** Add metadata to the posts. */
 export async function addDataToPosts({ posts, user, followedUsers }: { posts: Post[], user: User, followedUsers: string[] }) {
     const [uniqueUsers, likedPostIds] = await Promise.all([
         getUsers({ posts, user, followedUsers }),
@@ -36,14 +43,20 @@ async function getUsers({ posts, user, followedUsers }: { posts: Post[], user: U
         .from(users)
         .where(inArray(users.id, uniqueUserIds))
 
-    return uniqueUsers;
+    // Set the followed status of the users
+    const uniqueUsersWithFollows: FullUser[] = uniqueUsers.map(user => ({
+        ...user,
+        isFollowed: !!followedUsers.find(userId => userId === user.id)
+    }))
+
+    return uniqueUsersWithFollows;
 }
 
 /** Add the users to the posts where they belong. */
-function addUsersToPosts({ posts, users }: { posts: FullPost[], users: User[] }): FullPost[] {
+function addUsersToPosts({ posts, users }: { posts: FullPost[], users: FullUser[] }): FullPost[] {
     return posts.map(post => ({
         ...post,
-        user: users.find(user => user.id = post.userId)
+        user: users.find(user => user.id === post.userId)
     }))
 }
 

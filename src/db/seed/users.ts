@@ -15,10 +15,12 @@ function createRandomUser(): UserToInsert {
 
 export async function seedUsers(count: number) {
     const usersToInsert = Array(count).fill(null).map(() => createRandomUser())
-    await db.insert(users)
+    const allBots=await db.insert(users)
         .values(usersToInsert)
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
     console.log(`Created ${count} users`)
+    return allBots
 }
 
 /**

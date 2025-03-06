@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import z from "zod";
 import { clearAllTables } from '../../../db/reset/clearTables';
-import { seedAll } from '../../../db/seed/all';
+import { seedAll } from '../../../db/seed/scenes/all';
 
 const router = Router();
 

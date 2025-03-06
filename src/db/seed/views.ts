@@ -1,4 +1,4 @@
-import { aliasedTable, and, eq, exists, isNull } from "drizzle-orm";
+import { aliasedTable, and, eq, exists, isNull, SQL } from "drizzle-orm";
 import { db } from "..";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateClickCounts } from "../controllers/posts/engagement/clicks/count";
@@ -12,7 +12,7 @@ import { views, ViewToInsert } from "../schema/views";
 const comments = aliasedTable(posts, "comments")
 
 /**Create organic views and clicks for all posts based on the engagements and randomity. */
-export async function seedViews() {
+export async function seedViews({ postFilter, userFilter }: { postFilter?: SQL, userFilter?: SQL }) {
     /**The chance of viewing a post the user didn't interacted with. */
     const chanceToView = 0.5;
     /**The chance of clicking a post the viewed but didnt replied to. Relative to the engaging modifier of the post. */
@@ -28,8 +28,8 @@ export async function seedViews() {
             liked: exists(db.select().from(likes).where(and(eq(likes.postId, posts.id), eq(likes.userId, users.id)))),
         })
         .from(posts)
-        .where(isNull(posts.replyingTo))
-        .leftJoin(users, eq(users.bot, true))
+        .where(and(isNull(posts.replyingTo), postFilter))
+        .leftJoin(users, and(eq(users.bot, true), userFilter))
 
     /**What posts the users viewed. 
     ** When a user reacted to a post, a view is be added regardless of randomity.

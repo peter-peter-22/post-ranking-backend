@@ -38,10 +38,8 @@ function createRandomLikesForUser(user: User, posts: Post[]): LikeToInsert[] {
 
 
 /**Create organic likes for all posts*/
-export async function seedLikes() {
-    const allBots = await getAllBots()
-    const allPosts = await db.select().from(posts);
-    const likesToInsert = createRandomLikes(allBots, allPosts)
+export async function seedLikes({ users, posts }: { users: User[], posts: Post[] }) {
+    const likesToInsert = createRandomLikes(users, posts)
     await db.insert(likes)
         .values(likesToInsert)
         .onConflictDoNothing();
