@@ -4,8 +4,8 @@ import { posts } from './posts';
 import { users } from './users';
 
 export const views = pgTable('views', {
-    postId: uuid().references(() => posts.id),
-    userId: uuid().references(() => users.id),
+    postId: uuid().references(() => posts.id,{onDelete:"cascade"}),
+    userId: uuid().references(() => users.id,{onDelete:"cascade"}),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.postId, t.userId),
