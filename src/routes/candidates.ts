@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { getUser } from '../authentication';
 import { getCandidates } from '../feed/candidates';
+import { getFollowedUsers } from '../db/controllers/users/getFollowers';
 
 const router = Router();
 
@@ -9,7 +10,9 @@ router.get('/', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const posts = await getCandidates({ user })
+    const followedUsers = await getFollowedUsers({ user })
+
+    const posts = await getCandidates({ user, followedUsers })
     res.json(posts)
 });
 

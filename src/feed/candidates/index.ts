@@ -5,8 +5,7 @@ import { getSocialGraphExpansionCandidates } from "./socialGraphExpansion";
 
 
 /** Selecting candidate posts from all groups */
-export async function getCandidates({ user }: { user: User, limit?: number, offset?: number }) {
-    const followedUsers = await getFollowedUsers({ user })
+export async function getCandidates({ user,followedUsers }: { user: User, followedUsers:string[], limit?: number, offset?: number }) {
     const candidates = (
         await Promise.all([
             getInNetworkCandidates({ followedUsers, user }),

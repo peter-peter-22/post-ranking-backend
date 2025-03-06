@@ -1,6 +1,5 @@
-import { and, desc, inArray, isNull } from "drizzle-orm";
+import { and, desc, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { isPost } from "./filters";

@@ -6,10 +6,8 @@ import { User } from "../../schema/users"
 export async function getFollowedUsers({ user }: { user: User }): Promise<string[]> {
     return (
         await db
-            .select({
-                id: follows.followedId,
-            })
+            .select()
             .from(follows)
             .where(eq(follows.followerId, user.id))
-    ).map(follow => follow.id)
+    ).map(follow => follow.followedId)
 } 

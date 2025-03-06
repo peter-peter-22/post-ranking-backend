@@ -1,4 +1,5 @@
 ### new
+GET http://localhost:3000/bots/userType/new
 
 ### follows one
 
