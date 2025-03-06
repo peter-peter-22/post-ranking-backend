@@ -1,6 +1,7 @@
 import { db } from "..";
 import { faker } from '@faker-js/faker';
 import { users, UserToInsert } from "../schema/users";
+import { topics } from "../../bots/examplePosts";
 
 const mainUser = { handle: "main-user", name: "Main User" }
 
@@ -8,7 +9,7 @@ function createRandomUser(): UserToInsert {
     return {
         handle: faker.internet.username(),
         name: faker.person.fullName(),
-        interests: Array(2).fill(null).map(() => randomTopic()),
+        interests: Array(1).fill(null).map(() => randomTopic()),
         bot: true
     };
 }
@@ -35,17 +36,6 @@ export async function seedMainUser() {
     console.log("Created main user")
     return user;
 }
-
-export const topics = [
-    "cars",
-    "sports",
-    "technology",
-    "music",
-    "popculture",
-    "animals",
-    "games",
-    "movies"
-]
 
 export function randomTopic() {
     return topics[Math.floor(Math.random() * topics.length)]
