@@ -1,3 +1,15 @@
 ### all candidates
 GET http://localhost:3000/candidates HTTP/1.1
 Authorization: userhandle main-user
+
+### in-network
+GET http://localhost:3000/candidates/inNetwork HTTP/1.1
+Authorization: userhandle main-user
+
+### social graph expansion
+GET http://localhost:3000/candidates/sge HTTP/1.1
+Authorization: userhandle main-user
+
+### embedding similarity
+GET http://localhost:3000/candidates/embedding HTTP/1.1
+Authorization: userhandle main-user
