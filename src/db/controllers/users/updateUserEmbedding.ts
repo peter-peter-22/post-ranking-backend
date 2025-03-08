@@ -1,14 +1,13 @@
-import { aliasedTableColumn, and, desc, eq, getTableColumns, gte, isNotNull, isNull, max, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, gte, isNotNull, isNull, max, sql } from "drizzle-orm";
+import { unionAll } from "drizzle-orm/pg-core";
 import { db } from "../..";
-import { follows } from "../../schema/follows";
-import { likes } from "../../schema/likes";
-import { User, users } from "../../schema/users";
-import { views } from "../../schema/views";
-import { userVectorUpdates } from "../../schema/userVectorUpdates";
-import { union, unionAll } from "drizzle-orm/pg-core";
-import { posts } from "../../schema/posts";
-import { clicks } from "../../schema/clicks";
 import { scorePerClick, scorePerLike, scorePerReply } from "../../../feed";
+import { clicks } from "../../schema/clicks";
+import { likes } from "../../schema/likes";
+import { posts } from "../../schema/posts";
+import { User, users } from "../../schema/users";
+import { userVectorUpdates } from "../../schema/userVectorUpdates";
+import { views } from "../../schema/views";
 
 type WeightedVector = {
     embedding: number[],
