@@ -1,6 +1,7 @@
-import { gt, isNull } from "drizzle-orm";
+import { gte, isNull, lte, or } from "drizzle-orm";
 import { posts } from "../../db/schema/posts";
 
 export const isPost = isNull(posts.replyingTo)
 
-export const minimalEngagement = gt(posts.likeCount, 2);
+/** Filter out te posts those have a significant amount of views, but no engagement. */
+export const minimalEngagement = or(gte(posts.engagementScore, 10), lte(posts.viewCount, 20));
