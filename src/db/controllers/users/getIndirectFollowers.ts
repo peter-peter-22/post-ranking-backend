@@ -1,7 +1,6 @@
-import { and, eq, inArray, notInArray } from "drizzle-orm"
+import { and, inArray, notInArray } from "drizzle-orm"
 import { db } from "../.."
 import { follows } from "../../schema/follows"
-import { User } from "../../schema/users"
 
 /** Returns the ids of the users who are followed by the provided user ids, while excluding these ids.
  * @param followedUsers The ids of the followed users.

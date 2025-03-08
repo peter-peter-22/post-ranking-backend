@@ -1,5 +1,5 @@
 import { and, cosineDistance, desc, gt, sql } from "drizzle-orm";
-import { candidateColumns } from ".";
+import { candidateColumns, CandidateCommonData } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
@@ -17,7 +17,7 @@ const maxAge = 1000 * 60 * 60 * 24 * 2 // 2 days
 const minSimilarity=0.5
 
 /** Selecting candidate posts from the users the  */
-export async function getEmbeddingSimilarityCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
+export async function getEmbeddingSimilarityCandidates({user}:CandidateCommonData) {
 
     //if the user has no embedding vector, exit.
     if (!user.embedding)
@@ -42,5 +42,5 @@ export async function getEmbeddingSimilarityCandidates({ user, followedUsers }: 
             )
         )
         .orderBy(t => desc(t.similarity))
-        .limit(100)
+        .limit(count)
 }

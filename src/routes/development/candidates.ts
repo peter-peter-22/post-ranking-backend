@@ -1,10 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { getUser } from '../../authentication';
-import { getCandidates } from '../../feed/candidates';
-import { getFollowedUsers } from '../../db/controllers/users/getFollowers';
+import { getCandidates, getCommonData } from '../../feed/candidates';
+import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/embedding';
 import { getInNetworkCandidates } from '../../feed/candidates/inNetwork';
 import { getSocialGraphExpansionCandidates } from '../../feed/candidates/socialGraphExpansion';
-import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/embedding';
 
 const router = Router();
 
@@ -13,9 +12,7 @@ router.get('/', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const followedUsers = await getFollowedUsers({ user })
-
-    const posts = await getCandidates({ user, followedUsers })
+    const posts = await getCandidates({ user })
     res.json(posts)
 });
 
@@ -24,9 +21,7 @@ router.get('/inNetwork', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const followedUsers = await getFollowedUsers({ user })
-
-    const posts = await getInNetworkCandidates({ user, followedUsers })
+    const posts = await getInNetworkCandidates((await getCommonData(user)))
     res.json(posts)
 });
 
@@ -35,9 +30,7 @@ router.get('/sge', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const followedUsers = await getFollowedUsers({ user })
-
-    const posts = await getSocialGraphExpansionCandidates({ user, followedUsers })
+    const posts = await getSocialGraphExpansionCandidates((await getCommonData(user)))
     res.json(posts)
 });
 
@@ -46,9 +39,7 @@ router.get('/embedding', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const followedUsers = await getFollowedUsers({ user })
-
-    const posts = await getEmbeddingSimilarityCandidates({ user, followedUsers })
+    const posts = await getEmbeddingSimilarityCandidates((await getCommonData(user)))
     res.json(posts)
 });
 
