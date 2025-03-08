@@ -2,7 +2,7 @@ import { asc, desc } from "drizzle-orm"
 import { db } from ".."
 import { createPosts } from "../../user_actions/createPost"
 import { posts, PostToCreate } from "../schema/posts"
-import { User } from "../schema/users"
+import { User, UserCommon } from "../schema/users"
 
 /** Returns the date range where the posts are created. */
 export async function getTimeIntervalOfPosts() {
@@ -14,7 +14,7 @@ export async function getTimeIntervalOfPosts() {
     return { newest: newest.createdAt, oldest: oldest.createdAt }
 }
 
-export async function createPostsBetweenDates({ from, to, count, user, createPost: postCreator }: { from: Date, to: Date, count: number, user: User, createPost: (user: User) => PostToCreate }) {
+export async function createPostsBetweenDates({ from, to, count, user, createPost: postCreator }: { from: Date, to: Date, count: number, user: UserCommon, createPost: (user: UserCommon) => PostToCreate }) {
     /**Dates from the creation of the oldest post to the creation of the newest post */
     const postDates = Array.from({ length: 5 }).map((_, i) => {
         const t = i / (count - 1);
@@ -26,6 +26,8 @@ export async function createPostsBetweenDates({ from, to, count, user, createPos
         ...postCreator(user),
         createdAt: new Date(date)
     }))
+
+    console.log(`Created ${postsToInsert.length} posts in the time interval.`)
 
     return await createPosts(postsToInsert)
 }

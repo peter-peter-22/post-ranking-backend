@@ -1,8 +1,7 @@
 import { and, cosineDistance, desc, gt, sql } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from ".";
+import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
-import { User } from "../../db/schema/users";
 import { isPost, minimalEngagement } from "./filters";
 
 /** Max count of posts. */
@@ -14,20 +13,22 @@ const count = 450;
 const maxAge = 1000 * 60 * 60 * 24 * 2 // 2 days
 
 /** Posts least similar than this will be fitlered. */
-const minSimilarity=0.5
+const minSimilarity = 0.5
 
 /** Selecting candidate posts from the users the  */
-export async function getEmbeddingSimilarityCandidates({user}:CandidateCommonData) {
+export async function getEmbeddingSimilarityCandidates({ user }: CandidateCommonData): Promise<CandidatePost[]> {
 
     //if the user has no embedding vector, exit.
-    if (!user.embedding)
+    if (!user.embedding) {
+        console.log(`Embedding similarity candidates cancelled.`)
         return []
+    }
 
     /** Posts older than this will be filtered out. */
     const maxAgeDate = new Date(Date.now() - maxAge)
 
     const similarity = sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})`;
-    return await db
+    const candidates = await db
         .select({
             ...candidateColumns,
             similarity
@@ -43,4 +44,7 @@ export async function getEmbeddingSimilarityCandidates({user}:CandidateCommonDat
         )
         .orderBy(t => desc(t.similarity))
         .limit(count)
+
+    console.log(`Embedding similarity candidates: ${candidates.length}`)
+    return candidates
 }

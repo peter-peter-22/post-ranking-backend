@@ -1,25 +1,25 @@
 import { and, eq, getTableColumns, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { Post } from "../db/schema/posts";
-import { User, users } from "../db/schema/users";
-import { removeDuplicates } from "../utilities/removeDuplicates";
 import { likes } from "../db/schema/likes";
+import { User, UserCommonColumns, UserCommon, users } from "../db/schema/users";
+import { removeDuplicates } from "../utilities/removeDuplicates";
+import { CandidateCommonData, CandidatePost } from "./candidates";
 
 /** Post with the user object and additional metadata. */
-type FullPost = Post & {
+type FullPost = CandidatePost & {
     isLiked?: boolean,
     user?: FullUser
 }
 
 /** User with additional viewer-specific data. */
-type FullUser = User & {
+type FullUser = UserCommon & {
     isFollowed: boolean
 }
 
 /** Add metadata to the posts. */
-export async function addDataToPosts({ posts, user, followedUsers }: { posts: Post[], user: User, followedUsers: string[] }) {
+export async function addDataToPosts(posts: CandidatePost[], { user, followedUsers }: CandidateCommonData) {
     const [uniqueUsers, likedPostIds] = await Promise.all([
-        getUsers({ posts, user, followedUsers }),
+        getUsers({ posts, followedUsers }),
         getIfUserLikedPosts({ posts, user })
     ])
     const postsWithLikes = addLikesToPosts({ posts, likedPostIds: likedPostIds })
@@ -28,7 +28,7 @@ export async function addDataToPosts({ posts, user, followedUsers }: { posts: Po
 }
 
 /** Return the uniqe users and their viewer-specific metadata. */
-async function getUsers({ posts, user, followedUsers }: { posts: Post[], user: User, followedUsers: string[] }) {
+async function getUsers({ posts, followedUsers }: { posts: CandidatePost[], followedUsers: string[] }) {
     // Get the user ids from the posts
     const userIds = posts.map(post => post.userId);
 
@@ -37,9 +37,7 @@ async function getUsers({ posts, user, followedUsers }: { posts: Post[], user: U
 
     // Select the users those belong to the ids
     const uniqueUsers = await db
-        .select({
-            ...getTableColumns(users),
-        })
+        .select(UserCommonColumns)
         .from(users)
         .where(inArray(users.id, uniqueUserIds))
 
@@ -61,7 +59,7 @@ function addUsersToPosts({ posts, users }: { posts: FullPost[], users: FullUser[
 }
 
 /** Returns the array of post ids those were liked by the user from the provided posts. */
-async function getIfUserLikedPosts({ user, posts }: { user: User, posts: Post[] }) {
+async function getIfUserLikedPosts({ user, posts }: { user: UserCommon, posts: CandidatePost[] }) {
     const postIds = posts.map(post => post.id)
     return (
         await db
@@ -79,7 +77,7 @@ async function getIfUserLikedPosts({ user, posts }: { user: User, posts: Post[] 
  * @param posts The posts to process.
  * @returns Posts with the isLiked field. 
 */
-function addLikesToPosts({ posts, likedPostIds }: { posts: FullPost[], likedPostIds: string[] }): FullPost[] {
+function addLikesToPosts({ posts, likedPostIds }: { posts: CandidatePost[], likedPostIds: string[] }): FullPost[] {
     return posts.map(post => ({
         ...post,
         isLiked: !!likedPostIds.find(likedId => likedId = post.id)

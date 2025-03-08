@@ -1,4 +1,4 @@
-import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { getTableColumns, InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { boolean, integer, pgTable, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -14,4 +14,11 @@ export const users = pgTable('users', {
 
 export type User = InferSelectModel<typeof users>;
 
-export type UserToInsert = InferInsertModel<typeof users>; 
+export type UserToInsert = InferInsertModel<typeof users>;
+
+const { embedding, ...rest } = getTableColumns(users)
+/** User columns without the embedding vector. */
+export const UserCommonColumns = rest;
+
+/** User without the embedding vector. */
+export type UserCommon = Omit<User, "embedding">

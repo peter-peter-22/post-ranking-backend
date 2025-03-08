@@ -1,7 +1,6 @@
-import { getFollowedUsers } from "../db/controllers/users/getFollowers";
 import { User } from "../db/schema/users";
 import { addDataToPosts } from "./addDataToPosts";
-import { getCandidates } from "./candidates";
+import { getCandidates, getCommonData } from "./candidates";
 
 export const scorePerClick = 1
 export const scorePerLike = 3
@@ -9,9 +8,9 @@ export const scorePerReply = 6
 
 /** Get posts from the main feed of a user. */
 export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, limit?: number, offset?: number }) {
-    const followedUsers = await getFollowedUsers({ user })
-    const candidates = await getCandidates({ user, followedUsers })
-    const fullPosts = addDataToPosts({ posts: candidates, user, followedUsers })
+    const common=await getCommonData(user)
+    const candidates = await getCandidates(common)
+    const fullPosts = addDataToPosts(candidates,common)
     return fullPosts
 }
 

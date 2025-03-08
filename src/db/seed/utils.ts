@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "..";
-import { User, users } from "../schema/users";
 import { Post } from "../schema/posts";
+import { User, UserCommon, users } from "../schema/users";
 
 /**
  * Return all users those are marked as bots
@@ -19,7 +19,7 @@ export async function getAllBots(): Promise<User[]> {
  * @returns True if interaction should happen
  * @todo Give a small chance to interact when user is not interested in the topic but follows the publisher of the post
  */
-export function isEngaging({ post, user, multiplier = 1 }: { post: Post, user: User, multiplier?: number }): boolean {
+export function isEngaging({ post, user, multiplier = 1 }: { post: Post, user: UserCommon, multiplier?: number }): boolean {
     /** Is the topic of the post among the interests of the user? */
     const interested = post.topic && user.interests.includes(post.topic)
 

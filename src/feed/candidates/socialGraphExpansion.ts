@@ -1,5 +1,5 @@
 import { and, desc, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from ".";
+import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
 import { posts } from "../../db/schema/posts";
@@ -9,8 +9,8 @@ import { isPost, minimalEngagement } from "./filters";
 const count = 350;
 
 /** Selecting candidate posts from the users those the user follows indirectly.*/
-export async function getSocialGraphExpansionCandidates({user,followedUsers}:CandidateCommonData) {
-    const indirectlyFollowedUsers = await getIndirectFollowedUsers({ followedUsers })
+export async function getSocialGraphExpansionCandidates({ user, followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
+    const indirectlyFollowedUsers = await getIndirectFollowedUsers({ user, followedUsers })
     const candidates = await db
         .select(candidateColumns)
         .from(posts)

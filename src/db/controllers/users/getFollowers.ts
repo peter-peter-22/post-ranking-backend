@@ -1,13 +1,27 @@
 import { eq } from "drizzle-orm"
 import { db } from "../.."
+import { getCachedData } from "../../../redis/cachedRead"
 import { follows } from "../../schema/follows"
-import { User } from "../../schema/users"
+import { UserCommon } from "../../schema/users"
 
-export async function getFollowedUsers({ user }: { user: User }): Promise<string[]> {
-    return (
-        await db
-            .select()
-            .from(follows)
-            .where(eq(follows.followerId, user.id))
-    ).map(follow => follow.followedId)
+/** The expiration time of the cache. */
+const expiration = 60 * 5; // 5 minutes
+
+/** Get the ids of the users those are followed by the selected user.
+ * @param user The selected user.
+ * @returns The ids of the followed users.
+*/
+export async function getFollowedUsers({ user }: { user: UserCommon }): Promise<string[]> {
+    /** Get the ids of the followeds of a user. */
+    const query = async () => {
+        return (
+            await db
+                .select()
+                .from(follows)
+                .where(eq(follows.followerId, user.id))
+        ).map(follow => follow.followedId)
+    }
+
+    // Use the cache.
+    return await getCachedData<string[]>(`users/${user.id}/followers`, query, expiration)
 } 

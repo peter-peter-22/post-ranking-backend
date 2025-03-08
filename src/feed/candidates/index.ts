@@ -1,14 +1,13 @@
 import { getTableColumns } from "drizzle-orm";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
-import { posts } from "../../db/schema/posts";
+import { Post, posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { getEmbeddingSimilarityCandidates } from "./embedding";
 import { getInNetworkCandidates } from "./inNetwork";
 import { getSocialGraphExpansionCandidates } from "./socialGraphExpansion";
 
 /** Selecting candidate posts from all groups */
-export async function getCandidates({ user }: { user: User, limit?: number, offset?: number }) {
-    const common = await getCommonData(user)
+export async function getCandidates(common:CandidateCommonData) {
     const candidates = (
         await Promise.all([
             getInNetworkCandidates(common),
@@ -33,3 +32,6 @@ export type CandidateCommonData = {
     user: User,
     followedUsers: string[]
 }
+
+/** Post returned by the candidate selectors. */
+export type CandidatePost = Omit<Post, "embedding">

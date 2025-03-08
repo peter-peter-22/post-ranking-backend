@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { examplePosts } from '../../bots/examplePosts';
 import { createPosts } from '../../user_actions/createPost';
 import { PostToCreate } from "../schema/posts";
-import { User } from '../schema/users';
+import { UserCommon } from '../schema/users';
 import { getAllBots } from './utils';
 
 /**
@@ -11,7 +11,7 @@ import { getAllBots } from './utils';
  * @param users possible publishers
  * @returns post to insert
  */
-function createRandomPostFromRandomUser(users: User[]): PostToCreate {
+function createRandomPostFromRandomUser(users: UserCommon[]): PostToCreate {
     //randomly selected user
     const user = users[Math.floor(Math.random() * users.length)];
     return createRandomPost(user)
@@ -23,7 +23,7 @@ function createRandomPostFromRandomUser(users: User[]): PostToCreate {
  * @param users the publisher
  * @returns post to insert
  */
-export function createRandomPost(user: User): PostToCreate {
+export function createRandomPost(user: UserCommon): PostToCreate {
     //random topic from the selected user
     const topic = user.interests[Math.floor(Math.random() * user.interests.length)]
 

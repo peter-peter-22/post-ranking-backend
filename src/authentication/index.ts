@@ -1,7 +1,7 @@
+import { eq } from 'drizzle-orm';
 import { NextFunction, Request, Response } from 'express';
 import { db } from '../db';
 import { User, users } from '../db/schema/users';
-import { eq } from 'drizzle-orm';
 
 async function authenticate(req: Request): Promise<User> {
     // valid header: "userhandle username"
@@ -41,7 +41,7 @@ async function authenticate(req: Request): Promise<User> {
 declare module 'express' {
     interface Request {
         authentication?: {
-            user?: User;
+            user?:User;
             error?: string;
         }
     }
@@ -64,7 +64,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 }
 
 //get the authenticated user if exists
-export function getUser(req: Request): User | undefined {
+export function getUser(req: Request):User | undefined {
     return req.authentication?.user
 }
 

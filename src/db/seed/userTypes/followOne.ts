@@ -10,8 +10,9 @@ import { getAllBots } from "../utils";
 import { seedViews } from "../views";
 import { seedFollows } from "../follows";
 import { seedReplies } from "../comments";
-import { User, users } from "../../schema/users";
+import { User, UserCommon, users } from "../../schema/users";
 import { updateUserEmbeddingVector } from "../../controllers/users/updateUserEmbedding";
+import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements";
 
 //** The main user follows one active usert. */
 export async function mainUserTypeFollowOne() {
@@ -34,12 +35,13 @@ export async function mainUserTypeFollowOne() {
         updateUserEmbeddingVector(mainUser)
     ])
     await generateUserActivity({ user: followedUser, allPosts, allBots })
+    await updateEngagementAggregations(inArray(posts.id, postIds))
 
     console.log("Main user type set to \"follow one\"")
 }
 
 /** Generate starting activity for a user. */
-async function generateUserActivity({ user, allPosts, allBots }: { user: User, allPosts: Post[], allBots: User[] }) {
+async function generateUserActivity({ user, allPosts, allBots }: { user: UserCommon, allPosts: Post[], allBots: UserCommon[] }) {
     await Promise.all([
         seedLikes({ posts: allPosts, users: [user] }),
         seedViews({ userFilter: eq(users.id, user.id) }),

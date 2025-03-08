@@ -1,6 +1,6 @@
 import { updateReplyCounts } from '../controllers/posts/count';
 import { Post, PostToInsert } from "../schema/posts";
-import { User } from '../schema/users';
+import { User, UserCommon } from '../schema/users';
 
 
 /**
@@ -10,7 +10,7 @@ import { User } from '../schema/users';
  * @param posts posts those can recieve comments
  * @returns array of replies
  */
-function createRandomReplies(users: User[], posts: Post[]): PostToInsert[] {
+function createRandomReplies(users: UserCommon[], posts: Post[]): PostToInsert[] {
     return users.flatMap(user => createRandomRepliesForUser(user, posts));
 }
 
@@ -22,7 +22,7 @@ function createRandomReplies(users: User[], posts: Post[]): PostToInsert[] {
  * @param posts posts those can recieve comments
  * @returns array of replies made by one user
  */
-function createRandomRepliesForUser(user: User, posts: Post[]): PostToInsert[] {
+function createRandomRepliesForUser(user: UserCommon, posts: Post[]): PostToInsert[] {
     const postsToInsert: PostToInsert[] = [];
     posts.forEach(post => {
         //if (isEngaging({ post, user, multiplier: 0.3 }))
@@ -41,7 +41,7 @@ function createRandomRepliesForUser(user: User, posts: Post[]): PostToInsert[] {
 /**
  * Creates random replies to all posts using the accounts of the bot users.
  */
-export async function seedReplies({ users, posts: postsToReply }: { users: User[], posts: Post[] }) {
+export async function seedReplies({ users, posts: postsToReply }: { users: UserCommon[], posts: Post[] }) {
     const repliesToInsert = createRandomReplies(users, postsToReply)
     //await db.insert(posts)
     //    .values(repliesToInsert)

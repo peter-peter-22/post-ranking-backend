@@ -2,7 +2,7 @@ import { db } from "..";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
-import { User } from "../schema/users";
+import { User, UserCommon } from "../schema/users";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
 const chanceToFollowInterest = 0.5
@@ -17,7 +17,7 @@ const basicChanceToFollow = 0.05
  * @returns array of follows
  * @todo follow users based on post count or engagements
  */
-function createRandomFollows(from: User[], to: User[]): FollowToInsert[] {
+function createRandomFollows(from: UserCommon[], to: UserCommon[]): FollowToInsert[] {
     return from.flatMap(user => createRandomFollowsForUser(user, to));
 }
 
@@ -28,7 +28,7 @@ function createRandomFollows(from: User[], to: User[]): FollowToInsert[] {
  * @param followables all followable users
  * @returns array of follows
  */
-function createRandomFollowsForUser(user: User, followables: User[]): FollowToInsert[] {
+function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[]): FollowToInsert[] {
     const follows: FollowToInsert[] = [];
     followables.forEach(followable => {
         /** true if the followable user has at least one topic the follower is interested about */
@@ -43,7 +43,7 @@ function createRandomFollowsForUser(user: User, followables: User[]): FollowToIn
     return follows
 }
 
-export async function seedFollows({ from, to }: { from: User[], to: User[] }) {
+export async function seedFollows({ from, to }: { from: UserCommon[], to: UserCommon[] }) {
     const followsToInsert = createRandomFollows(from, to)
     await chunkedInsert(followsToInsert, async data => {
         await db.insert(follows)

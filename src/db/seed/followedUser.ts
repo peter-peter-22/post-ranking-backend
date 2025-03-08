@@ -1,13 +1,13 @@
 import { db } from ".."
 import { follow } from "../../user_actions/follow"
-import { User, users } from "../schema/users"
+import { User, UserCommon, users } from "../schema/users"
 import { topics } from "../../bots/examplePosts"
 
 /** Creates the secondary user who is followed by the main user.
  * @param mainUser The main user.
  * @returns The followed user.
  */
-export async function createFollowedUser(mainUser:User) {
+export async function createFollowedUser(mainUser:UserCommon) {
     //make the main user follow this user
     const [followedUser] = await db.insert(users)
         .values({

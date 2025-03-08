@@ -1,5 +1,5 @@
 import { and, desc, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from ".";
+import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 import { isPost, minimalEngagement } from "./filters";
@@ -8,7 +8,7 @@ import { isPost, minimalEngagement } from "./filters";
 const count = 750;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export async function getInNetworkCandidates({ user, followedUsers }: CandidateCommonData) {
+export async function getInNetworkCandidates({ followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
     const candidates = await db
         .select(candidateColumns)
         .from(posts)
