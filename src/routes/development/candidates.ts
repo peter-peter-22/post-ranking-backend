@@ -4,6 +4,7 @@ import { getCandidates } from '../../feed/candidates';
 import { getFollowedUsers } from '../../db/controllers/users/getFollowers';
 import { getInNetworkCandidates } from '../../feed/candidates/inNetwork';
 import { getSocialGraphExpansionCandidates } from '../../feed/candidates/socialGraphExpansion';
+import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/embedding';
 
 const router = Router();
 
@@ -47,7 +48,7 @@ router.get('/embedding', async (req: Request, res: Response) => {
 
     const followedUsers = await getFollowedUsers({ user })
 
-    const posts = await getSocialGraphExpansionCandidates({ user, followedUsers })
+    const posts = await getEmbeddingSimilarityCandidates({ user, followedUsers })
     res.json(posts)
 });
 

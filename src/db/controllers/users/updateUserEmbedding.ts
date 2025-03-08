@@ -31,19 +31,7 @@ export async function updateUserEmbeddings() {
 
     // Calculate the average embedding vectors based on engagement history and update users.
     await Promise.all([
-        usersToUpdate.map(async user => {
-            // Get the vectors and their weights.
-            const weightedVectors = await getEngagementEmbeddingVectors(user)
-
-            //if the used did not made any engagement yet, exit
-            if (weightedVectors.length === 0)
-                return
-
-            // Calculate the average.
-            const averageVector = calculateWeightedVectorsAverage(weightedVectors)
-            // Update the vector of the user.
-            await db.update(users).set({ embedding: averageVector }).where(eq(users.id, user.id))
-        })
+        usersToUpdate.map(updateUserEmbeddingVector)
     ])
 
     // Update the date of the last update.
@@ -52,6 +40,27 @@ export async function updateUserEmbeddings() {
     console.log(`Updated ${usersToUpdate.length} user embeddings`)
 }
 
+/** Update the embedding vector of a user. 
+ * @param user The user to update.
+*/
+export async function updateUserEmbeddingVector(user: User) {
+    // Get the vectors and their weights.
+    const weightedVectors = await getEngagementEmbeddingVectors(user)
+
+    //if the used did not made any engagement yet, exit
+    if (weightedVectors.length === 0)
+        return
+
+    // Calculate the average.
+    const averageVector = calculateWeightedVectorsAverage(weightedVectors)
+    // Update the vector of the user.
+    await db.update(users).set({ embedding: averageVector }).where(eq(users.id, user.id))
+}
+
+/** Calculate the average of an array of vector and weight pairs.
+ * @param vectors The vector weight pairs.
+ * @returns The average vector.
+ */
 function calculateWeightedVectorsAverage(vectors: WeightedVector[]) {
     // Calculate the total weight of the rows.
     const totalWeight = vectors.reduce((sum, row) => sum + row.weight, 0)

@@ -11,6 +11,7 @@ import { seedViews } from "../views";
 import { seedFollows } from "../follows";
 import { seedReplies } from "../comments";
 import { User, users } from "../../schema/users";
+import { updateUserEmbeddingVector } from "../../controllers/users/updateUserEmbedding";
 
 //** The main user follows one active usert. */
 export async function mainUserTypeFollowOne() {
@@ -30,6 +31,7 @@ export async function mainUserTypeFollowOne() {
         seedViews({ postFilter: inArray(posts.id, postIds) }),
         seedFollows({ from: allBots, to: [followedUser] }),
         seedReplies({ posts: createdPosts, users: allBots }),
+        updateUserEmbeddingVector(mainUser)
     ])
     await generateUserActivity({ user: followedUser, allPosts, allBots })
 

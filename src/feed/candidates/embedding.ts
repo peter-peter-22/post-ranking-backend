@@ -1,26 +1,27 @@
-import { and, desc, inArray, isNull, notInArray } from "drizzle-orm";
+import { cosineDistance, desc, gt, sql } from "drizzle-orm";
+import { candidateColumns } from ".";
 import { db } from "../../db";
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
-import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
-import { isPost } from "./filters";
 
 /** Max count of posts */
 const count = 450;
 
 /** Selecting candidate posts from the users the  */
-export async function getInNetworkCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
-    const indirectlyFollowedUsers = await getIndirectFollowedUsers({ followedUsers })
+export async function getEmbeddingSimilarityCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
+
+    //if the user has no embedding vector, exit.
+    if (!user.embedding)
+        return []
+
+    const similarity = sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})`;
     return await db
-        .select()
+        .select({
+            ...candidateColumns,
+            similarity
+        })
         .from(posts)
-        .where(
-            and(
-                isPost,
-                inArray(posts.userId, indirectlyFollowedUsers)
-            )
-        )
+        .where(t => gt(t.similarity, 0.5))
         .orderBy(desc(posts.createdAt))
         .limit(count)
 }

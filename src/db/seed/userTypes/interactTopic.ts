@@ -7,6 +7,7 @@ import { seedReplies } from "../comments";
 import { seedLikes } from "../likes";
 import { seedViews } from "../views";
 import { users } from "../../schema/users";
+import { updateUserEmbeddingVector } from "../../controllers/users/updateUserEmbedding";
 
 //** The main user engages with the posts those are related to a topic. */
 export async function mainUserTypeInteractTopic() {
@@ -33,6 +34,7 @@ export async function mainUserTypeInteractTopic() {
         seedLikes({ posts: relevantPosts, users: [mainUser] }),
         seedViews({ postFilter: inArray(posts.id, postIds), userFilter: eq(users.id, mainUser.id) }),
         seedReplies({ posts: relevantPosts, users: [mainUser] }),
+        updateUserEmbeddingVector(mainUser)
     ])
 
     console.log("Main user type set to \"engage topic\"")

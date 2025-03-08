@@ -3,6 +3,7 @@ import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { isPost } from "./filters";
+import { candidateColumns } from ".";
 
 /** Max count of posts */
 const count = 750;
@@ -10,7 +11,7 @@ const count = 750;
 /** Selecting candidate posts from the users those the viewer follows */
 export async function getInNetworkCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
     const candidates = await db
-        .select()
+        .select(candidateColumns)
         .from(posts)
         .where(
             and(

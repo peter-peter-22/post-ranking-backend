@@ -4,6 +4,7 @@ import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirect
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { isPost, minimalEngagement } from "./filters";
+import { candidateColumns } from ".";
 
 /** Max count of posts */
 const count = 350;
@@ -12,7 +13,7 @@ const count = 350;
 export async function getSocialGraphExpansionCandidates({ user, followedUsers }: { user: User, followedUsers: string[] }) {
     const indirectlyFollowedUsers = await getIndirectFollowedUsers({ followedUsers })
     const candidates = await db
-        .select()
+        .select(candidateColumns)
         .from(posts)
         .where(
             and(
