@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
-import { getUser } from '../authentication';
-import { getCandidates } from '../feed/candidates';
-import { getFollowedUsers } from '../db/controllers/users/getFollowers';
-import { getInNetworkCandidates } from '../feed/candidates/inNetwork';
-import { getSocialGraphExpansionCandidates } from '../feed/candidates/socialGraphExpansion';
+import { getUser } from '../../authentication';
+import { getCandidates } from '../../feed/candidates';
+import { getFollowedUsers } from '../../db/controllers/users/getFollowers';
+import { getInNetworkCandidates } from '../../feed/candidates/inNetwork';
+import { getSocialGraphExpansionCandidates } from '../../feed/candidates/socialGraphExpansion';
 
 const router = Router();
 

@@ -4,12 +4,13 @@ import { protectedMiddleware } from '../authentication';
 //routers
 
 import home from './home';
-import seed from "./seed";
+import seed from "./development/seed";
 import register from "./register";
 import feed from "./feed";
-import reset from "./reset";
+import reset from "./development/reset";
 import bot from "./bots";
-import candidates from "./candidates";
+import candidates from "./development/candidates";
+import updateUserEmbeddings from "./updateUserEmbeddings";
 
 //unauthenticated routes
 
@@ -21,6 +22,7 @@ router.use("/reset", reset);
 router.use(register);
 router.use("/bots", bot);
 router.use("/candidates", candidates);
+router.use("/", updateUserEmbeddings);
 
 //protected routes
 

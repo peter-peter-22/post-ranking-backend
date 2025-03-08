@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { clearAllTables } from '../db/reset/clearTables';
+import { clearAllTables } from '../../db/reset/clearTables';
 
 const router = Router();
 

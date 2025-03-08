@@ -4,8 +4,8 @@ import { posts } from './posts';
 import { users } from './users';
 
 export const clicks = pgTable('clicks', {
-    postId: uuid().references(() => posts.id,{onDelete:"cascade"}),
-    userId: uuid().references(() => users.id,{onDelete:"cascade"}),
+    postId: uuid().notNull().references(() => posts.id, { onDelete: "cascade" }),
+    userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.postId, t.userId),
