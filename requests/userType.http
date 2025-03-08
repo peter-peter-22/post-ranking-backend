@@ -4,8 +4,5 @@ GET http://localhost:3000/bots/userType/new
 ### follows one
 GET http://localhost:3000/bots/userType/followsOne
 
-### follows multiple in a topic
-
-### interacts with multiple within a topic
-
-### follows and interacts with multiple within a topic
+### interacts with the posts of a topic
+GET http://localhost:3000/bots/userType/interactTopic

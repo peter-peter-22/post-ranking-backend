@@ -12,7 +12,7 @@ import { views, ViewToInsert } from "../schema/views";
 const comments = aliasedTable(posts, "comments")
 
 /**Create organic views and clicks for all posts based on the engagements and randomity. */
-export async function seedViews({ postFilter, userFilter }: { postFilter?: SQL, userFilter?: SQL }) {
+export async function seedViews({ postFilter, userFilter=eq(users.bot, true) }: { postFilter?: SQL, userFilter?: SQL }) {
     /**The chance of viewing a post the user didn't interacted with. */
     const chanceToView = 0.5;
     /**The chance of clicking a post the viewed but didnt replied to. Relative to the engaging modifier of the post. */
@@ -29,7 +29,7 @@ export async function seedViews({ postFilter, userFilter }: { postFilter?: SQL, 
         })
         .from(posts)
         .where(and(isNull(posts.replyingTo), postFilter))
-        .leftJoin(users, and(eq(users.bot, true), userFilter))
+        .leftJoin(users, and(userFilter))
 
     /**What posts the users viewed. 
     ** When a user reacted to a post, a view is be added regardless of randomity.

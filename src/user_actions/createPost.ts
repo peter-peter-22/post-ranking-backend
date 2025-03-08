@@ -17,3 +17,9 @@ export async function createPost(data: PostToCreate) {
 
     return post
 }
+
+export async function createPosts(data: PostToCreate[]) {
+    return await Promise.all(
+        data.map(post => createPost(post))
+    )
+}

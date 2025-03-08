@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker';
-import { db } from "..";
-import { getAllBots } from './utils';
-import { posts, PostToInsert, PostToCreate } from "../schema/posts";
-import { User } from '../schema/users';
-import { createPost } from '../../user_actions/createPost';
 import { examplePosts } from '../../bots/examplePosts';
+import { createPosts } from '../../user_actions/createPost';
+import { PostToCreate } from "../schema/posts";
+import { User } from '../schema/users';
+import { getAllBots } from './utils';
 
 /**
  * Returns a post with random values.
@@ -53,9 +52,7 @@ function generatePostText(topic: string) {
 export async function seedPosts(count: number) {
     const allBots = await getAllBots()
     const postsToInsert = Array(count).fill(null).map(() => createRandomPostFromRandomUser(allBots))
-    const allPosts = await Promise.all(
-        postsToInsert.map(post => createPost(post))
-    )
+    const allPosts = await createPosts(postsToInsert)
     console.log(`Created ${count} posts`)
     return allPosts;
 }

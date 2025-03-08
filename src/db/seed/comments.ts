@@ -1,9 +1,6 @@
-import { faker } from '@faker-js/faker';
-import { db } from "..";
-import { getAllBots, isEngaging } from './utils';
-import { Post, posts, PostToInsert } from "../schema/posts";
-import { User } from '../schema/users';
 import { updateReplyCounts } from '../controllers/posts/count';
+import { Post, PostToInsert } from "../schema/posts";
+import { User } from '../schema/users';
 
 
 /**

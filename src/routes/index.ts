@@ -3,13 +3,12 @@ import { protectedMiddleware } from '../authentication';
 
 //routers
 
-import home from './home';
-import seed from "./development/seed";
-import register from "./register";
-import feed from "./feed";
-import reset from "./development/reset";
 import bot from "./bots";
 import candidates from "./development/candidates";
+import reset from "./development/reset";
+import feed from "./feed";
+import home from './home';
+import register from "./register";
 import updateUserEmbeddings from "./updateUserEmbeddings";
 
 //unauthenticated routes
@@ -17,7 +16,6 @@ import updateUserEmbeddings from "./updateUserEmbeddings";
 const router = Router();
 
 router.use(home);
-router.use("/seed", seed);
 router.use("/reset", reset);
 router.use(register);
 router.use("/bots", bot);
