@@ -1,7 +1,7 @@
 import { db } from ".."
 import { follow } from "../../user_actions/follow"
 import { User, users } from "../schema/users"
-import { topics } from "./users"
+import { topics } from "../../bots/examplePosts"
 
 /** Creates the secondary user who is followed by the main user.
  * @param mainUser The main user.

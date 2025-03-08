@@ -28,15 +28,15 @@ function createRandomReplies(users: User[], posts: Post[]): PostToInsert[] {
 function createRandomRepliesForUser(user: User, posts: Post[]): PostToInsert[] {
     const postsToInsert: PostToInsert[] = [];
     posts.forEach(post => {
-        if (isEngaging({ post, user, multiplier: 0.3 }))
-            postsToInsert.push({
-                userId: user.id,
-                text: `This reply is about ${post.topic}\n${faker.lorem.lines(1)}`,
-                topic: post.topic,
-                engaging: Math.random(),
-                createdAt: faker.date.recent({ days: 10 }),
-                replyingTo: post.id
-            })
+        //if (isEngaging({ post, user, multiplier: 0.3 }))
+        //    postsToInsert.push({
+        //        userId: user.id,
+        //        text: `This reply is about ${post.topic}\n${faker.lorem.lines(1)}`,
+        //        topic: post.topic,
+        //        engaging: Math.random(),
+        //        createdAt: faker.date.recent({ days: 10 }),
+        //        replyingTo: post.id
+        //    })
     })
     return postsToInsert
 }
@@ -44,11 +44,11 @@ function createRandomRepliesForUser(user: User, posts: Post[]): PostToInsert[] {
 /**
  * Creates random replies to all posts using the accounts of the bot users.
  */
-export async function seedReplies({users, posts:postsToReply}:{users:User[],posts:Post[]}) {
+export async function seedReplies({ users, posts: postsToReply }: { users: User[], posts: Post[] }) {
     const repliesToInsert = createRandomReplies(users, postsToReply)
-    await db.insert(posts)
-        .values(repliesToInsert)
-        .onConflictDoNothing()
+    //await db.insert(posts)
+    //    .values(repliesToInsert)
+    //    .onConflictDoNothing()
     await updateReplyCounts()
     console.log(`Created ${repliesToInsert.length} replies`)
 }

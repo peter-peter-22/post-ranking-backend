@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel, sql } from 'drizzle-orm';
-import { check, foreignKey, integer, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 export const posts = pgTable('posts', {
@@ -18,6 +18,7 @@ export const posts = pgTable('posts', {
     engagementScore: real().notNull().default(0),//the total engagement score.
     engagementCount: real().notNull().default(0),//the total engagement count.
     engagementScoreRate: real().notNull().default(0),//engagement score per view count.
+    embedding: vector({ dimensions: 384 }).notNull()//384 dimensions for 'all-MiniLM-L6-v2'
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({
@@ -25,8 +26,12 @@ export const posts = pgTable('posts', {
         foreignColumns: [table.id],
         name: "contracts_underlying_id_fkey",
     }).onDelete("cascade"),
+    index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
 ]);
 
 export type Post = InferSelectModel<typeof posts>;
 
-export type PostToInsert = InferInsertModel<typeof posts>; 
+export type PostToInsert = InferInsertModel<typeof posts>;
+
+/** Post for the create post function. */
+export type PostToCreate = Omit<PostToInsert, "embedding">

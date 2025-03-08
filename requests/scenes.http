@@ -4,4 +4,4 @@ Authorization: userhandle main-user
 
 ### default
 //normal data
-GET http://localhost:3000/bots/scenes/default
+GET http://localhost:3000/bots/scenes/default?multiplier=0.1

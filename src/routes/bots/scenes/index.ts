@@ -6,7 +6,7 @@ import { seedAll } from '../../../db/seed/scenes/all';
 const router = Router();
 
 const multiplierSchema = z.object({
-    multiplier: z.coerce.number().int().optional()
+    multiplier: z.coerce.number().optional()
 })
 
 router.get("/default", async (req, res) => {
