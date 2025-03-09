@@ -9,7 +9,7 @@ import reset from "./development/reset";
 import feed from "./feed";
 import home from './home';
 import register from "./register";
-import updateUserEmbeddings from "./updateUserEmbeddings";
+import cron from "./cron";
 
 //unauthenticated routes
 
@@ -20,7 +20,7 @@ router.use("/reset", reset);
 router.use(register);
 router.use("/bots", bot);
 router.use("/candidates", candidates);
-router.use("/", updateUserEmbeddings);
+router.use("/cron", cron);
 
 //protected routes
 

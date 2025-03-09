@@ -3,7 +3,6 @@ import cors from 'cors';
 import express from 'express';
 import routes from "./routes";
 import { authMiddleware } from './authentication';
-import { startUserEmbeddingCron } from './db/controllers/users/userEmbeddingCron';
 
 const app = express();
 const PORT = 3000;
@@ -17,8 +16,8 @@ app.use(authMiddleware)
 app.use(routes);
 
 // Start the user embedding updater when in development mode.
-if (process.env.NODE_ENV === "development")
-    startUserEmbeddingCron()
+//if (process.env.NODE_ENV === "development")
+//    startUserEmbeddingCron()
 
 // Start the server
 app.listen(PORT, () => {
