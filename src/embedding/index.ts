@@ -6,7 +6,7 @@ import axios from "axios";
  */
 export async function generateEmbeddingVector(text: string) {
     try{
-        const res = await axios.post(`${process.env.EMBEDDING_VECTOR_API_URL!}/embed`, { text })
+        const res = await axios.post(`${process.env.EMBEDDING_VECTOR_API_URL!}/embedding`, { text })
         return res.data.embedding
     }
     catch(err){
