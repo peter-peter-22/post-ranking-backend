@@ -1,13 +1,13 @@
 import { and, desc, eq, getTableColumns, gte, isNotNull, isNull, max, sql } from "drizzle-orm";
 import { unionAll } from "drizzle-orm/pg-core";
-import { db } from "../..";
-import { scorePerClick, scorePerLike, scorePerReply } from "../../../feed";
-import { clicks } from "../../schema/clicks";
-import { likes } from "../../schema/likes";
-import { posts } from "../../schema/posts";
-import { User, users } from "../../schema/users";
-import { userVectorUpdates } from "../../schema/userVectorUpdates";
-import { views } from "../../schema/views";
+import { db } from "../db";
+import { scorePerClick, scorePerLike, scorePerReply } from "../feed";
+import { clicks } from "../db/schema/clicks";
+import { likes } from "../db/schema/likes";
+import { posts } from "../db/schema/posts";
+import { User, users } from "../db/schema/users";
+import { userVectorUpdates } from "../db/schema/userVectorUpdates";
+import { views } from "../db/schema/views";
 
 type WeightedVector = {
     embedding: number[],
@@ -34,7 +34,7 @@ export async function updateUserEmbeddings() {
     ])
 
     // Update the date of the last update.
-    await refreshLastUpdateTimestamp()
+    //await refreshLastUpdateTimestamp()
 
     console.log(`Updated ${usersToUpdate.length} user embeddings`)
 }
@@ -52,6 +52,7 @@ export async function updateUserEmbeddingVector(user: User) {
 
     // Calculate the average.
     const averageVector = calculateWeightedVectorsAverage(weightedVectors)
+
     // Update the vector of the user.
     await db.update(users).set({ embedding: averageVector }).where(eq(users.id, user.id))
 }
@@ -84,7 +85,7 @@ async function getEngagementEmbeddingVectors(user: User): Promise<WeightedVector
         .select({
             postId: sql<string>`${posts.replyingTo}::UUID`.as("postId"),
             timestamp: sql<Date>`${max(posts.createdAt)}::TIMESTAMP`.as("createdAt"),
-            weight: sql<number>`${scorePerReply}`.as("weight")
+            weight: sql<number>`${scorePerReply}::INT`.as("weight")
         })
         .from(posts)
         .where(and(eq(posts.userId, user.id), isNotNull(posts.replyingTo)))
@@ -97,7 +98,7 @@ async function getEngagementEmbeddingVectors(user: User): Promise<WeightedVector
         .select({
             postId: likes.postId,
             timestamp: likes.createdAt,
-            weight: sql<number>`${scorePerLike}`.as("weight")
+            weight: sql<number>`${scorePerLike}::INT`.as("weight")
         })
         .from(likes)
         .where(eq(likes.userId, user.id))
@@ -109,7 +110,7 @@ async function getEngagementEmbeddingVectors(user: User): Promise<WeightedVector
         .select({
             postId: clicks.postId,
             timestamp: clicks.createdAt,
-            weight: sql<number>`${scorePerClick}`.as("weight")
+            weight: sql<number>`${scorePerClick}::INT`.as("weight")
         })
         .from(clicks)
         .where(eq(clicks.userId, user.id))

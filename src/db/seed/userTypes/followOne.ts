@@ -11,7 +11,7 @@ import { seedViews } from "../views";
 import { seedFollows } from "../follows";
 import { seedReplies } from "../comments";
 import { User, UserCommon, users } from "../../schema/users";
-import { updateUserEmbeddingVector } from "../../controllers/users/updateUserEmbedding";
+import { updateUserEmbeddingVector } from "../../../embedding/updateUserEmbedding";
 import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements";
 
 //** The main user follows one active usert. */

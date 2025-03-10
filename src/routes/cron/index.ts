@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { updateUserEmbeddings } from '../../db/controllers/users/updateUserEmbedding';
+import { updateUserEmbeddings } from '../../embedding/updateUserEmbedding';
 
 const router = Router();
 

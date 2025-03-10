@@ -15,10 +15,6 @@ app.use(authMiddleware)
 // Routes
 app.use(routes);
 
-// Start the user embedding updater when in development mode.
-//if (process.env.NODE_ENV === "development")
-//    startUserEmbeddingCron()
-
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

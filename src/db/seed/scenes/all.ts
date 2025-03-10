@@ -1,5 +1,5 @@
 import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements";
-import { updateUserEmbeddings } from "../../controllers/users/updateUserEmbedding";
+import { updateUserEmbeddings } from "../../../embedding/updateUserEmbedding";
 import { seedReplies } from "../comments";
 import { seedFollows } from "../follows";
 import { seedLikes } from "../likes";
