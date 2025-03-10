@@ -1,0 +1,2 @@
+### get the most relevant posts from the clusters
+GET http://localhost:3000/clusterTexts

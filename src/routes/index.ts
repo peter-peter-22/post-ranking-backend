@@ -10,6 +10,7 @@ import feed from "./feed";
 import home from './home';
 import register from "./register";
 import update from "./update";
+import clusterSummary from "./development/clusterSummary";
 
 //unauthenticated routes
 
@@ -21,6 +22,7 @@ router.use(register);
 router.use("/bots", bot);
 router.use("/candidates", candidates);
 router.use("/update", update);
+router.use(clusterSummary);
 
 //protected routes
 

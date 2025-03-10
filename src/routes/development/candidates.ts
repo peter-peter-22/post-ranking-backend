@@ -12,7 +12,8 @@ router.get('/', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const posts = await getCandidates({ user })
+    const common = await getCommonData(user)
+    const posts = await getCandidates(common)
     res.json(posts)
 });
 
