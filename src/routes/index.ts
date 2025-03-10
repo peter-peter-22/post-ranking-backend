@@ -9,7 +9,7 @@ import reset from "./development/reset";
 import feed from "./feed";
 import home from './home';
 import register from "./register";
-import cron from "./cron";
+import update from "./update";
 
 //unauthenticated routes
 
@@ -20,7 +20,7 @@ router.use("/reset", reset);
 router.use(register);
 router.use("/bots", bot);
 router.use("/candidates", candidates);
-router.use("/cron", cron);
+router.use("/update", update);
 
 //protected routes
 

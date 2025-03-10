@@ -1,6 +1,7 @@
 import { InferInsertModel, InferSelectModel, sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 import { users } from './users';
+import { embeddingVector } from '../common';
 
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
@@ -18,7 +19,7 @@ export const posts = pgTable('posts', {
     engagementScore: real().notNull().default(0),//the total engagement score.
     engagementCount: real().notNull().default(0),//the total engagement count.
     engagementScoreRate: real().notNull().default(0),//engagement score per view count.
-    embedding: vector({ dimensions: 384 }).notNull()//384 dimensions for 'all-MiniLM-L6-v2'
+    embedding: embeddingVector("embedding").notNull()
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({

@@ -1,5 +1,7 @@
 import { getTableColumns, InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { boolean, integer, pgTable, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { embeddingVector } from '../common';
+import { clusters } from './clusters';
 
 export const users = pgTable('users', {
     id: uuid().defaultRandom().primaryKey(),
@@ -7,9 +9,10 @@ export const users = pgTable('users', {
     name: varchar({ length: 50 }).notNull().unique(),
     createdAt: timestamp().defaultNow(),
     followerCount: integer().notNull().default(0),
-    interests: varchar({ length: 50 }).array().notNull().default([]),//what kinds of posts the user creates and wants to see
+    interests: varchar({ length: 50 }).array().notNull().default([]),//what kinds of posts the bot user creates and wants to see
     bot: boolean().notNull().default(false),
-    embedding: vector({ dimensions: 384 })//384 dimensions for 'all-MiniLM-L6-v2'
+    embedding: embeddingVector("embedding"),
+    clusterId:integer().references(()=>clusters.id,{onDelete:"set null"})
 });
 
 export type User = InferSelectModel<typeof users>;

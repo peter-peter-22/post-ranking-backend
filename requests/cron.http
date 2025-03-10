@@ -1,2 +1,0 @@
-### update the embedding vector of all users
-GET http://localhost:3000/cron/updateUserEmbeddings
