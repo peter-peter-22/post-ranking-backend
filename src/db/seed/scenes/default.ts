@@ -6,6 +6,7 @@ import { seedLikes } from "../likes";
 import { seedPosts } from "../posts";
 import { seedMainUser, seedUsers } from "../users";
 import { seedViews } from "../views";
+import { updateUserClusters } from "../../../clusters/updateClusters";
 
 /**
  * Seed all tables with test data and create the main user.
@@ -22,5 +23,6 @@ export async function seedAll(multiplier: number = 1) {
     await seedViews({})
     await updateEngagementAggregations()
     await updateUserEmbeddings()
+    await updateUserClusters()
     console.log("Seeded all tables")
 }
