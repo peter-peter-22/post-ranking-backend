@@ -16,7 +16,7 @@ function createRandomUser(): UserToInsert {
 
 export async function seedUsers(count: number) {
     const usersToInsert = Array(count).fill(null).map(() => createRandomUser())
-    const allBots=await db.insert(users)
+    const allBots = await db.insert(users)
         .values(usersToInsert)
         .onConflictDoNothing()
         .returning();
@@ -37,6 +37,23 @@ export async function seedMainUser() {
     return user;
 }
 
+/** Random weights for the topics between 0.5 and 2. */
+const topicWeights = topics.map(() => Math.random() * 1.5 + 0.5)
+
+/** The total weight of all topics. */
+const totalTopicWeights = topicWeights.reduce((sum, add) => sum + add, 0)
+
+/** Choose a random topic while taking their weights into account. */
 export function randomTopic() {
-    return topics[Math.floor(Math.random() * topics.length)]
+    const random = Math.random() * totalTopicWeights
+    let cursor = 0
+    let index = 0
+    for (let i = 0; i < topics.length; i++) {
+        cursor += topicWeights[i]
+        if (random <= cursor) {
+            index = i
+            break
+        }
+    }
+    return topics[index]
 }
