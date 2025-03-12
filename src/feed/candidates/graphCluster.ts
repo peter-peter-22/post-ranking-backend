@@ -12,9 +12,7 @@ const count = 350;
 /** Selecting candidate posts from the graph cluster of the user.
  * @todo The user is added to the post again later.
 */
-export async function getGraphClusterCandidates({ user, followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
-    const indirectlyFollowedUsers = await getIndirectFollowedUsers({ user, followedUsers })
-
+export async function getGraphClusterCandidates({ user, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
     // If the user isn't a member of a cluster, exit.
     if (!user.clusterId) {
         console.log("Graph cluster candidates cancelled.")
@@ -29,7 +27,7 @@ export async function getGraphClusterCandidates({ user, followedUsers, commonFil
             and(
                 ...commonFilters,
                 minimalEngagement(),
-                inArray(posts.userId, indirectlyFollowedUsers),
+                eq(users.clusterId, user.clusterId),
             )
         )
         .orderBy(desc(posts.createdAt))
