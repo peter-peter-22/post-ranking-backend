@@ -39,5 +39,14 @@ export type CandidateCommonData = {
     commonFilters: SQL[]
 }
 
+/** The type of the post candidate. */
+export type CandidateSource="InNetwork"|"GraphClusters"|"EmbeddingSimilarity"|"Trending"
+
 /** Post returned by the candidate selectors. */
-export type CandidatePost = Omit<Post, "embedding">
+export type CandidatePost = Omit<Post, "embedding"> & {candidateSource:CandidateSource}
+
+/** Set the candidate source on a array of posts. */
+export function setCandidatesType(candidates:Omit<CandidatePost, "candidateSource">[],type:CandidateSource):CandidatePost[]
+{
+    return candidates.map(post => ({ ...post, candidateSource: type }));
+}

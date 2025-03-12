@@ -1,5 +1,5 @@
 import { and, desc, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
+import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 
@@ -7,8 +7,9 @@ import { posts } from "../../db/schema/posts";
 const count = 750;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export async function getInNetworkCandidates({ followedUsers,commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
-    const candidates = await db
+export async function getInNetworkCandidates({ followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+    // Get the posts
+    let candidates = await db
         .select(candidateColumns)
         .from(posts)
         .where(
@@ -20,5 +21,9 @@ export async function getInNetworkCandidates({ followedUsers,commonFilters }: Ca
         .orderBy(desc(posts.createdAt))
         .limit(count)
     console.log(`In network candidates: ${candidates.length}`)
-    return candidates
+
+    // Set the candidate type
+    const candidatesWithType=setCandidatesType(candidates,"InNetwork")
+
+    return candidatesWithType
 }

@@ -1,7 +1,6 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
+import { and, desc, eq } from "drizzle-orm";
+import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
 import { db } from "../../db";
-import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
 import { posts } from "../../db/schema/posts";
 import { users } from "../../db/schema/users";
 import { minimalEngagement } from "../filters";
@@ -19,6 +18,7 @@ export async function getGraphClusterCandidates({ user, commonFilters }: Candida
         return []
     }
 
+    // Get the posts.
     const candidates = await db
         .select(candidateColumns)
         .from(posts)
@@ -33,5 +33,9 @@ export async function getGraphClusterCandidates({ user, commonFilters }: Candida
         .orderBy(desc(posts.createdAt))
         .limit(count)
     console.log(`Graph cluster candidates: ${candidates.length}`)
-    return candidates
+
+    // Set the candidate type.
+    const candidatesWithType = setCandidatesType(candidates, "GraphClusters")
+
+    return candidatesWithType
 }
