@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, notInArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
@@ -11,7 +11,7 @@ const count = 350;
 /** Selecting candidate posts from the graph cluster of the user.
  * @todo The user is added to the post again later.
 */
-export async function getGraphClusterCandidates({ user, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+export async function getGraphClusterCandidates({ user, commonFilters,followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
     // If the user isn't a member of a cluster, exit.
     if (!user.clusterId) {
         console.log("Graph cluster candidates cancelled.")
@@ -28,6 +28,7 @@ export async function getGraphClusterCandidates({ user, commonFilters }: Candida
                 ...commonFilters,
                 minimalEngagement(),
                 eq(users.clusterId, user.clusterId),
+                notInArray(posts.userId,followedUsers),
             )
         )
         .orderBy(desc(posts.createdAt))

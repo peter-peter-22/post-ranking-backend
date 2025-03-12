@@ -1,4 +1,4 @@
-import { and, cosineDistance, desc, gt, sql } from "drizzle-orm";
+import { and, cosineDistance, desc, notInArray, sql } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
@@ -7,11 +7,11 @@ import { minimalEngagement } from "../filters";
 /** Max count of posts. */
 const count = 450;
 
-/** Posts least similar than this will be fitlered. */
-const minSimilarity = 0.5
-
-/** Selecting candidate posts from the users the  */
-export async function getEmbeddingSimilarityCandidates({ user, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+/** Selecting candidate posts those embedding is similar to the embedding of the user. 
+ * @todo Use a separate embedding vector storage.
+ * @todo Over-representation filter.
+*/
+export async function getEmbeddingSimilarityCandidates({ user, commonFilters,followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
 
     // If the user has no embedding vector, exit.
     if (!user.embedding) {
@@ -30,10 +30,10 @@ export async function getEmbeddingSimilarityCandidates({ user, commonFilters }: 
         })
         .from(posts)
         .where(
-            t => and(
+            and(
                 ...commonFilters,
+                notInArray(posts.userId,followedUsers),
                 minimalEngagement(),
-                gt(t.similarity, minSimilarity)
             )
         )
         .orderBy(t => desc(t.similarity))
