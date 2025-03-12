@@ -2,7 +2,7 @@ import { and, cosineDistance, desc, gt, sql } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
-import { isPost, minimalEngagement, recencyFilter } from "./filters";
+import { minimalEngagement } from "../filters";
 
 /** Max count of posts. */
 const count = 450;
@@ -11,7 +11,7 @@ const count = 450;
 const minSimilarity = 0.5
 
 /** Selecting candidate posts from the users the  */
-export async function getEmbeddingSimilarityCandidates({ user }: CandidateCommonData): Promise<CandidatePost[]> {
+export async function getEmbeddingSimilarityCandidates({ user, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
 
     //if the user has no embedding vector, exit.
     if (!user.embedding) {
@@ -28,8 +28,7 @@ export async function getEmbeddingSimilarityCandidates({ user }: CandidateCommon
         .from(posts)
         .where(
             t => and(
-                isPost(),
-                recencyFilter(),
+                ...commonFilters,
                 minimalEngagement(),
                 gt(t.similarity, minSimilarity)
             )

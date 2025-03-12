@@ -1,5 +1,5 @@
 import { gt, gte, isNull, lte, or } from "drizzle-orm";
-import { posts } from "../../db/schema/posts";
+import { posts } from "../db/schema/posts";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -15,5 +15,11 @@ export const recencyFilter = () => {
     
     return gt(posts.createdAt, maxAgeDate)
 }
+
+/** The filters those are shared by all candidate selectors. */
+export const commonFilters=()=>[
+    isPost(),
+    recencyFilter(),
+]
 
 /** @todo filter out more than 2 posts from the same user */
