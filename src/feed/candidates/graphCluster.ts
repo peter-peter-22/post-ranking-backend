@@ -3,7 +3,7 @@ import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { getIndirectFollowedUsers } from "../../db/controllers/users/getIndirectFollowers";
 import { posts } from "../../db/schema/posts";
-import { isPost, minimalEngagement } from "./filters";
+import { isPost, minimalEngagement, recencyFilter } from "./filters";
 import { users } from "../../db/schema/users";
 
 /** Max count of posts */
@@ -28,8 +28,9 @@ export async function getGraphClusterCandidates({ user, followedUsers }: Candida
         .leftJoin(users,eq(users.clusterId,user.clusterId))
         .where(
             and(
-                isPost,
-                minimalEngagement,
+                isPost(),
+                recencyFilter(),
+                minimalEngagement(),
                 inArray(posts.userId, indirectlyFollowedUsers),
             )
         )

@@ -2,7 +2,7 @@ import { and, desc, inArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
-import { isPost, minimalEngagement } from "./filters";
+import { isPost, minimalEngagement, recencyFilter } from "./filters";
 
 /** Max count of posts */
 const count = 750;
@@ -14,8 +14,9 @@ export async function getInNetworkCandidates({ followedUsers }: CandidateCommonD
         .from(posts)
         .where(
             and(
-                isPost,
-                minimalEngagement,
+                isPost(),
+                recencyFilter(),
+                minimalEngagement(),
                 inArray(posts.userId, followedUsers)
             )
         )
