@@ -4,14 +4,14 @@ import { Post, posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { getEmbeddingSimilarityCandidates } from "./embedding";
 import { getInNetworkCandidates } from "./inNetwork";
-import { getSocialGraphExpansionCandidates } from "./socialGraphExpansion";
+import { getGraphClusterCandidates } from "./graphCluster";
 
 /** Selecting candidate posts from all groups */
 export async function getCandidates(common:CandidateCommonData) {
     const candidates = (
         await Promise.all([
             getInNetworkCandidates(common),
-            getSocialGraphExpansionCandidates(common),
+            getGraphClusterCandidates(common),
             getEmbeddingSimilarityCandidates(common)
         ])
     ).flat()

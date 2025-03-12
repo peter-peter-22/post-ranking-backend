@@ -3,7 +3,7 @@ import { getUser } from '../../authentication';
 import { getCandidates, getCommonData } from '../../feed/candidates';
 import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/embedding';
 import { getInNetworkCandidates } from '../../feed/candidates/inNetwork';
-import { getSocialGraphExpansionCandidates } from '../../feed/candidates/socialGraphExpansion';
+import { getGraphClusterCandidates } from '../../feed/candidates/graphCluster';
 
 const router = Router();
 
@@ -26,12 +26,12 @@ router.get('/inNetwork', async (req: Request, res: Response) => {
     res.json(posts)
 });
 
-router.get('/sge', async (req: Request, res: Response) => {
+router.get('/cluster', async (req: Request, res: Response) => {
     const user = getUser(req);
     if (!user)
         return;
 
-    const posts = await getSocialGraphExpansionCandidates((await getCommonData(user)))
+    const posts = await getGraphClusterCandidates((await getCommonData(user)))
     res.json(posts)
 });
 

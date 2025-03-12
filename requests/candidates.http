@@ -6,8 +6,8 @@ Authorization: userhandle main-user
 GET http://localhost:3000/candidates/inNetwork HTTP/1.1
 Authorization: userhandle main-user
 
-### social graph expansion
-GET http://localhost:3000/candidates/sge HTTP/1.1
+### graph cluster
+GET http://localhost:3000/candidates/cluster HTTP/1.1
 Authorization: userhandle main-user
 
 ### embedding similarity
