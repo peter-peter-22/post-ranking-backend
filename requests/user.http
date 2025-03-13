@@ -1,3 +1,7 @@
 ### feed
 GET http://localhost:3000/feed HTTP/1.1
 Authorization: userhandle main-user
+
+### feed simplified
+GET http://localhost:3000/feed/simplified HTTP/1.1
+Authorization: userhandle main-user

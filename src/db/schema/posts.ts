@@ -1,7 +1,8 @@
-import { InferInsertModel, InferSelectModel, sql } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { embeddingVector } from '../common';
+import { scorePerClick, scorePerLike, scorePerReply } from '../../feed';
 
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
@@ -12,15 +13,58 @@ export const posts = pgTable('posts', {
     replyCount: integer().notNull().default(0),
     viewCount: integer().notNull().default(0),
     clickCount: integer().notNull().default(0),
-    topic: varchar({ length: 50 }),//the topic that the bots see on the posts. 
-    engaging: real().notNull().default(0),//the engagement modifier that decides how much the bots engage with the post. 0-1
+    //the topic that the bots see on the posts. 
+    topic: varchar({ length: 50 }),
+    //the engagement modifier that decides how much the bots engage with the post. 0-1
+    engaging: real().notNull().default(0),
     replyingTo: uuid(),
-    engagementScoreFrequency: real().notNull().default(0),//engagements score per time since the post was created in hours.
-    engagementScore: real().notNull().default(0),//the total engagement score.
-    engagementCount: real().notNull().default(0),//the total engagement count.
-    engagementScoreRate: real().notNull().default(0),//engagement score per view count.
+    //engagements score per time since the post was created in hours.
+    engagementScoreFrequency: real().notNull().generatedAlwaysAs(
+        ():SQL=>sql<number>`(
+            (
+                ${posts.likeCount} * ${scorePerLike} +
+                ${posts.replyCount} * ${scorePerReply} +
+                ${posts.clickCount} * ${scorePerClick}
+            )::REAL
+            /
+            COALESCE(NULLIF(
+                EXTRACT(EPOCH FROM ${posts.createdAt}) / ${3600},
+            0), 1)  
+        )`
+    ),
+    //the total engagement score.
+    engagementScore: real().notNull().generatedAlwaysAs(
+        (): SQL => sql<number>`(
+            ${posts.likeCount} * ${scorePerLike} +
+            ${posts.replyCount} * ${scorePerReply} +
+            ${posts.clickCount} * ${scorePerClick}
+        )`
+    ),
+    //the total engagement count.
+    engagementCount: real().notNull().generatedAlwaysAs(
+        (): SQL => sql<number>`(
+            ${posts.likeCount} +
+            ${posts.replyCount} +
+            ${posts.clickCount}
+        )`
+    ),
+    //engagement score per view count.
+    engagementScoreRate: real().notNull().generatedAlwaysAs(
+        ():SQL=>sql<number>`(
+            (
+                ${posts.likeCount} * ${scorePerLike} +
+                ${posts.replyCount} * ${scorePerReply} +
+                ${posts.clickCount} * ${scorePerClick}
+            )::REAL
+            /
+            COALESCE(NULLIF(
+                ${posts.viewCount},
+            0), 1)
+        )`,
+    ),
     embedding: embeddingVector("embedding").notNull(),
-    hashtags:varchar({length:50}).notNull().array()
+    //the texts of the hashtags. used for trend calculations
+    hashtags: varchar({ length: 50 }).notNull().array()
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({

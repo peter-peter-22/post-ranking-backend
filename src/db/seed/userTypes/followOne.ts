@@ -1,18 +1,17 @@
 import { eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../..";
+import { updateUserEmbeddingVector } from "../../../embedding/updateUserEmbedding";
 import { clearMainUser } from "../../reset/clearMainUser";
 import { Post, posts } from "../../schema/posts";
+import { UserCommon, users } from "../../schema/users";
+import { seedReplies } from "../comments";
 import { createFollowedUser } from "../followedUser";
+import { seedFollows } from "../follows";
 import { seedLikes } from "../likes";
 import { createRandomPost } from "../posts";
 import { createPostsBetweenDates, getTimeIntervalOfPosts } from "../postsBetweenDates";
 import { getAllBots } from "../utils";
 import { seedViews } from "../views";
-import { seedFollows } from "../follows";
-import { seedReplies } from "../comments";
-import { User, UserCommon, users } from "../../schema/users";
-import { updateUserEmbeddingVector } from "../../../embedding/updateUserEmbedding";
-import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements";
 
 //** The main user follows one active usert. */
 export async function mainUserTypeFollowOne() {
@@ -35,7 +34,6 @@ export async function mainUserTypeFollowOne() {
         updateUserEmbeddingVector(mainUser)
     ])
     await generateUserActivity({ user: followedUser, allPosts, allBots })
-    await updateEngagementAggregations(inArray(posts.id, postIds))
 
     console.log("Main user type set to \"follow one\"")
 }

@@ -1,4 +1,3 @@
-import { updateEngagementAggregations } from "../../controllers/posts/engagement/engagements";
 import { updateUserEmbeddings } from "../../../embedding/updateUserEmbedding";
 import { seedReplies } from "../comments";
 import { seedFollows } from "../follows";
@@ -22,7 +21,6 @@ export async function seedAll(multiplier: number = 1) {
     await seedReplies({ users: allUsers, posts: allPosts })
     await seedFollows({ from: allUsers, to: allUsers })
     await seedViews({})
-    await updateEngagementAggregations()
     await updateUserEmbeddings()
     await updateUserClusters()
     await updateTrendsList()
