@@ -29,7 +29,7 @@ export async function seedViews({ postFilter, userFilter=eq(users.bot, true) }: 
         })
         .from(posts)
         .where(and(isNull(posts.replyingTo), postFilter))
-        .leftJoin(users, and(userFilter))
+        .innerJoin(users, and(userFilter))
 
     /**What posts the users viewed. 
     ** When a user reacted to a post, a view is be added regardless of randomity.

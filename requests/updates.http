@@ -1,5 +1,8 @@
 ### update the embedding vector of all users
-GET http://localhost:3000/update/updateUserEmbeddings
+GET http://localhost:3000/update/userEmbeddings
 
 ### update the user clusters
-GET http://localhost:3000/update/updateUserClusters
+GET http://localhost:3000/update/userClusters
+
+### recalculate the trends
+GET http://localhost:3000/update/trends

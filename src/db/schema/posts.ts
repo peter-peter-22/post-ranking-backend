@@ -19,7 +19,8 @@ export const posts = pgTable('posts', {
     engagementScore: real().notNull().default(0),//the total engagement score.
     engagementCount: real().notNull().default(0),//the total engagement count.
     engagementScoreRate: real().notNull().default(0),//engagement score per view count.
-    embedding: embeddingVector("embedding").notNull()
+    embedding: embeddingVector("embedding").notNull(),
+    hashtags:varchar({length:50}).notNull().array()
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({

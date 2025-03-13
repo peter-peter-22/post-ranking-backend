@@ -16,6 +16,8 @@ type WeightedVector = {
 
 /** Update the embedding vectors of the users those have any activity since the last update. */
 export async function updateUserEmbeddings() {
+    console.log("Updating user embeddings.")
+
     // Get the date of the last update.
     const lastUpdate = await getLastUpdateTimestamp()
 
@@ -36,7 +38,7 @@ export async function updateUserEmbeddings() {
     // Update the date of the last update.
     //await refreshLastUpdateTimestamp()
 
-    console.log(`Updated ${usersToUpdate.length} user embeddings`)
+    console.log(`Updated ${usersToUpdate.length} user embeddings.`)
 }
 
 /** Update the embedding vector of a user. 

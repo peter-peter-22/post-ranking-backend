@@ -9,7 +9,7 @@ import { minimalEngagement } from "../filters";
 const count = 350;
 
 /** Selecting candidate posts from the graph cluster of the user.
- * @todo The user is added to the post again later.
+ * @todo The user is added to the posts again later.
 */
 export async function getGraphClusterCandidates({ user, commonFilters,followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
     // If the user isn't a member of a cluster, exit.
@@ -22,7 +22,7 @@ export async function getGraphClusterCandidates({ user, commonFilters,followedUs
     const candidates = await db
         .select(candidateColumns)
         .from(posts)
-        .leftJoin(users, eq(users.clusterId, user.clusterId))
+        .innerJoin(users, eq(users.clusterId, user.clusterId))
         .where(
             and(
                 ...commonFilters,
