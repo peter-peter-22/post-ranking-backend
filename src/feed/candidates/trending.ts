@@ -1,29 +1,38 @@
-import { and, desc, inArray } from "drizzle-orm";
+import { and, arrayOverlaps, desc } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
+import { getTrendNames } from "../../trends/getTrends";
 
-/** Max count of posts */
-const count = 100;
+/** Max posts per trend. */
+const postsPerTrend = 5
 
-/** Selecting candidate posts from the users those the viewer follows */
-export async function getInNetworkCandidates({ followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
-    // Get the posts
-    let candidates = await db
-        .select(candidateColumns)
-        .from(posts)
-        .where(
-            and(
-                ...commonFilters,
-                inArray(posts.userId, followedUsers)
-            )
+/** Selecting candidate posts from trending topics. */
+export async function getTrendCandidates({ commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+    // Get the trends.
+    const trends = await getTrendNames()
+
+    // Get the posts.
+    let candidates = (
+        await Promise.all(
+            // Select the best posts from each trend.
+            trends.map(trend => (
+                db
+                    .select(candidateColumns)
+                    .from(posts)
+                    .where(and(
+                        arrayOverlaps(posts.hashtags, [trend]),
+                        ...commonFilters
+                    ))
+                    .orderBy(desc(posts.engagementScore))
+                    .limit(postsPerTrend)
+            ))
         )
-        .orderBy(desc(posts.createdAt))
-        .limit(count)
-    console.log(`In network candidates: ${candidates.length}`)
+    ).flat()
+    console.log(`Trending candidates: ${candidates.length}`)
 
-    // Set the candidate type
-    const candidatesWithType=setCandidatesType(candidates,"InNetwork")
+    // Set the candidate type.
+    const candidatesWithType = setCandidatesType(candidates, "Trending")
 
     return candidatesWithType
 }

@@ -6,6 +6,7 @@ import { getEmbeddingSimilarityCandidates } from "./embedding";
 import { getInNetworkCandidates } from "./inNetwork";
 import { getGraphClusterCandidates } from "./graphCluster";
 import { commonFilters } from "../filters";
+import { getTrendCandidates } from "./trending";
 
 /** Selecting candidate posts from all groups */
 export async function getCandidates(common: CandidateCommonData) {
@@ -13,7 +14,8 @@ export async function getCandidates(common: CandidateCommonData) {
         await Promise.all([
             getInNetworkCandidates(common),
             getGraphClusterCandidates(common),
-            getEmbeddingSimilarityCandidates(common)
+            getEmbeddingSimilarityCandidates(common),
+            getTrendCandidates(common)
         ])
     ).flat()
     return candidates
