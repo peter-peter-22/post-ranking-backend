@@ -7,6 +7,7 @@ import { seedPosts } from "../posts";
 import { seedMainUser, seedUsers } from "../users";
 import { seedViews } from "../views";
 import { updateUserClusters } from "../../../clusters/updateClusters";
+import { updateTrendsList } from "../../../trends/calculateTrends";
 
 /**
  * Seed all tables with test data and create the main user.
@@ -24,5 +25,6 @@ export async function seedAll(multiplier: number = 1) {
     await updateEngagementAggregations()
     await updateUserEmbeddings()
     await updateUserClusters()
+    await updateTrendsList()
     console.log("Seeded all tables")
 }

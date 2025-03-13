@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 import { db } from "../.."
-import { getCachedData } from "../../../redis/cachedRead"
+import { getOrGenerateCache } from "../../../redis/cachedRead"
 import { follows } from "../../schema/follows"
 import { UserCommon } from "../../schema/users"
 
@@ -23,5 +23,5 @@ export async function getFollowedUsers({ user }: { user: UserCommon }): Promise<
     }
 
     // Use the cache.
-    return await getCachedData<string[]>(`users/${user.id}/followers`, query, expiration)
+    return await getOrGenerateCache<string[]>(`users/${user.id}/followers`, query, expiration)
 } 

@@ -1,6 +1,7 @@
 import { and, desc, getTableColumns, isNotNull } from "drizzle-orm"
 import { db } from "../db"
 import { posts } from "../db/schema/posts"
+import { Trend, trends } from "../db/schema/trends"
 import { isPost, minimalEngagement, recencyFilter } from "../feed/filters"
 
 // Only the hastags and the engagement score is needed.
@@ -9,9 +10,6 @@ const columns = { hashtags, engagementScore }
 
 /** How much trends are selected. */
 const trendCount = 5
-
-/** Trend with total engagement score and post count. */
-type Trend = { name: string, score: number, posts: number }
 
 /** Calculate the top trends. */
 export async function updateTrendsList() {
@@ -56,21 +54,12 @@ export async function updateTrendsList() {
     /** Trends sorted by score. */
     const sortedTrends = Object.entries(trendScores).sort((a, b) => b[1].score - a[1].score);
 
-    // Output the names of the top x trends.
-    trends = sortedTrends.slice(0, trendCount).map(el => ({ name: el[0], ...el[1] }))
+    /** Top trends. */
+    const topTrends = sortedTrends.slice(0, trendCount).map(el => ({ name: el[0], ...el[1] }))
 
-    console.log(`Calculated the top ${trends.length} trends from ${recentPosts.length} posts:`, trends)
-}
+    /** Save to database. */
+    const clear = db.$with("clear").as(db.delete(trends))
+    await db.with(clear).insert(trends).values(topTrends)
 
-/** The the top trends. */
-let trends: Trend[] = []
-
-/** Get the the top trends. */
-export function getTrends() {
-    return trends
-}
-
-/** Get the names of the top trends. */
-export function getTrendNames() {
-    return Object.keys(trends)
+    console.log(`Calculated the top ${topTrends.length} trends from ${recentPosts.length} posts:`, topTrends)
 }

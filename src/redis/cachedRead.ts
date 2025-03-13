@@ -6,7 +6,7 @@ import { cache } from "./connect";
  * @param expiration Cache lifespan in seconds.
  * @returns The cached or generated value.
  */
-export async function getCachedData<T>(key: string, generate: () => Promise<T>, expiration:number): Promise<T> {
+export async function getOrGenerateCache<T>(key: string, generate: () => Promise<T>, expiration:number): Promise<T> {
     // Check if the data is in Redis
     const cachedData = await cache.get(key);
 

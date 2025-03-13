@@ -1,7 +1,7 @@
 import { and, inArray, notInArray } from "drizzle-orm"
 import { db } from "../.."
 import { follows } from "../../schema/follows"
-import { getCachedData } from "../../../redis/cachedRead"
+import { getOrGenerateCache } from "../../../redis/cachedRead"
 import { UserCommon } from "../../schema/users"
 
 /** The expiration time of the cache. */
@@ -30,5 +30,5 @@ export async function getIndirectFollowedUsers({user, followedUsers }: {user:Use
     }
 
     // Use the cache.
-    return await getCachedData<string[]>(`users/${user.id}/followers`, query, expiration)
+    return await getOrGenerateCache<string[]>(`users/${user.id}/followers`, query, expiration)
 } 
