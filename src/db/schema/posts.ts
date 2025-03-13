@@ -1,9 +1,11 @@
 import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
-import { users } from './users';
+import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
-import { scorePerClick, scorePerLike, scorePerReply } from '../../feed';
+import { users } from './users';
 
+/**
+ * @todo The scores are hardcoded because template literal variables cause bugs.
+ */
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -20,29 +22,29 @@ export const posts = pgTable('posts', {
     replyingTo: uuid(),
     //engagements score per time since the post was created in hours.
     engagementScoreFrequency: real().notNull().generatedAlwaysAs(
-        ():SQL=>sql<number>`(
+        (): SQL => sql`(
             (
-                ${posts.likeCount} * ${scorePerLike} +
-                ${posts.replyCount} * ${scorePerReply} +
-                ${posts.clickCount} * ${scorePerClick}
+                ${posts.likeCount} * 3 +
+                ${posts.replyCount} * 6 +
+                ${posts.clickCount} * 1
             )::REAL
             /
             COALESCE(NULLIF(
-                EXTRACT(EPOCH FROM ${posts.createdAt}) / ${3600},
+                EXTRACT(EPOCH FROM ${posts.createdAt}) / 3600,
             0), 1)  
         )`
     ),
     //the total engagement score.
     engagementScore: real().notNull().generatedAlwaysAs(
-        (): SQL => sql<number>`(
-            ${posts.likeCount} * ${scorePerLike} +
-            ${posts.replyCount} * ${scorePerReply} +
-            ${posts.clickCount} * ${scorePerClick}
+        (): SQL => sql`(
+            ${posts.likeCount} * 3 +
+            ${posts.replyCount} * 6 +
+            ${posts.clickCount} * 1
         )`
     ),
     //the total engagement count.
     engagementCount: real().notNull().generatedAlwaysAs(
-        (): SQL => sql<number>`(
+        (): SQL => sql`(
             ${posts.likeCount} +
             ${posts.replyCount} +
             ${posts.clickCount}
@@ -50,11 +52,11 @@ export const posts = pgTable('posts', {
     ),
     //engagement score per view count.
     engagementScoreRate: real().notNull().generatedAlwaysAs(
-        ():SQL=>sql<number>`(
+        (): SQL => sql`(
             (
-                ${posts.likeCount} * ${scorePerLike} +
-                ${posts.replyCount} * ${scorePerReply} +
-                ${posts.clickCount} * ${scorePerClick}
+                ${posts.likeCount} * 3 +
+                ${posts.replyCount} * 6 +
+                ${posts.clickCount} * 1
             )::REAL
             /
             COALESCE(NULLIF(

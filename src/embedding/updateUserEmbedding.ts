@@ -1,7 +1,7 @@
 import { and, desc, eq, getTableColumns, gte, isNotNull, isNull, max, sql } from "drizzle-orm";
 import { unionAll } from "drizzle-orm/pg-core";
 import { db } from "../db";
-import { scorePerClick, scorePerLike, scorePerReply } from "../feed";
+import { scorePerLike,scorePerClick,scorePerReply } from "../feed/scores";
 import { clicks } from "../db/schema/clicks";
 import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";

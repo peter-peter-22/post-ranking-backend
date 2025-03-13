@@ -51,6 +51,12 @@ export async function updateTrendsList() {
         });
     })
 
+    /** If not hashtags are found, exit. */
+    if (recentPosts.length === 0) {
+        console.log("Trend updading cancelled because the lack of posts.")
+        return
+    }
+
     /** Trends sorted by score. */
     const sortedTrends = Object.entries(trendScores).sort((a, b) => b[1].score - a[1].score);
 
