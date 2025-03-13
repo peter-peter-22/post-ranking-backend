@@ -1,8 +1,8 @@
 import { and, arrayOverlaps, desc } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
-import { db } from "../../db";
-import { posts } from "../../db/schema/posts";
-import { getTrendNames } from "../../trends/getTrends";
+import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
+import { db } from "../../../db";
+import { posts } from "../../../db/schema/posts";
+import { getTrendNames } from "../../../trends/getTrends";
 
 /** Max posts per trend. */
 const postsPerTrend = 5

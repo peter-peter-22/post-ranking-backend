@@ -1,9 +1,9 @@
 import { and, desc, eq, notInArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from ".";
-import { db } from "../../db";
-import { posts } from "../../db/schema/posts";
-import { users } from "../../db/schema/users";
-import { minimalEngagement } from "../filters";
+import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
+import { db } from "../../../db";
+import { posts } from "../../../db/schema/posts";
+import { users } from "../../../db/schema/users";
+import { minimalEngagement } from "../../filters";
 
 /** Max count of posts */
 const count = 350;
@@ -22,7 +22,7 @@ export async function getGraphClusterCandidates({ user, commonFilters,followedUs
     const candidates = await db
         .select(candidateColumns)
         .from(posts)
-        .innerJoin(users, eq(users.clusterId, user.clusterId))
+        .innerJoin(users, and(eq(users.clusterId, user.clusterId),eq(posts.userId,users.id)))
         .where(
             and(
                 ...commonFilters,

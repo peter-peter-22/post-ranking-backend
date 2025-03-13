@@ -2,15 +2,17 @@ import { getTableColumns, SQL } from "drizzle-orm";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { Post, posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
-import { getEmbeddingSimilarityCandidates } from "./embedding";
-import { getInNetworkCandidates } from "./inNetwork";
-import { getGraphClusterCandidates } from "./graphCluster";
+import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
+import { getInNetworkCandidates } from "./sources/inNetwork";
+import { getGraphClusterCandidates } from "./sources/graphCluster";
 import { commonFilters } from "../filters";
-import { getTrendCandidates } from "./trending";
+import { getTrendCandidates } from "./sources/trending";
+import { deDuplicateCandidates } from "./filters";
 
 /** Selecting candidate posts from all groups */
 export async function getCandidates(common: CandidateCommonData) {
-    const candidates = (
+    // Get the candidates.
+    let candidates = (
         await Promise.all([
             getInNetworkCandidates(common),
             getGraphClusterCandidates(common),
@@ -18,6 +20,10 @@ export async function getCandidates(common: CandidateCommonData) {
             getTrendCandidates(common)
         ])
     ).flat()
+
+    // Deduplicate.
+    candidates = deDuplicateCandidates(candidates)
+
     return candidates
 }
 
@@ -42,13 +48,12 @@ export type CandidateCommonData = {
 }
 
 /** The type of the post candidate. */
-export type CandidateSource="InNetwork"|"GraphClusters"|"EmbeddingSimilarity"|"Trending"
+export type CandidateSource = "InNetwork" | "GraphClusters" | "EmbeddingSimilarity" | "Trending"
 
 /** Post returned by the candidate selectors. */
-export type CandidatePost = Omit<Post, "embedding"> & {candidateSource:CandidateSource}
+export type CandidatePost = Omit<Post, "embedding"> & { candidateSource: CandidateSource }
 
 /** Set the candidate source on a array of posts. */
-export function setCandidatesType(candidates:Omit<CandidatePost, "candidateSource">[],type:CandidateSource):CandidatePost[]
-{
+export function setCandidatesType(candidates: Omit<CandidatePost, "candidateSource">[], type: CandidateSource): CandidatePost[] {
     return candidates.map(post => ({ ...post, candidateSource: type }));
 }
