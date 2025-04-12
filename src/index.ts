@@ -1,8 +1,10 @@
-import 'dotenv/config';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
-import routes from "./routes";
+import "express-async-errors";
 import { authMiddleware } from './authentication';
+import { errorHandler } from './middlewares/errorHandler';
+import routes from "./routes";
 
 const app = express();
 const PORT = 3000;
@@ -11,6 +13,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(authMiddleware)
+app.use(errorHandler);
 
 // Routes
 app.use(routes);
