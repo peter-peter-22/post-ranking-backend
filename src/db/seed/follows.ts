@@ -1,13 +1,14 @@
 import { db } from "..";
+import { executePerTime } from "../../utilities/executePerTime";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
-import { User, UserCommon } from "../schema/users";
+import { UserCommon } from "../schema/users";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
 const chanceToFollowInterest = 0.5
 /** Default chance to follow */
-const basicChanceToFollow = 0.05
+const chanceToFollowIrrelevant = 0.05
 
 /**
  * Creates organic follows between the users.
@@ -15,10 +16,14 @@ const basicChanceToFollow = 0.05
  * @param users all possibble followers
  * @param posts all possibble followeds
  * @returns array of follows
- * @todo follow users based on post count or engagements
  */
 function createRandomFollows(from: UserCommon[], to: UserCommon[]): FollowToInsert[] {
-    return from.flatMap(user => createRandomFollowsForUser(user, to));
+    console.log(`Creating follows. Max results: ${from.length*to.length}`)
+    let lastLogTime = Date.now();
+    return from.flatMap((user,i,array) => {
+        executePerTime(()=>{console.log(`${Math.round(i/array.length*100)}%`)},3000,lastLogTime)
+        return createRandomFollowsForUser(user, to)
+    });
 }
 
 /**
@@ -33,7 +38,7 @@ function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[])
     followables.forEach(followable => {
         /** true if the followable user has at least one topic the follower is interested about */
         const isInterested = user.interests.some(interest => followable.interests.includes(interest))
-        const follow = Math.random() < (isInterested ? chanceToFollowInterest : basicChanceToFollow)
+        const follow = Math.random() < (isInterested ? chanceToFollowInterest : chanceToFollowIrrelevant)
         if (follow)
             follows.push({
                 followerId: user.id,

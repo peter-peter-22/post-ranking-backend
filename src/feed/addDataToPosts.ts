@@ -1,7 +1,7 @@
-import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { likes } from "../db/schema/likes";
-import { User, UserCommonColumns, UserCommon, users } from "../db/schema/users";
+import { UserCommon, UserCommonColumns, users } from "../db/schema/users";
 import { removeDuplicates } from "../utilities/removeDuplicates";
 import { CandidateCommonData, CandidatePost } from "./candidates";
 
@@ -22,7 +22,7 @@ export async function addDataToPosts(posts: CandidatePost[], { user, followedUse
         getUsers({ posts, followedUsers }),
         getIfUserLikedPosts({ posts, user })
     ])
-    const postsWithLikes = addLikesToPosts({ posts, likedPostIds: likedPostIds })
+    const postsWithLikes = addLikesToPosts({ posts, likedPostIds: likedPostIds })/** @todo use asserts */
     const postsWithUsers = addUsersToPosts({ posts: postsWithLikes, users: uniqueUsers })
     return postsWithUsers;
 }

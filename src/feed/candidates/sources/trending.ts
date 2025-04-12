@@ -7,7 +7,9 @@ import { getTrendNames } from "../../../trends/getTrends";
 /** Max posts per trend. */
 const postsPerTrend = 5
 
-/** Selecting candidate posts from trending topics. */
+/** Selecting candidate posts from trending topics. 
+ * @todo This approach limits how much posts can be displayed for a new user.
+*/
 export async function getTrendCandidates({ commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
     // Get the trends.
     const trends = await getTrendNames()

@@ -9,17 +9,17 @@ import { updateUserClusters } from "../../../clusters/updateClusters";
 import { updateTrendsList } from "../../../trends/calculateTrends";
 
 /**
- * Seed all tables with test data and create the main user.
+ * Seed engagements.
  * 
  * @param multiplier multiplies the count of all generated rows.
  */
-export async function seedAll(multiplier: number = 1) {
+export async function seedEngagements(multiplier: number = 1) {
     await seedMainUser()
-    const allUsers = await seedUsers(1000 * multiplier)
-    const allPosts = await seedPosts(500 * multiplier)
+    const allUsers = await seedUsers(10000 * multiplier)
+    const allPosts = await seedPosts(1000 * multiplier)
+    await seedFollows({ from: allUsers, to: allUsers })
     await seedLikes({ users: allUsers, posts: allPosts })
     await seedReplies({ users: allUsers, posts: allPosts })
-    await seedFollows({ from: allUsers, to: allUsers })
     await seedViews({})
     await updateUserEmbeddings()
     await updateUserClusters()
