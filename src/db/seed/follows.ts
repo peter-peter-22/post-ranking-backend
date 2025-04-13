@@ -1,5 +1,4 @@
 import { db } from "..";
-import { executePerTime } from "../../utilities/executePerTime";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
@@ -11,19 +10,33 @@ const chanceToFollowInterest = 0.5
 const chanceToFollowIrrelevant = 0.05
 
 /**
- * Creates organic follows between the users.
+ * Create organic follows between the users and insert them into the DB.
  * 
  * @param users all possibble followers
  * @param posts all possibble followeds
  * @returns array of follows
  */
-function createRandomFollows(from: UserCommon[], to: UserCommon[]): FollowToInsert[] {
-    console.log(`Creating follows. Max results: ${from.length*to.length}`)
-    let lastLogTime = Date.now();
-    return from.flatMap((user,i,array) => {
-        executePerTime(()=>{console.log(`${Math.round(i/array.length*100)}%`)},3000,lastLogTime)
-        return createRandomFollowsForUser(user, to)
-    });
+async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
+    console.log(`Creating follows. Max results: ${from.length * to.length}`)
+    /** The total count of the inserted rows. */
+    let count = 0
+    for (let i = 0; i < from.length; i++) {
+        const user = from[i];
+        // Log progress per 100 users to avoid flooding the console
+        if(i%100===0)
+            console.log(`Processing user ${i + 1} of ${from.length}`);
+        // Create the follows
+        const followsToInsert = createRandomFollowsForUser(user, to)
+        // Track the total count
+        count += followsToInsert.length
+        // Insert the follows after creating them insted of inserting them later to avoid memory issues
+        await chunkedInsert(followsToInsert, async data => {
+            await db.insert(follows)
+                .values(data)
+                .onConflictDoNothing();
+        })
+    };
+    console.log(`Created ${count} follows`)
 }
 
 /**
@@ -49,12 +62,6 @@ function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[])
 }
 
 export async function seedFollows({ from, to }: { from: UserCommon[], to: UserCommon[] }) {
-    const followsToInsert = createRandomFollows(from, to)
-    await chunkedInsert(followsToInsert, async data => {
-        await db.insert(follows)
-            .values(data)
-            .onConflictDoNothing();
-    })
+    await createRandomFollows(from, to)
     await updateFollowCounts()
-    console.log(`Created ${followsToInsert.length} follows`)
 }

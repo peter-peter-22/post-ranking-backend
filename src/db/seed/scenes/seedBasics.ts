@@ -10,7 +10,7 @@ import { seedMainUser, seedUsers } from "../users";
 export async function seedBasics(multiplier: number = 1) {
     await seedMainUser()
     const allUsers = await seedUsers(10000 * multiplier)
-    const allPosts = await seedPosts(1000 * multiplier)
+    await seedPosts(1000 * multiplier)
     await seedFollows({ from: allUsers, to: allUsers })
     console.log("Seeded basics")
 }
