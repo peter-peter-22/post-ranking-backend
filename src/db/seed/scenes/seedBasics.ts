@@ -1,3 +1,4 @@
+import { clearAllTables } from "../../reset/clearTables";
 import { seedFollows } from "../follows";
 import { seedPosts } from "../posts";
 import { seedMainUser, seedUsers } from "../users";
@@ -8,6 +9,7 @@ import { seedMainUser, seedUsers } from "../users";
  * @param multiplier multiplies the count of all generated rows.
  */
 export async function seedBasics(multiplier: number = 1) {
+    await clearAllTables()
     await seedMainUser()
     const allUsers = await seedUsers(10000 * multiplier)
     await seedPosts(1000 * multiplier)

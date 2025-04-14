@@ -2,7 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { likes } from "../db/schema/likes";
 import { UserCommon, UserCommonColumns, users } from "../db/schema/users";
-import { removeDuplicates } from "../utilities/removeDuplicates";
+import { removeDuplicates } from "../utilities/arrays/removeDuplicates";
 import { CandidateCommonData, CandidatePost } from "./candidates";
 
 /** Post with the user object and additional metadata. */

@@ -20,50 +20,14 @@ export const posts = pgTable('posts', {
     //the engagement modifier that decides how much the bots engage with the post. 0-1
     engaging: real().notNull().default(0),
     replyingTo: uuid(),
-    //engagements score per time since the post was created in hours.
-    engagementScoreFrequency: real().notNull().generatedAlwaysAs(
-        (): SQL => sql`(
-            (
-                ${posts.likeCount} * 3 +
-                ${posts.replyCount} * 6 +
-                ${posts.clickCount} * 1
-            )::REAL
-            /
-            COALESCE(NULLIF(
-                EXTRACT(EPOCH FROM ${posts.createdAt}) / 3600,
-            0), 1)  
-        )`
-    ),
     //the total engagement score.
-    engagementScore: real().notNull().generatedAlwaysAs(
-        (): SQL => sql`(
-            ${posts.likeCount} * 3 +
-            ${posts.replyCount} * 6 +
-            ${posts.clickCount} * 1
-        )`
-    ),
-    //the total engagement count.
-    engagementCount: real().notNull().generatedAlwaysAs(
-        (): SQL => sql`(
-            ${posts.likeCount} +
-            ${posts.replyCount} +
-            ${posts.clickCount}
-        )`
-    ),
-    //engagement score per view count.
-    engagementScoreRate: real().notNull().generatedAlwaysAs(
-        (): SQL => sql`(
-            (
-                ${posts.likeCount} * 3 +
-                ${posts.replyCount} * 6 +
-                ${posts.clickCount} * 1
-            )::REAL
-            /
-            COALESCE(NULLIF(
-                ${posts.viewCount},
-            0), 1)
-        )`,
-    ),
+    //engagementScore: real().notNull().generatedAlwaysAs(
+    //    (): SQL => sql`(
+    //        ${posts.likeCount} * 3 +
+    //        ${posts.replyCount} * 6 +
+    //        ${posts.clickCount} * 1
+    //    )`
+    //),
     embedding: embeddingVector("embedding").notNull(),
     //the texts of the hashtags. used for trend calculations
     hashtags: varchar({ length: 50 }).notNull().array()

@@ -32,7 +32,7 @@ export function createRandomPost(user: UserCommon): PostToCreate {
         text: generatePostText(topic),
         topic: topic,
         engaging: Math.random(),
-        createdAt: faker.date.recent({ days: 3 })
+        createdAt: faker.date.recent({ days: 2 })
     };
 }
 
