@@ -4,6 +4,7 @@ import { createPosts } from "../../../user_actions/createPost"
 import { clicks, ClicksToInsert } from "../../schema/clicks"
 import { likes, LikeToInsert } from "../../schema/likes"
 import { PostToCreate } from "../../schema/posts"
+import { generateReplyText, getRandomTopicFromUser } from "../../seed/posts"
 
 /** Format the engagement data and insert it into the DB. */
 export async function insertEngagements(engagements: Engagement[]) {
@@ -17,8 +18,8 @@ async function insertLikes(engagements: Engagement[]) {
     const likesToInsert: LikeToInsert[] = engagements
         .filter(engagement => engagement.like)
         .map(engagement => ({
-            postId: engagement.post,
-            userId: engagement.user,
+            postId: engagement.post.id,
+            userId: engagement.user.id,
         }))
     await db.insert(likes).values(likesToInsert)
 }
@@ -28,9 +29,9 @@ async function insertReplies(engagements: Engagement[]) {
     const replies: PostToCreate[] = engagements
         .filter(engagement => engagement.reply)
         .map(engagement => ({
-            replyingTo: engagement.post,
-            userId: engagement.user,
-            text: "text"// TODO: Add the logic to generate the reply text.
+            replyingTo: engagement.post.id,
+            userId: engagement.user.id,
+            text: generateReplyText(getRandomTopicFromUser(engagement.user)),
         }))
     await createPosts(replies)
 }
@@ -40,8 +41,8 @@ async function insertClicks(engagements: Engagement[]) {
     const clicksToInsert: ClicksToInsert[] = engagements
         .filter(engagement => engagement.like)
         .map(engagement => ({
-            postId: engagement.post,
-            userId: engagement.user,
+            postId: engagement.post.id,
+            userId: engagement.user.id,
         }))
     await db.insert(clicks).values(clicksToInsert)
 }

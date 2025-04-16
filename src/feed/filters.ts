@@ -5,7 +5,7 @@ import { posts } from "../db/schema/posts";
 export const isPost = () => isNull(posts.replyingTo)
 
 /** Filter out the posts those have a significant amount of views, but no engagement. */
-export const minimalEngagement = () => or(gte(posts.engagementScore, 10), lte(posts.viewCount, 20));
+export const minimalEngagement = () => or(gte(posts.engagementCount, 5), lte(posts.viewCount, 50));
 
 /** Filter out the posts those are older than 2 days */
 export const recencyFilter = () => {

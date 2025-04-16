@@ -22,9 +22,11 @@ export async function createPost(data: PostToCreate) {
     return post
 }
 
+export const hashtagRegex=/(?<=#)[^#\s]{1,}/gm
+
 /** Get the hastags from a text. */
 function getHashtags(text:string){
-    return [...text.matchAll(/(?<=#)[^#\s]{1,}/gm)].map(el=>el[0])
+    return [...text.matchAll(hashtagRegex)].map(el=>el[0])
 }
 
 export async function createPosts(data: PostToCreate[]) {

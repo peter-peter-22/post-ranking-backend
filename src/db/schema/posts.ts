@@ -20,14 +20,14 @@ export const posts = pgTable('posts', {
     //the engagement modifier that decides how much the bots engage with the post. 0-1
     engaging: real().notNull().default(0),
     replyingTo: uuid(),
-    //the total engagement score.
-    //engagementScore: real().notNull().generatedAlwaysAs(
-    //    (): SQL => sql`(
-    //        ${posts.likeCount} * 3 +
-    //        ${posts.replyCount} * 6 +
-    //        ${posts.clickCount} * 1
-    //    )`
-    //),
+    //the total engagement count.
+    engagementCount: real().notNull().generatedAlwaysAs(
+        (): SQL => sql`(
+            ${posts.likeCount} +
+            ${posts.replyCount} +
+            ${posts.clickCount} 
+        )`
+    ),
     embedding: embeddingVector("embedding").notNull(),
     //the texts of the hashtags. used for trend calculations
     hashtags: varchar({ length: 50 }).notNull().array()

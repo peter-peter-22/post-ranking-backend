@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { examplePosts } from '../../bots/examplePosts';
+import { exampleComments, examplePosts } from '../../bots/examplePosts';
 import { createPosts } from '../../user_actions/createPost';
 import { PostToCreate } from "../schema/posts";
 import { UserCommon } from '../schema/users';
@@ -24,9 +24,7 @@ function createRandomPostFromRandomUser(users: UserCommon[]): PostToCreate {
  * @returns post to insert
  */
 export function createRandomPost(user: UserCommon): PostToCreate {
-    //random topic from the selected user
-    const topic = user.interests[Math.floor(Math.random() * user.interests.length)]
-
+    const topic = getRandomTopicFromUser(user)
     return {
         userId: user.id,
         text: generatePostText(topic),
@@ -36,8 +34,35 @@ export function createRandomPost(user: UserCommon): PostToCreate {
     };
 }
 
+/**Get a random topic from the selected user. 
+ * @param user the user to get the topic from
+ * @returns a random topic from the user interests
+*/
+export function getRandomTopicFromUser(user: UserCommon) {
+    return user.interests[Math.floor(Math.random() * user.interests.length)]
+}
+
+/**
+ * Returns a random post text from the selected topic.
+ * 
+ * @param topic the topic to get the post from
+ * @returns a random post text from the selected topic
+ */
 function generatePostText(topic: string) {
     const group = examplePosts[topic]
+    if (!group)
+        throw new Error(`The topic "${topic}" does not exists!`)
+    return group[Math.floor(Math.random() * group.length)]
+}
+
+/**
+ * Returns a random reply text from the selected topic.
+ * 
+ * @param topic the topic to get the post from
+ * @returns a random post text from the selected topic
+ */
+export function generateReplyText(topic: string) {
+    const group = exampleComments[topic]
     if (!group)
         throw new Error(`The topic "${topic}" does not exists!`)
     return group[Math.floor(Math.random() * group.length)]

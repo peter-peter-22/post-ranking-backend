@@ -6,9 +6,8 @@ async function getFollowMap() {
     // Get the follows from the db
     const allFollows = await db.select().from(follows);
 
-    const followMap = new Map<string, Set<string>>();
-
     // Build the nested map
+    const followMap = new Map<string, Set<string>>();
     allFollows.forEach(follow => {
         if (!followMap.has(follow.followerId)) {
             followMap.set(follow.followerId, new Set<string>());
@@ -26,12 +25,12 @@ async function getFollowMap() {
  */
 export async function getFollowChecker() {
     const followMap = await getFollowMap()
-    return (followerId: string, followedId: string) => {
+    return (followerId: string, followedId: string):boolean => {
         // Check if the followerId exists in the map
-        if (followMap.has(followerId)) {
-            const followedSet = followMap.get(followerId);
+        const followedSet = followMap.get(followerId);
+        if (followedSet) {
             // Check if the followedId exists in the set
-            return followedSet?.has(followedId) || false;
+            return followedSet.has(followedId);
         }
         return false; // FollowerId doesn't exist in the map
     }
