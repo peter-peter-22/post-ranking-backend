@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { updateUserClusters } from '../../clusters/updateClusters';
 import { updateUserEmbeddings } from '../../embedding/updateUserEmbedding';
 import { updateTrendsList } from '../../trends/calculateTrends';
+import { updateAllEngagementHistory } from '../../db/controllers/posts/engagement/history/updateAll';
 
 const router = Router();
 
@@ -17,6 +18,11 @@ router.get('/userClusters', async (req: Request, res: Response) => {
 
 router.get('/trends', async (req: Request, res: Response) => {
     await updateTrendsList()
+    res.sendStatus(200)
+});
+
+router.get('/engagementHistory', async (req: Request, res: Response) => {
+    await updateAllEngagementHistory()
     res.sendStatus(200)
 });
 

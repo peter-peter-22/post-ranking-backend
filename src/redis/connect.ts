@@ -13,6 +13,6 @@ cache.on('error', (err) => {
     console.error('Redis error:', err);
 });
 
-cache.connect();
+cache.connect().then(()=>console.log("Redis connected"))
 
 export {cache}

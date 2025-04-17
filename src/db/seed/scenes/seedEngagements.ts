@@ -64,8 +64,11 @@ async function createEngagements() {
     // Generate the engagements for the post.
     const engagements = getEngagements(user, post, relationship, date)
     allEngagements.push(engagements)
-    // Update the engagement counters every X cycles. This is necessary because the engagement generator takes these counters into account. 
-    if (n + 1 % counterUpdateInterval === 0) {
+    // Insert the engagements and update the engagement counters every X cycles. This is necessary because the engagement generator takes these counters into account. 
+    if (n % counterUpdateInterval === 0) {
+      // Insert the engagements into the database.
+      await insertEngagements(allEngagements) 
+      // Update counters.
       await updateLikeCounts()
       await updateReplyCounts()
       await updateClickCounts()
@@ -73,8 +76,6 @@ async function createEngagements() {
       await updateAllEngagementHistory()
     }
   }
-  // Insert the engagements into the database.
-  await insertEngagements(allEngagements) //TODO insert in the for loop per 100 cycles, and calculate engagement history
 }
 
 /** 

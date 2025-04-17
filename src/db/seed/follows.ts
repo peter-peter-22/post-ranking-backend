@@ -5,9 +5,9 @@ import { follows, FollowToInsert } from "../schema/follows";
 import { UserCommon } from "../schema/users";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
-const chanceToFollowInterest = 0.5
+const chanceToFollowInterest = 0.3
 /** Default chance to follow */
-const chanceToFollowIrrelevant = 0.05
+const chanceToFollowIrrelevant = 0.02
 
 /**
  * Create organic follows between the users and insert them into the DB.

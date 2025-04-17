@@ -1,13 +1,16 @@
 import { and, desc, eq, getTableColumns, gte, isNotNull, isNull, max, sql } from "drizzle-orm";
 import { unionAll } from "drizzle-orm/pg-core";
 import { db } from "../db";
-import { scorePerLike,scorePerClick,scorePerReply } from "../feed/scores";
+import { persistentDate } from "../db/controllers/persistentDates";
 import { clicks } from "../db/schema/clicks";
 import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
-import { userVectorUpdates } from "../db/schema/userVectorUpdates";
 import { views } from "../db/schema/views";
+import { scorePerClick, scorePerLike, scorePerReply } from "../feed/scores";
+
+/** The date when the embedding vectors of the users were recalculated. */
+const lastUpdated = persistentDate("last_user_embedding_update")
 
 type WeightedVector = {
     embedding: number[],
@@ -19,7 +22,7 @@ export async function updateUserEmbeddings() {
     console.log("Updating user embeddings.")
 
     // Get the date of the last update.
-    const lastUpdate = await getLastUpdateTimestamp()
+    const lastUpdate = await lastUpdated.get()
 
     /** Select the users those need update.
      ** To simplify it, all users who seen at least one post since the last update will be selected.
@@ -36,8 +39,7 @@ export async function updateUserEmbeddings() {
     ])
 
     // Update the date of the last update.
-    //await refreshLastUpdateTimestamp()
-
+    await lastUpdated.set()
     console.log(`Updated ${usersToUpdate.length} user embeddings.`)
 }
 
@@ -79,6 +81,7 @@ function calculateWeightedVectorsAverage(vectors: WeightedVector[]) {
  * @returns Array of embedding vectors and weights.
  */
 async function getEngagementEmbeddingVectors(user: User): Promise<WeightedVector[]> {
+    /** @todo simplify this */
     /** The max count of total engagements those affect the embedding vector. */
     const maxHistory = 1000;
 
@@ -140,24 +143,4 @@ async function getEngagementEmbeddingVectors(user: User): Promise<WeightedVector
         .from(engagedPostIds)
         .innerJoin(posts, eq(posts.id, engagedPostIds.postId))
         .where(isNull(posts.replyingTo))//filter out replies
-}
-
-/** Get the date of the last user vector update.
- *@returns The last date when the user vectors were updated.
- */
-async function getLastUpdateTimestamp() {
-    //try to get the update timestamp from the database
-    const [lastUpdate] = await db.select().from(userVectorUpdates)
-
-    //if exists, return date
-    if (lastUpdate)
-        return lastUpdate.timestamp;
-
-    //if doesn't exists insert a new row with a very old date then return it
-    const [update] = await db.insert(userVectorUpdates).values([{ timestamp: new Date(0) }]).returning()
-    return update.timestamp;
-}
-
-async function refreshLastUpdateTimestamp() {
-    await db.update(userVectorUpdates).set({ timestamp: new Date() })
 }
