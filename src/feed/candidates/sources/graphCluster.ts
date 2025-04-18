@@ -3,7 +3,7 @@ import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { users } from "../../../db/schema/users";
-import { minimalEngagement } from "../../filters";
+import { minimalEngagement } from "../../../db/controllers/posts/filters";
 
 /** Max count of posts */
 const count = 350;

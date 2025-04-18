@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "..";
+import { PgTableWithColumns } from "drizzle-orm/pg-core";
 
 interface TableInfo {
     table_name: string;

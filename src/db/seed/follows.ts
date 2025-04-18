@@ -1,4 +1,5 @@
 import { db } from "..";
+import { promisesAllTracked } from "../../utilities/arrays/trackedPromises";
 import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
@@ -20,22 +21,27 @@ async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
     console.log(`Creating follows. Max results: ${from.length * to.length}`)
     /** The total count of the inserted rows. */
     let count = 0
-    for (let i = 0; i < from.length; i++) {
-        const user = from[i];
-        // Log progress per 100 users to avoid flooding the console
-        if(i%100===0)
-            console.log(`Processing user ${i + 1} of ${from.length}`);
-        // Create the follows
-        const followsToInsert = createRandomFollowsForUser(user, to)
-        // Track the total count
-        count += followsToInsert.length
-        // Insert the follows after creating them insted of inserting them later to avoid memory issues
-        await chunkedInsert(followsToInsert, async data => {
-            await db.insert(follows)
-                .values(data)
-                .onConflictDoNothing();
+    /** The count of the rows the users whose follows are ready to insert. */
+    let prepared=0
+    await promisesAllTracked(
+        from.map(async (user) => {
+            {
+                // Create the follows
+                const followsToInsert = createRandomFollowsForUser(user, to)
+                // Track the count of the prepared users
+                prepared++
+                if(prepared % 100 === 0) console.log(`Prepared ${prepared}/${from.length} users`)
+                // Track the total count
+                count += followsToInsert.length
+                // Insert the follows after creating them insted of inserting them later to avoid memory issues
+                await chunkedInsert(followsToInsert, async data => {
+                    await db.insert(follows)
+                        .values(data)
+                        .onConflictDoNothing();
+                })
+            }
         })
-    };
+    )
     console.log(`Created ${count} follows`)
 }
 

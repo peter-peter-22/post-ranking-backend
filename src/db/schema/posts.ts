@@ -36,9 +36,10 @@ export const posts = pgTable('posts', {
     foreignKey({
         columns: [table.replyingTo],
         foreignColumns: [table.id],
-        name: "contracts_underlying_id_fkey",
+        name: "reply_to_post_fkey",
     }).onDelete("cascade"),
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
+    index('replyingToIndex').on(table.replyingTo),
 ]);
 
 export type Post = InferSelectModel<typeof posts>;

@@ -5,7 +5,7 @@ import { User } from "../../db/schema/users";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
 import { getInNetworkCandidates } from "./sources/inNetwork";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
-import { commonFilters } from "../filters";
+import { commonFilters } from "../../db/controllers/posts/filters";
 import { getTrendCandidates } from "./sources/trending";
 import { deDuplicateCandidates } from "./filters";
 

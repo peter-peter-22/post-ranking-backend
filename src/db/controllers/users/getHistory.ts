@@ -23,7 +23,9 @@ async function getEngagementHistoryMap() {
  * @returns A function that return the engagement history between two users.
  */
 export async function getEngagementHistoryReader() {
+    console.log("Creating engagement history reader...")
     const historyMap = await getEngagementHistoryMap()
+    console.log("Engagement history reader created.")
     return (viewerId: string, publisherId: string):EngagementHistory|undefined => {
         // Check if the viewerId exists in the map
         const historiesOfViewer = historyMap.get(viewerId);

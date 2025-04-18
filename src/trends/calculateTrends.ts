@@ -2,11 +2,11 @@ import { and, desc, getTableColumns, isNotNull } from "drizzle-orm"
 import { db } from "../db"
 import { posts } from "../db/schema/posts"
 import { Trend, trends } from "../db/schema/trends"
-import { isPost, minimalEngagement, recencyFilter } from "../feed/filters"
+import { isPost, minimalEngagement, recencyFilter } from "../db/controllers/posts/filters"
 
 // Only the hastags and the engagement score is needed.
-const { hashtags, engagementScore } = getTableColumns(posts)
-const columns = { hashtags, engagementScore }
+const { hashtags, engagementCount } = getTableColumns(posts)
+const columns = { hashtags, engagementCount }
 
 /** How much trends are selected. */
 const trendCount = 5
@@ -31,7 +31,7 @@ export async function updateTrendsList() {
     const trendScores: { [key: string]: Omit<Trend, "name"> } = {}
 
     // Group the score of the posts by their hashtags.
-    recentPosts.forEach(({ hashtags, engagementScore }) => {
+    recentPosts.forEach(({ hashtags, engagementCount }) => {
         // The posts without hashtag array are excluded, but typescript ignores this.
         if (!hashtags)
             return;
@@ -41,7 +41,7 @@ export async function updateTrendsList() {
             let trend = trendScores[tag] || { score: 0, posts: 0 }
 
             // Add the score.
-            trend.score += engagementScore
+            trend.score += engagementCount
 
             // Increase the post count.
             trend.posts++

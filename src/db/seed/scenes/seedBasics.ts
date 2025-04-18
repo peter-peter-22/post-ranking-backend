@@ -5,14 +5,12 @@ import { seedMainUser, seedUsers } from "../users";
 
 /**
  * Seed users, the main user, posts, and follows.
- * 
- * @param multiplier multiplies the count of all generated rows.
  */
-export async function seedBasics(multiplier: number = 1) {
+export async function seedBasics() {
     await clearAllTables()
     await seedMainUser()
-    const allUsers = await seedUsers(10000 * multiplier)
-    await seedPosts(1000 * multiplier)
+    const allUsers = await seedUsers(10000)
+    await seedPosts(1000 )
     await seedFollows({ from: allUsers, to: allUsers })
     console.log("Seeded basics")
 }

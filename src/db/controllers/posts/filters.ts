@@ -1,5 +1,5 @@
 import { gt, gte, isNull, lte, or } from "drizzle-orm";
-import { posts } from "../db/schema/posts";
+import { posts } from "../../schema/posts";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -22,4 +22,4 @@ export const commonFilters=()=>[
     recencyFilter(),
 ]
 
-/** @todo filter out more than 2 posts from the same user */
+/** @todo filter out overrepresentation */

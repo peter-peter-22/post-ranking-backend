@@ -15,4 +15,5 @@ export async function updateFollowCounts(where: SQL | undefined=undefined) {
         .catch(
             error => console.error("error while updating follow count:", error)
         )
+        console.log("Updated follow counts")
 }

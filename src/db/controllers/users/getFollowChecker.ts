@@ -24,7 +24,9 @@ async function getFollowMap() {
  * @returns A function that checks if a user follows another user.
  */
 export async function getFollowChecker() {
+    console.log("Creating follow checker...")
     const followMap = await getFollowMap()
+    console.log("Follow checker created")
     return (followerId: string, followedId: string):boolean => {
         // Check if the followerId exists in the map
         const followedSet = followMap.get(followerId);

@@ -68,7 +68,7 @@ function processRows(engagementMap: Map<string, EngagementHistoryToInsertOrUpdat
 async function getEngagementHistory(userId: string): Promise<EngagementHistoryToInsertOrUpdate[]> {
     /** The collection of all engagements. */
     const engagementMap = new Map<string, EngagementHistoryToInsertOrUpdate>();
-
+    //TODO recencyfilter is not indexed
     // Process the likes.
     processRows(
         engagementMap,

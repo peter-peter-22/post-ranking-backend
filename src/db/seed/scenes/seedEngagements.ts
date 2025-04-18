@@ -1,40 +1,58 @@
+import { eq, getTableName, inArray, SQL } from "drizzle-orm";
 import { db } from "../..";
 import { Engagement, getEngagements, ViewerPublisherRelationship } from "../../../bots/getEngagements";
 import { updateUserClusters } from "../../../clusters/updateClusters";
 import { updateUserEmbeddings } from "../../../embedding/updateUserEmbedding";
 import { updateTrendsList } from "../../../trends/calculateTrends";
+import { cosineSimilarity } from "../../../utilities/arrays/cosineSimilarity";
 import { shuffleArray } from "../../../utilities/arrays/shuffleArray";
-import { updateReplyCounts } from "../../controllers/posts/count";
+import { postsToUpdate, updateReplyCounts } from "../../controllers/posts/count";
 import { updateClickCounts } from "../../controllers/posts/engagement/clicks/count";
-import { updateAllEngagementHistory } from "../../controllers/posts/engagement/history/updateAll";
+import { updateEngagementHistory } from "../../controllers/posts/engagement/history/updateOne";
 import { updateLikeCounts } from "../../controllers/posts/engagement/like/count";
 import { updateViewCounts } from "../../controllers/posts/engagement/views/count";
+import { isPost } from "../../controllers/posts/filters";
 import { insertEngagements } from "../../controllers/posts/insertEngagement";
 import { getFollowChecker } from "../../controllers/users/getFollowChecker";
 import { getEngagementHistoryReader } from "../../controllers/users/getHistory";
 import { clearTables } from "../../reset/clearTables";
+import { clicks } from "../../schema/clicks";
+import { clusters } from "../../schema/clusters";
+import { likes } from "../../schema/likes";
+import { persistentDates } from "../../schema/persistentDates";
 import { Post, posts } from "../../schema/posts";
+import { trends } from "../../schema/trends";
 import { User } from "../../schema/users";
+import { views } from "../../schema/views";
 import { getAllBots } from "../utils";
+import { clearClusters } from "../../controllers/clusters/clear";
+import { getCommenterChecker } from "../../controllers/posts/getFollowedReplyChecker";
+import { PgColumn } from "drizzle-orm/pg-core";
+import { updateAllEngagementHistory } from "../../controllers/posts/engagement/history/updateAll";
 
 /**
  * Create random and organic engagements.
  */
 export async function seedEngagements() {
   // Clear existing engagements, and other related tables.
-  await clearTables(["likes", "views", "clicks", "clusters", "trends", "user_vector_updates"])
+  await clearTables([getTableName(likes), getTableName(views), getTableName(clicks), getTableName(trends), getTableName(persistentDates)])
+  await clearClusters()
   // Generate engagements
-  await createEngagements()
+  await createEngagementsForPairs(await getUsersAndPosts())
+
   // Update engagement related tables.
-  await updateUserEmbeddings()
-  await updateUserClusters()
-  await updateTrendsList()
-  console.log("Seeded all tables")
+  //await updateUserEmbeddings()
+  //await updateUserClusters()
+  //await updateTrendsList()// TODO make this faster
+  console.log("Seeded engagements")
 }
 
-async function createEngagements() {
-  // Get the users and posts.
-  const pairs = await getUsersAndPosts()
+/**
+ * Create all kinds of organic engagements for the given user-post pairs.
+ * @param pairs Array of user-post pairs.
+ */
+async function createEngagementsForPairs(pairs: [User, Post][]) {
+  console.log(`Creating engagements for ${pairs.length} pairs`)
   // Get the follow checker
   const checkFollow = await getFollowChecker()
   // The the engagement history reader
@@ -43,48 +61,85 @@ async function createEngagements() {
   const viewChance = 0.3
   // The max time between the creation of the post and the engagement.
   const maxDelay = 1 * 24 * 60 * 60 * 1000 // 1 day
-  // Engagement counters update interval.
-  const counterUpdateInterval = 100;
+  // The number of the engagements those are processed together. 
+  const batchSize = 10000;
+  const batchCount = Math.ceil(pairs.length / batchSize)
   // Process the pairs
-  const allEngagements: Engagement[] = []
-  for (let n = 0; n < pairs.length; n++) {
-    const [user, post] = pairs[n]
-    // Get the progress of the loop.
-    const progress = n / pairs.length
-    // Get the relationship between the viewer and the publisher.
-    const relationship: ViewerPublisherRelationship = {
-      followed: checkFollow(user.id, post.userId),
-      engagementHistory: engagementHistoryReader(user.id, post.userId)
-    }
-    // Get if the user seen this post.
-    const seen = Math.random() < viewChance
-    if (!seen) continue // Skip if the user didn't see the post.
-    // Specify the date. The delay is linear with the progress of the loop to simulate that the post had small engagements at the beginning and more in the end. 
-    const date: Date = new Date(post.createdAt.getTime() + maxDelay * progress);
-    // Generate the engagements for the post.
-    const engagements = getEngagements(user, post, relationship, date)
-    allEngagements.push(engagements)
-    // Insert the engagements and update the engagement counters every X cycles. This is necessary because the engagement generator takes these counters into account. 
-    if (n % counterUpdateInterval === 0) {
-      // Insert the engagements into the database.
-      await insertEngagements(allEngagements) 
-      // Update counters.
-      await updateLikeCounts()
-      await updateReplyCounts()
-      await updateClickCounts()
-      await updateViewCounts()
-      await updateAllEngagementHistory()
-    }
+  for (let batch = 0; batch < batchCount; batch++) {
+    console.log(`Processing batch ${batch + 1} of ${batchCount}`)
+    // The user-post pairs inside the batch.
+    const batchPairs = pairs.slice(batch * batchSize, (batch + 1) * batchSize)
+    // The ids of the posts in the batch.
+    const uniquePostIds = [...new Set(batchPairs.map(([_, post]) => post.id))]
+    // Store the commenters in memory for faster access.
+    const commenterChecker = await getCommenterChecker(uniquePostIds)
+    // The engagements created inside the batch.
+    const batchEngagements: Engagement[] = []
+    // Process the pairs, create their promises.
+    batchPairs.map(async ([user, post]) => {
+      // Get the progress of the loop.
+      const progress = batch * batchSize / pairs.length
+      // Get the relationship between the viewer and the publisher.
+      const relationship: ViewerPublisherRelationship = {
+        followed: checkFollow(user.id, post.userId),
+        engagementHistory: engagementHistoryReader(user.id, post.userId),
+        isRelevant: post.topic ? user.interests.includes(post.topic) : false,
+        repliedByFollowed: repliedByFollowed(post, user, checkFollow, commenterChecker),
+      }
+      // Get if the user seen this post.
+      const seen = Math.random() < viewChance
+      if (!seen) return // Skip if the user didn't see the post.
+      // Specify the date. The delay is linear with the progress of the loop to simulate that the post had small engagements at the beginning and more in the end. 
+      const date: Date = new Date(post.createdAt.getTime() + maxDelay * progress);
+      // Generate the engagements for the post.
+      const engagements = getEngagements(user, post, relationship, date)
+      batchEngagements.push(engagements)
+    })
+    // After a batch is done, insert and update the engagement counters.
+    // Insert the engagements into the database.
+    console.log("Inserting engagements...")
+    await insertEngagements(batchEngagements)
+    // Update counters.
+    // All posts are updated, becase the batchsize is very large.
+    console.log("Updating counters...")
+    await Promise.all([
+      updateLikeCounts(),
+      updateReplyCounts(),
+      updateClickCounts(),
+      updateViewCounts()
+    ])
+    console.log("Updating history...")
+    await updateAllEngagementHistory()
   }
 }
 
+/** Check if a post was replied by a user that is followed by the viewer.
+ * @param post The post to check.
+ * @param viewer The viewer.
+ * @param checkFollow The function to check if a user follows another user.
+ */
+function repliedByFollowed(post: Post, viewer: User, checkFollow: (from: string, to: string) => boolean, commenterChecker: (postId: string) => Set<string> | undefined): boolean {
+  // Get the comments of the post.
+  const repliers = commenterChecker(post.id)
+  if (!repliers) return false // No replies, return false.
+  // Check if any of the commenters are followed by the viewer.
+  for (const replier of repliers) {
+    if (checkFollow(viewer.id, replier)) {
+      return true
+    }
+  }
+  // None of the commenters are followed by the viewer, return false.
+  return false
+}
+
 /** 
- * Get all user and post pairs in randomized order.
-  @returns Array of pairs. 
-  */
+* Get all user and post pairs in randomized order.
+* @returns Array of pairs. 
+*/
 async function getUsersAndPosts(): Promise<[User, Post][]> {
+  console.log("Getting all users and posts")
   const allUsers = await getAllBots()
-  const allPosts = await db.select().from(posts)
+  const allPosts = await db.select().from(posts).where(isPost())
   /** All users paired with all posts. */
   let pairs: [User, Post][] = allUsers.flatMap((user) => allPosts.map((post) => [user, post] as [User, Post]))
   pairs = shuffleArray(pairs); // Randomize the order of pairs here

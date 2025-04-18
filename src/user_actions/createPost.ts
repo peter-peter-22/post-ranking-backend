@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { posts, PostToCreate } from "../db/schema/posts";
 import { generateEmbeddingVector } from "../embedding";
+import { promisesAllTracked } from "../utilities/arrays/trackedPromises";
 
 export async function createPost(data: PostToCreate) {
     // Generate embedding vector
@@ -30,7 +31,8 @@ function getHashtags(text:string){
 }
 
 export async function createPosts(data: PostToCreate[]) {
-    return await Promise.all(
+    console.log(`Creating ${data.length} posts...`)
+    return await promisesAllTracked(
         data.map(post => createPost(post))
     )
 }

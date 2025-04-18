@@ -2,7 +2,7 @@ import { and, cosineDistance, desc, notInArray, sql } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
-import { minimalEngagement } from "../../filters";
+import { minimalEngagement } from "../../../db/controllers/posts/filters";
 
 /** Max count of posts. */
 const count = 450;
