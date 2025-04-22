@@ -10,7 +10,7 @@ export async function seedBasics() {
     await clearAllTables()
     await seedMainUser()
     const allUsers = await seedUsers(10000)
-    await seedPosts(1000 )
+    await seedPosts(1000)
     await seedFollows({ from: allUsers, to: allUsers })
     console.log("Seeded basics")
 }

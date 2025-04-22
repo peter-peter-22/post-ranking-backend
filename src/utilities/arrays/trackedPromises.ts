@@ -4,7 +4,7 @@
  * @param onLog The function to call to log the progress.
  * @returns The result of the Promise.all.
 */
-export async function promisesAllTracked(promises: Promise<any>[], logInterval: number = 1000, onLog: (progress: number) => void = (progress) => { console.log(Math.round(progress * 100) + "%") }): Promise<any[]> {
+export async function promisesAllTracked(promises: Promise<any>[], logInterval = 1000, onLog = (progress: number) => { console.log(Math.round(progress * 100) + "%") }): Promise<any[]> {
     let completed = 0;
     // Log the progress every logInterval milliseconds
     const logger = setInterval(() => { onLog(completed / promises.length) }, logInterval)
