@@ -9,7 +9,7 @@ import { seedMainUser, seedUsers } from "../users";
 export async function seedBasics() {
     await clearAllTables()
     await seedMainUser()
-    const allUsers = await seedUsers(10000)
+    const allUsers = await seedUsers(100)
     await seedPosts(1000)
     await seedFollows({ from: allUsers, to: allUsers })
     console.log("Seeded basics")

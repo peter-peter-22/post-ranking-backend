@@ -37,20 +37,20 @@ export function getEngagementChances(user: User, post: Post, relationship: Viewe
 
     /** The chance of liking */
     let like = relevance * 1
-    like += Math.log10(post.likeCount) / 5 // More likes, more chance to like.
+    like += Math.log10(Math.max(1, post.likeCount)) / 5 // More likes, more chance to like.
     like *= engagingModifier
     like *= ageModifier
 
     /** The chance of replying */
     let reply = relevance * 0.3
-    reply += Math.log10(post.replyCount) / 5 // More likes, more chance to like.
-    if (relationship.repliedByFollowed) reply += 0.3
+    reply += Math.log10(Math.max(1, post.replyCount)) / 5 // More likes, more chance to like.
+    if (relationship.repliedByFollowed) reply += 0.2
     reply *= engagingModifier
     reply *= ageModifier
 
     /** The chance of replying */
     let click = relevance * 0.6
-    click += Math.log10(post.clickCount) / 5 // More likes, more chance to like.
+    click += Math.log10(Math.max(1, post.clickCount)) / 5 // More likes, more chance to like.
     click *= engagingModifier
     click *= ageModifier
 

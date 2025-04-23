@@ -3,19 +3,19 @@ import axios from "axios";
 // Create axios instance for the embedding api
 const embeddingApi = axios.create({
     baseURL: "http://localhost:8000",//@todo: use zod for env
-    timeout: 50000000,
+    timeout: 10000,
 })
 
-/** Send a request to the embedding vector generator server.
- * @param text The text to convert.
- * @returns Embedding vector.
+/** Convert texts to embedding vectors via the embedding vector server.
+ * @param texts The texts to convert.
+ * @returns Embedding vectors.
  */
-export async function generateEmbeddingVector(text: string) {
+export async function generateEmbeddingVectors(texts: string[]) {
     try {
-        const res = await embeddingApi.post("/embedding", { text })
-        return res.data.embedding
+        const res = await embeddingApi.post("/embedding", { texts: texts })
+        return res.data.embeddings
     }
     catch (err) {
-        throw new Error(`Failed to generate embedding vector. Error: "${err instanceof Error ? err.message : err}"`)
+        throw new Error(`Failed to generate embedding vectors. Error: "${err instanceof Error ? err.message : err}"`)
     }
 }

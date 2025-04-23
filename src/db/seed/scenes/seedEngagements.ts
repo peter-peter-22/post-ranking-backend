@@ -31,18 +31,12 @@ import { updateAllEngagementHistory } from "../../controllers/posts/engagement/h
 import { getEngagementCache } from "./memory caching/postEngagements";
 import { getEngagementHistoryCache } from "./memory caching/engagementHistory";
 import { clearReplies } from "../../reset/clearReplies";
-import { generateEmbeddingVector } from "../../../embedding";
+import { generateEmbeddingVectors } from "../../../embedding";
 
 /**
  * Create random and organic engagements.
  */
 export async function seedEngagements() {
-  for (let n = 0; n < 1; n++)
-  {
-    await Promise.all(Array.from({length:100}).map(() => generateEmbeddingVector("hello world")))
-    console.log(n)
-  }
-  return
   // Clear existing engagements, and other related tables.
   await clearTables([getTableName(likes), getTableName(views), getTableName(clicks), getTableName(trends), getTableName(persistentDates)])
   await clearReplies()

@@ -45,7 +45,7 @@ async function insertReplies(engagements: Engagement[]) {
 /** Format and insert likes. */
 async function insertClicks(engagements: Engagement[]) {
     const clicksToInsert: ClicksToInsert[] = engagements
-        .filter(engagement => engagement.like)
+        .filter(engagement => engagement.click)
         .map(engagement => ({
             postId: engagement.post.id,
             userId: engagement.user.id,

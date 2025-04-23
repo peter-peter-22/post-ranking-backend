@@ -1,27 +1,32 @@
 import { db } from "../db";
-import { chunkedInsert } from "../db/chunkedInsert";
-import { posts, PostToCreate } from "../db/schema/posts";
-import { generateEmbeddingVector } from "../embedding";
-import { promisesAllTracked } from "../utilities/arrays/trackedPromises";
+import { posts, PostToCreate, PostToInsert } from "../db/schema/posts";
+import { generateEmbeddingVectors } from "../embedding";
 
-export async function createPost(data: PostToCreate) {
+export async function createPosts(data: PostToCreate[]) {
+    console.log(`Creating ${data.length} posts...`)
+
     // Generate embedding vector
-    const embedding = await generateEmbeddingVector(data.text)
+    const embeddings = await generateEmbeddingVectors(data.map(post=>post.text))
 
     // Find hashtags
-    const hashtags = getHashtags(data.text)
+    const hashtags = data.map(post=>getHashtags(post.text))
+
+    // Merge the result
+    const postsToInsert:PostToInsert[]=data.map(
+        (post,i)=>({
+            ...post,
+            embedding:embeddings[i],
+            hashtags:hashtags[i]
+        })
+    )
 
     // Insert to db and return
-    const [post] = await db
+    const createdPosts = await db
         .insert(posts)
-        .values([{
-            ...data,
-            embedding,
-            hashtags
-        }])
+        .values(postsToInsert)
         .returning()
 
-    return post
+    return createdPosts
 }
 
 export const hashtagRegex = /(?<=#)[^#\s]{1,}/gm
@@ -31,7 +36,6 @@ function getHashtags(text: string) {
     return [...text.matchAll(hashtagRegex)].map(el => el[0])
 }
 
-export async function createPosts(data: PostToCreate[]) {
-    console.log(`Creating ${data.length} posts...`)
-    await Promise.all(data.map(post => createPost(post)))
+export async function createPost(data: PostToCreate) {
+    await createPosts([data])
 }
