@@ -18,4 +18,4 @@ RUN pnpm install
 COPY . .
 
 # Expose the appropriate port based on environment
-EXPOSE ${PORT}
+EXPOSE 3000
