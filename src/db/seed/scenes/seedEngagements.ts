@@ -41,14 +41,27 @@ export async function seedEngagements() {
   await clearTables([getTableName(likes), getTableName(views), getTableName(clicks), getTableName(trends), getTableName(persistentDates)])
   await clearReplies()
   await clearClusters()
+
   // Generate engagements
   await createEngagementsForPairs(await getUsersAndPosts())
 
   // Update engagement related tables.
+  await updateAll()
+  console.log("Seeded engagements")
+}
+
+/** Update all engagement related rables. */
+async function updateAll() {
+  console.log("Updating counters")
+  await Promise.all([
+    updateLikeCounts(),
+    updateReplyCounts(),
+    updateClickCounts(),
+    updateViewCounts()
+  ])
   //await updateUserEmbeddings()
   //await updateUserClusters()
   //await updateTrendsList()// TODO make this faster
-  console.log("Seeded engagements")
 }
 
 /**

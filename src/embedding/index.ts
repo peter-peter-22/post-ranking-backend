@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for the embedding api
 const embeddingApi = axios.create({
-    baseURL: "http://localhost:8000",//@todo: use zod for env
+    baseURL: process.env.EMBEDDING_API_URL,//@todo: use zod for env
     timeout: 10000,
 })
 

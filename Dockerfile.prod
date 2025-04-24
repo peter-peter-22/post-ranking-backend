@@ -1,0 +1,24 @@
+
+# Base image
+FROM node:20-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Install pnpm
+RUN npm install pnpm -g
+
+# Install dependencies
+COPY package*.json .
+
+# Install production deps
+RUN pnpm install --only=production;
+
+# Bundle app source
+COPY . .
+
+# Expose the appropriate port based on environment
+EXPOSE ${PORT}
+
+# Run the application
+CMD ["pnpm", "start"]
