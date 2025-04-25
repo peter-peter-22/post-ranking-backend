@@ -16,6 +16,3 @@ RUN pnpm install --prod
 
 # Bundle app source
 COPY . .
-
-# Expose the appropriate port based on environment
-EXPOSE 3000
