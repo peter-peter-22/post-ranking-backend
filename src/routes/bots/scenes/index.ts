@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { seedBasics } from '../../../db/seed/scenes/seedBasics';
-import { seedEngagements } from '../../../db/seed/scenes/seedEngagements';
+import { seedBasics } from '../../../db/seed/groups/seedBasics';
+import { seedEngagements } from '../../../db/seed/groups/seedEngagements';
 
 const router = Router();
 

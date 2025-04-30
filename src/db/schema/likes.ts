@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { index, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { posts } from './posts';
 import { users } from './users';
 

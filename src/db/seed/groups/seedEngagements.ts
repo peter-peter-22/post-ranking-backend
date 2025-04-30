@@ -34,6 +34,7 @@ import { clearReplies } from "../../reset/clearReplies";
 import { generateEmbeddingVectors } from "../../../embedding";
 import { applyMemoryEngagementCounts, applyMemoryEngagementHistory } from "./memory caching/save_counts";
 import { engagementHistory } from "../../schema/engagementHistory";
+import { updatePostSnapshots } from "./memory caching/updateSnapshots";
 
 /**
  * Create random and organic engagements.
@@ -89,7 +90,7 @@ async function createEngagementsForPairs(pairs: [User, Post][]) {
   const commenterChecker = getCommenterChecker()
   /** The chance to view a post */
   const viewChance = 0.3
-  // The max time between the creation of the post and the engagement.
+  // The oldest engagements will have this date.
   const maxDelay = 1 * 24 * 60 * 60 * 1000 // 1 day
   // The number of the engagements those are processed together. 
   const batchSize = 10000;
@@ -99,12 +100,14 @@ async function createEngagementsForPairs(pairs: [User, Post][]) {
     console.log(`Processing batch ${batch + 1} of ${batchCount}`)
     // The user-post pairs inside the batch.
     const batchPairs = pairs.slice(batch * batchSize, (batch + 1) * batchSize)
+    // Get the progress of the loop.
+    const progress = batch / batchSize
+    // All engagements will use this date to make the snapshots easier to create.
+    const date: Date = new Date(Date.now() + maxDelay * (1 - progress));
     // The engagements created inside the batch.
     const batchEngagements: Engagement[] = []
     // Process the pairs, create their promises.
     batchPairs.map(async ([user, post]) => {
-      // Get the progress of the loop.
-      const progress = batch * batchSize / pairs.length
       // Get the relationship between the viewer and the publisher.
       const relationship: ViewerPublisherRelationship = {
         followed: checkFollow(user.id, post.userId),
@@ -117,8 +120,6 @@ async function createEngagementsForPairs(pairs: [User, Post][]) {
       if (!seen) return // Skip if the user didn't see the post.
       // Apply the engagement counts.
       engagementCounts.applyCounts(post)
-      // Specify the date. The delay is linear with the progress of the loop to simulate that the post had small engagements at the beginning and more in the end. 
-      const date: Date = new Date(post.createdAt.getTime() + maxDelay * progress);
       // Generate the engagements for the post.
       const engagements = getEngagements(user, post, relationship, date)
       batchEngagements.push(engagements)
@@ -132,6 +133,8 @@ async function createEngagementsForPairs(pairs: [User, Post][]) {
     engagementCounts.add(batchEngagements)
     engagementHistories.apply(batchEngagements)
     commenterChecker.update(batchEngagements)
+    // Create snapshots of the current state of engagements.  
+    await updatePostSnapshots(engagementCounts.getAll())
   }
   // Save the engagement counts in the memory to the database to save time.
   console.log("Saving engagement counts...")
