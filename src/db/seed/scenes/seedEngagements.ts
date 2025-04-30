@@ -32,13 +32,22 @@ import { getEngagementCache } from "./memory caching/postEngagements";
 import { getEngagementHistoryCache } from "./memory caching/engagementHistory";
 import { clearReplies } from "../../reset/clearReplies";
 import { generateEmbeddingVectors } from "../../../embedding";
+import { applyMemoryEngagementCounts, applyMemoryEngagementHistory } from "./memory caching/save_counts";
+import { engagementHistory } from "../../schema/engagementHistory";
 
 /**
  * Create random and organic engagements.
  */
 export async function seedEngagements() {
   // Clear existing engagements, and other related tables.
-  await clearTables([getTableName(likes), getTableName(views), getTableName(clicks), getTableName(trends), getTableName(persistentDates)])
+  await clearTables([
+    getTableName(likes),
+    getTableName(views),
+    getTableName(clicks),
+    getTableName(trends),
+    getTableName(persistentDates),
+    getTableName(engagementHistory)
+  ])
   await clearReplies()
   await clearClusters()
 
@@ -53,12 +62,12 @@ export async function seedEngagements() {
 /** Update all engagement related rables. */
 async function updateAll() {
   console.log("Updating counters")
-  await Promise.all([
-    updateLikeCounts(),
-    updateReplyCounts(),
-    updateClickCounts(),
-    updateViewCounts()
-  ])
+  //await Promise.all([ //repalced by applying in-memory counts
+  //  updateLikeCounts(),
+  //  updateReplyCounts(),
+  //  updateClickCounts(),
+  //  updateViewCounts()
+  //])
   //await updateUserEmbeddings()
   //await updateUserClusters()
   //await updateTrendsList()// TODO make this faster
@@ -124,6 +133,11 @@ async function createEngagementsForPairs(pairs: [User, Post][]) {
     engagementHistories.apply(batchEngagements)
     commenterChecker.update(batchEngagements)
   }
+  // Save the engagement counts in the memory to the database to save time.
+  console.log("Saving engagement counts...")
+  applyMemoryEngagementCounts(engagementCounts.getAll())
+  console.log("Saving engagement histories...")
+  applyMemoryEngagementHistory(engagementHistories.getAll())
 }
 
 /** Check if a post was replied by a user that is followed by the viewer.

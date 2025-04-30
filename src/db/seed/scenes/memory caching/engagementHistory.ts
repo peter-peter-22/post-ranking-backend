@@ -1,20 +1,14 @@
 import { Engagement } from "../../../../bots/getEngagements";
 import { EngagementHistory } from "../../../schema/engagementHistory";
 
-/** Get a empty map of engagement history relationships. */
-function getEngagementHistoryMap() {
-    const historyMap = new Map<string, Map<string, EngagementHistory>>();
-    return historyMap
-}
-
 /**
- * Fetch the engagement history between all users and create a function that return the engagement history between two users.
- * @returns A function that return the engagement history between two users.
+ * Track the engagement history between users and export functions to get and update them.
+ * @returns Functions to get and update engagement history.
  */
 export function getEngagementHistoryCache() {
     console.log("Creating engagement history reader...")
     // Create empty map.
-    const historyMap = getEngagementHistoryMap()
+    const historyMap = new Map<string, Map<string, EngagementHistory>>();
 
     // Get engagement history between users.
     const get = (viewerId: string, publisherId: string): EngagementHistory | undefined => {
@@ -37,7 +31,7 @@ export function getEngagementHistoryCache() {
         let viewerHistories = historyMap.get(viewerId)
         if (!viewerHistories) {
             viewerHistories = new Map<string, EngagementHistory>();
-            historyMap.set(publisherId, viewerHistories);
+            historyMap.set(viewerId, viewerHistories);
         }
         // Update personal history of publisher.
         viewerHistories.set(publisherId, history);
@@ -74,6 +68,15 @@ export function getEngagementHistoryCache() {
         console.log("Cached engagement histories updated.")
     }
 
+    /** Get all engagement histories.
+     * @return An array of engagement histories.
+     */
+    const getAll = (): EngagementHistory[] => (
+        Array.from(historyMap.values()).flatMap((viewerHistories)=>(
+            Array.from(viewerHistories.values())
+        ))
+    )
+
     // Return the functions.
-    return { get, set, apply }
+    return { get, apply, getAll }
 }

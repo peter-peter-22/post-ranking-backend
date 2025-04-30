@@ -8,24 +8,21 @@ export type EngagementCounter = {
     views: number,
 }
 
-/** Get an map of engagement counters. 
- * @return A map of engagement counters.
-*/
-function getEngagementMap() {
-    const engagementMap = new Map<string, EngagementCounter>();
-    return engagementMap
-}
+/** Post id and engagement counts. */
+export type PostEngagementCounts=[
+    id:string,
+    counts:EngagementCounter
+]   
 
 /**
- * Cache the engagement counts for the given posts in the memory and return functions to read and update the cache.
- * @param posts The posts to cache the engagement counts for.
+ * Cache the engagement counts for the posts in the memory and return functions to read and update the cache.
  * @return Functions to add and get engagement counts.
  */
 export function getEngagementCache() {
     console.log("Creating engagement count cache...")
 
     // Create an empty map for the engagement counters.
-    const engagementMap = getEngagementMap()
+    const engagementMap = new Map<string, EngagementCounter>();
 
     // Add engagements and update the counters.
     const add = (engagements: Engagement[]) => {
@@ -64,5 +61,10 @@ export function getEngagementCache() {
         post.viewCount = counter.views;
     }
 
-    return { add, get, applyCounts }
+    /** Get all engagement counters */
+    const getAll = ():PostEngagementCounts[] => {
+        return Array.from(engagementMap.entries());
+    }
+
+    return { add, get, applyCounts, getAll}
 }
