@@ -28,7 +28,7 @@ export const posts = pgTable('posts', {
             ${posts.clickCount} 
         )`
     ),
-    embedding: embeddingVector("embedding").notNull(),
+    embedding: embeddingVector("embedding"),
     //the texts of the hashtags. used for trend calculations
     hashtags: varchar({ length: 50 }).notNull().array()
 }, (table) => [

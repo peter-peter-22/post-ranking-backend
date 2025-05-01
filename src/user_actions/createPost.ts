@@ -1,4 +1,5 @@
 import { db } from "../db";
+import { chunkedInsert } from "../db/chunkedInsert";
 import { posts, PostToCreate, PostToInsert } from "../db/schema/posts";
 import { generateEmbeddingVectors } from "../embedding";
 
@@ -16,6 +17,34 @@ export async function createPosts(data: PostToCreate[]) {
         (post,i)=>({
             ...post,
             embedding:embeddings[i],
+            hashtags:hashtags[i]
+        })
+    )
+
+    // Insert to db and return
+    const createdPosts = (await chunkedInsert(
+        postsToInsert,
+        async (rows)=>(
+            await db
+            .insert(posts)
+            .values(rows)
+            .returning()
+        )
+    )).flat()
+
+    return createdPosts
+}
+
+export async function createReplies(data: PostToCreate[]) {
+    console.log(`Creating ${data.length} replies...`)
+
+    // Find hashtags
+    const hashtags = data.map(post=>getHashtags(post.text))
+
+    // Merge the result
+    const postsToInsert:PostToInsert[]=data.map(
+        (post,i)=>({
+            ...post,
             hashtags:hashtags[i]
         })
     )

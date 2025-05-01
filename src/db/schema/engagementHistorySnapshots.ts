@@ -1,16 +1,18 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { boolean, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
-export const followSnapshots = pgTable('likes', {
-    followerId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
-    followedId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
-    isFollowing: boolean().notNull(),
+export const engagementHistorySnapshots = pgTable('engagement_history_snapshots', {
+    viewerId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
+    posterId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
+    likeCount:integer().notNull().default(0),
+    replyCount:integer().notNull().default(0),
+    clickCount:integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    unique().on(t.followerId, t.followedId),
+    unique().on(t.viewerId, t.posterId, t.createdAt),
 ]);
 
-export type FollowShapshot = InferSelectModel<typeof followSnapshots>;
+export type EngagementHistoryShapshot = InferSelectModel<typeof engagementHistorySnapshots>;
 
-export type FollowShapshotToInsert = InferInsertModel<typeof followSnapshots>; 
+export type EngagementHistoryShapshotToInsert = InferInsertModel<typeof engagementHistorySnapshots>;

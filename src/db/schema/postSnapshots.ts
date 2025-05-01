@@ -2,7 +2,7 @@ import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, integer, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { posts } from './posts';
 
-export const postSnapshots = pgTable('likes', {
+export const postSnapshots = pgTable('post_snapshots', {
     postId: uuid().notNull().references(() => posts.id,{onDelete:"cascade"}),
     likeCount:integer().notNull().default(0),
     replyCount:integer().notNull().default(0),
@@ -10,7 +10,7 @@ export const postSnapshots = pgTable('likes', {
     viewCount:integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.postId)
+    index().on(t.postId,t.createdAt)
 ]);
 
 export type PostSnapshot = InferSelectModel<typeof postSnapshots>;

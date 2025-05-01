@@ -1,6 +1,6 @@
 import { db } from "../.."
 import { Engagement } from "../../../bots/getEngagements"
-import { createPosts } from "../../../user_actions/createPost"
+import { createReplies } from "../../../user_actions/createPost"
 import { clicks, ClicksToInsert } from "../../schema/clicks"
 import { likes, LikeToInsert } from "../../schema/likes"
 import { PostToCreate } from "../../schema/posts"
@@ -39,7 +39,7 @@ async function insertReplies(engagements: Engagement[]) {
             text: generateReplyText(getRandomTopicFromUser(engagement.user)),
         }))
     if (replies.length === 0) return
-    await createPosts(replies)
+    await createReplies(replies)
 }
 
 /** Format and insert likes. */

@@ -4,6 +4,7 @@ import { chunkedInsert } from "../chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
 import { UserCommon } from "../schema/users";
+import { updateFollowSnapshots } from "./groups/memory caching/updateSnapshots";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
 const chanceToFollowInterest = 0.3
@@ -39,6 +40,8 @@ async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
                         .values(data)
                         .onConflictDoNothing();
                 })
+                // Update follow snapshots
+                await updateFollowSnapshots(followsToInsert)
             }
         })
     )
