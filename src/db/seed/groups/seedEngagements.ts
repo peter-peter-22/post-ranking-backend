@@ -8,10 +8,13 @@ import { clearReplies } from "../../reset/clearReplies";
 import { clearTables } from "../../reset/clearTables";
 import { clicks } from "../../schema/clicks";
 import { engagementHistory } from "../../schema/engagementHistory";
+import { engagementHistorySnapshots } from "../../schema/engagementHistorySnapshots";
 import { likes } from "../../schema/likes";
 import { persistentDates } from "../../schema/persistentDates";
 import { Post, posts } from "../../schema/posts";
+import { postSnapshots } from "../../schema/postSnapshots";
 import { trends } from "../../schema/trends";
+import { userEmbeddingSnapshots } from "../../schema/userEmbeddingSnapshots";
 import { User } from "../../schema/users";
 import { views } from "../../schema/views";
 import { getAllBots } from "../utils";
@@ -19,11 +22,9 @@ import { getEngagementHistoryCache } from "./memory caching/engagementHistory";
 import { getFollowChecker } from "./memory caching/follows";
 import { getEngagementCache } from "./memory caching/postEngagements";
 import { getCommenterChecker } from "./memory caching/replies";
-import { applyMemoryEngagementCounts, applyMemoryEngagementHistory } from "./memory caching/save_counts";
-import { updateHistorySnapshots, updatePostSnapshots } from "./memory caching/updateSnapshots";
-import { postSnapshots } from "../../schema/postSnapshots";
-import { engagementHistorySnapshots } from "../../schema/engagementHistorySnapshots";
-import { followSnapshots } from "../../schema/followSnapshots";
+import { applyMemoryEngagementCounts, applyMemoryEngagementHistory, applyMemoryUserEmbeddingVectors } from "./memory caching/saveCounts";
+import { updateHistorySnapshots, updatePostSnapshots, updateUserEmbeddingSnapshots } from "./memory caching/updateSnapshots";
+import { userEmbeddingVectorHandler } from "./memory caching/userEmbeddingVectors";
 
 type UserPostPair = [
   user: User,
@@ -45,7 +46,7 @@ export async function seedEngagements() {
     getTableName(engagementHistory),
     getTableName(postSnapshots),
     getTableName(engagementHistorySnapshots),
-    getTableName(followSnapshots)
+    getTableName(userEmbeddingSnapshots)
   ])
   await clearReplies()
   await clearClusters()
@@ -55,7 +56,6 @@ export async function seedEngagements() {
 
   // Update engagement related tables.
   console.log("Updating engagement related tables")
-  //await updateUserEmbeddings()
   //await updateUserClusters()
   //await updateTrendsList()// TODO make this faster
   console.log("Seeded engagements")
@@ -75,6 +75,8 @@ async function createEngagementsForPairs(pairs: UserPostPair[]) {
   const engagementHistories = getEngagementHistoryCache()
   // Get the commenter cache.
   const commenterChecker = getCommenterChecker()
+  // Get the user embedding vector cache.
+  const userVectors = userEmbeddingVectorHandler()
   /** The chance to view a post */
   const viewChance = 0.3
   // The number of the engagements those are processed together. 
@@ -105,26 +107,31 @@ async function createEngagementsForPairs(pairs: UserPostPair[]) {
       const engagements = getEngagements(user, post, relationship, new Date(timestamp))
       batchEngagements.push(engagements)
     })
-    // After a batch is done, insert and update the engagement counters.
-    // Insert the engagements into the database.
-    console.log("Inserting engagements...")
-    await insertEngagements(batchEngagements)
     // Update the cached engagement counters.
     console.log("Updating counters...")
     engagementCounts.add(batchEngagements)
     engagementHistories.apply(batchEngagements)
     commenterChecker.update(batchEngagements)
-    // Create snapshots of the current state of engagements.  
-    console.log("Updating snapshots...")
-    const updateDate=new Date(batchPairs[batchPairs.length-1][2])
-    await updatePostSnapshots(engagementCounts.getAll(),batchEngagements,updateDate)
-    await updateHistorySnapshots(engagementHistories.getAll(),batchEngagements,updateDate)
+    userVectors.apply(batchEngagements)
+    console.log("Inserting and ,updating snapshots...")
+    /** The last date in the batch. */
+    const updateDate = new Date(batchPairs[batchPairs.length - 1][2])
+    await Promise.all([
+      // Insert the engagements into the database.
+      insertEngagements(batchEngagements),
+      // Create snapshots of the current state of engagements.  
+      updatePostSnapshots(engagementCounts.getAll(), batchEngagements, updateDate),
+      updateHistorySnapshots(engagementHistories.getAll(), batchEngagements, updateDate),
+      updateUserEmbeddingSnapshots(userVectors.getAllAverages(updateDate))
+    ])
   }
   // Save the engagement counts in the memory to the database to save time.
-  console.log("Saving engagement counts...")
-  applyMemoryEngagementCounts(engagementCounts.getAll())
-  console.log("Saving engagement histories...")
-  applyMemoryEngagementHistory(engagementHistories.getAll())
+  await Promise.all([
+    applyMemoryEngagementCounts(engagementCounts.getAll()),
+    applyMemoryEngagementHistory(engagementHistories.getAll()),
+    applyMemoryUserEmbeddingVectors(userVectors.getAllAverages(new Date()))
+  ])
+
 }
 
 /** Check if a post was replied by a user that is followed by the viewer.

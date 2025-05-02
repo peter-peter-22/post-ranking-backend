@@ -3,9 +3,6 @@ import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid
 import { embeddingVector } from '../common';
 import { users } from './users';
 
-/**
- * @todo The scores are hardcoded because template literal variables cause bugs.
- */
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),

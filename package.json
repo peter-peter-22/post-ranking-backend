@@ -7,7 +7,8 @@
   "scripts": {
     "start": "tsx src/index.js",
     "dev": "nodemon --inspect=0.0.0.0 --legacy-watch --exec tsx src/index.ts",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "push": "drizzle-kit push"
   },
   "keywords": [],
   "author": "",

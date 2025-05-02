@@ -9,12 +9,14 @@ import { generateReplyText, getRandomTopicFromUser } from "../../seed/posts"
 
 /** Format the engagement data and insert it into the DB. */
 export async function insertEngagements(engagements: Engagement[]) {
+    console.log("Inserting engagements...")
     await Promise.all([
         insertLikes(engagements),
         insertReplies(engagements),
         insertClicks(engagements),
         insertViews(engagements)
     ])
+    console.log("Inserted engagements")
 }
 
 /** Format and insert likes. */

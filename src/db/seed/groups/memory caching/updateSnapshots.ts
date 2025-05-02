@@ -6,6 +6,7 @@ import { EngagementHistoryShapshotToInsert, engagementHistorySnapshots } from ".
 import { FollowToInsert } from "../../../schema/follows";
 import { FollowShapshotToInsert, followSnapshots } from "../../../schema/followSnapshots";
 import { postSnapshots, PostSnapshotToInsert } from "../../../schema/postSnapshots";
+import { userEmbeddingSnapshots, UserEmbeddingSnapshotToInsert } from "../../../schema/userEmbeddingSnapshots";
 import { PostEngagementCounts } from "./postEngagements";
 
 /** Create post snapshots from the posts in the memory.
@@ -119,4 +120,17 @@ export async function updateFollowSnapshots(follows: FollowToInsert[]) {
                 )
         }
     )
+}
+
+/** Insert the provided user embedding vector snapshots to the databse.
+ * @param snapshots - The user embedding vector snapshots to insert.
+ */
+export async function updateUserEmbeddingSnapshots(snapshots:UserEmbeddingSnapshotToInsert[]){
+    await chunkedInsert(
+        snapshots,
+        async (batchSnapshots: UserEmbeddingSnapshotToInsert[]) => {
+            await db.insert(userEmbeddingSnapshots).values(batchSnapshots)
+        }
+    )
+    console.log(`Created ${snapshots.length} user embedding vector snapshot.`)
 }

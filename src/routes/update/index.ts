@@ -1,15 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { updateUserClusters } from '../../clusters/updateClusters';
-import { updateUserEmbeddings } from '../../embedding/updateUserEmbedding';
 import { updateTrendsList } from '../../trends/calculateTrends';
 import { updateAllEngagementHistory } from '../../db/controllers/posts/engagement/history/updateAll';
 
 const router = Router();
-
-router.get('/userEmbeddings', async (req: Request, res: Response) => {
-    await updateUserEmbeddings()
-    res.sendStatus(200)
-});
 
 router.get('/userClusters', async (req: Request, res: Response) => {
     await updateUserClusters()
