@@ -50,10 +50,15 @@ export async function createReplies(data: PostToCreate[]) {
     )
 
     // Insert to db and return
-    const createdPosts = await db
-        .insert(posts)
-        .values(postsToInsert)
-        .returning()
+    const createdPosts = (await chunkedInsert(
+        postsToInsert,
+        async (rows)=>(
+            await db
+            .insert(posts)
+            .values(rows)
+            .returning()
+        )
+    )).flat()
 
     return createdPosts
 }

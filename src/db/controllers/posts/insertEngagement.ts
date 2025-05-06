@@ -1,6 +1,7 @@
 import { db } from "../.."
 import { Engagement } from "../../../bots/getEngagements"
 import { createReplies } from "../../../user_actions/createPost"
+import { chunkedInsert } from "../../chunkedInsert"
 import { clicks, ClicksToInsert } from "../../schema/clicks"
 import { likes, LikeToInsert } from "../../schema/likes"
 import { PostToCreate } from "../../schema/posts"
@@ -26,10 +27,13 @@ async function insertLikes(engagements: Engagement[]) {
         .map(engagement => ({
             postId: engagement.post.id,
             userId: engagement.user.id,
+            createdAt: engagement.date
         }))
     if (likesToInsert.length === 0) return
-    await db.insert(likes).values(likesToInsert)
-}
+    await chunkedInsert(
+        likesToInsert,
+        async (rows) => { await db.insert(likes).values(rows) }
+    )}
 
 /** Format and insert likes. */
 async function insertReplies(engagements: Engagement[]) {
@@ -39,6 +43,7 @@ async function insertReplies(engagements: Engagement[]) {
             replyingTo: engagement.post.id,
             userId: engagement.user.id,
             text: generateReplyText(getRandomTopicFromUser(engagement.user)),
+            createdAt: engagement.date
         }))
     if (replies.length === 0) return
     await createReplies(replies)
@@ -51,9 +56,13 @@ async function insertClicks(engagements: Engagement[]) {
         .map(engagement => ({
             postId: engagement.post.id,
             userId: engagement.user.id,
+            createdAt: engagement.date
         }))
     if (clicksToInsert.length === 0) return
-    await db.insert(clicks).values(clicksToInsert)
+    await chunkedInsert(
+        clicksToInsert,
+        async (rows) => { await db.insert(clicks).values(rows) }
+    )
 }
 
 /** Format and insert views. */
@@ -63,7 +72,11 @@ async function insertViews(engagements: Engagement[]) {
         .map(engagement => ({
             postId: engagement.post.id,
             userId: engagement.user.id,
+            createdAt: engagement.date
         }))
     if (viewsToInsert.length === 0) return
-    await db.insert(views).values(viewsToInsert)
+    await chunkedInsert(
+        viewsToInsert,
+        async (rows) => { await db.insert(views).values(rows) }
+    )
 }
