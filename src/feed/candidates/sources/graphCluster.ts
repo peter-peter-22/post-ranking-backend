@@ -20,7 +20,7 @@ export async function getGraphClusterCandidates({ user, commonFilters,followedUs
 
     // Get the posts.
     const candidates = await db
-        .select(candidateColumns)
+        .select(candidateColumns(user))
         .from(posts)
         .innerJoin(users, and(eq(users.clusterId, user.clusterId),eq(posts.userId,users.id)))
         .where(

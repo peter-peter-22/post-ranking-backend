@@ -7,7 +7,7 @@ import { getTrendNames } from "../../../trends/getTrends";
 /** Selecting candidate posts from trending topics. 
  * @todo This approach limits how much posts can be displayed for a new user.
 */
-export async function getTrendCandidates({ commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+export async function getTrendCandidates({ user,commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
     // Get the trends.
     const trends = await getTrendNames()
 
@@ -17,7 +17,7 @@ export async function getTrendCandidates({ commonFilters }: CandidateCommonData)
             // Select the best posts from each trend.
             trends.map(trend => (
                 db
-                    .select(candidateColumns)
+                    .select(candidateColumns(user))
                     .from(posts)
                     .where(and(
                         arrayOverlaps(posts.hashtags, [trend]),

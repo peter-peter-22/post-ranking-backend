@@ -1,7 +1,7 @@
-import { getTableColumns, SQL } from "drizzle-orm";
+import { cosineDistance, getTableColumns, sql, SQL } from "drizzle-orm";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { Post, posts } from "../../db/schema/posts";
-import { User } from "../../db/schema/users";
+import { User, UserCommon, users } from "../../db/schema/users";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
 import { getInNetworkCandidates } from "./sources/inNetwork";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
@@ -28,8 +28,14 @@ export async function getCandidates(common: CandidateCommonData) {
 }
 
 const { embedding, ...rest } = getTableColumns(posts)
+
 /** The columns those are selected from the post candidates. */
-export const candidateColumns = rest
+export function candidateColumns(user: User) {
+    return {
+        ...rest,
+        similarity: user.embedding ? sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})` : sql<number>`0`
+    }
+}
 
 /** Get values those are shared by multiple candidate selectors. */
 export async function getCommonData(user: User): Promise<CandidateCommonData> {

@@ -1,4 +1,4 @@
-import { and, cosineDistance, desc, notInArray, sql } from "drizzle-orm";
+import { and, asc, cosineDistance, desc, notInArray, sql } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
@@ -19,15 +19,9 @@ export async function getEmbeddingSimilarityCandidates({ user, commonFilters,fol
         return []
     }
 
-    /** SQL for calculating the similarity. */
-    const similarity = sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})`;
-
     // Get the posts.
     const candidates = await db
-        .select({
-            ...candidateColumns,
-            similarity
-        })
+        .select(candidateColumns(user))
         .from(posts)
         .where(
             and(
@@ -36,7 +30,7 @@ export async function getEmbeddingSimilarityCandidates({ user, commonFilters,fol
                 minimalEngagement(),
             )
         )
-        .orderBy(t => desc(t.similarity))
+        .orderBy(asc(cosineDistance(posts.embedding, user.embedding)))
         .limit(count)
     console.log(`Embedding similarity candidates: ${candidates.length}`)
 

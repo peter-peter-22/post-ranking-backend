@@ -7,10 +7,10 @@ import { posts } from "../../../db/schema/posts";
 const count = 750;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export async function getInNetworkCandidates({ followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+export async function getInNetworkCandidates({user, followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
     // Get the posts
     let candidates = await db
-        .select(candidateColumns)
+        .select(candidateColumns(user))
         .from(posts)
         .where(
             and(
