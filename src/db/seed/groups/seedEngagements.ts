@@ -25,6 +25,8 @@ import { getCommenterChecker } from "./memory caching/replies";
 import { applyMemoryEngagementCounts, applyMemoryEngagementHistory, applyMemoryUserEmbeddingVectors } from "./memory caching/saveCounts";
 import { updateHistorySnapshots, updatePostSnapshots, updateUserEmbeddingSnapshots } from "./memory caching/updateSnapshots";
 import { userEmbeddingVectorHandler } from "./memory caching/userEmbeddingVectors";
+import { cosineSimilarity } from "../../../utilities/arrays/cosineSimilarity";
+import { embeddingVector } from "../../common";
 
 type UserPostPair = [
   user: User,
@@ -91,16 +93,17 @@ async function createEngagementsForPairs(pairs: UserPostPair[]) {
     const batchEngagements: Engagement[] = []
     // Process the pairs, create their promises.
     batchPairs.map(async ([user, post, timestamp]) => {
-      // Get the relationship between the viewer and the publisher.
-      const relationship: ViewerPublisherRelationship = {
-        followed: checkFollow(user.id, post.userId),
-        engagementHistory: engagementHistories.get(user.id, post.userId),
-        isRelevant: post.topic ? user.interests.includes(post.topic) : false,
-        repliedByFollowed: repliedByFollowed(post, user, checkFollow, commenterChecker.get),
-      }
       // Get if the user seen this post.
       const seen = Math.random() < viewChance
       if (!seen) return // Skip if the user didn't see the post.
+      // Get the relationship between the viewer and the publisher.
+      const userVector = userVectors.getAverage(user.id)
+      const relationship: ViewerPublisherRelationship = {
+        followed: checkFollow(user.id, post.userId),
+        engagementHistory: engagementHistories.get(user.id, post.userId),
+        repliedByFollowed: repliedByFollowed(post, user, checkFollow, commenterChecker.get),
+        cosineSimilarity: userVector && post.embedding ? cosineSimilarity(userVector, post.embedding) : null
+      }
       // Apply the engagement counts.
       engagementCounts.applyCounts(post)
       // Generate the engagements for the post.
@@ -113,7 +116,7 @@ async function createEngagementsForPairs(pairs: UserPostPair[]) {
     engagementHistories.apply(batchEngagements)
     commenterChecker.update(batchEngagements)
     userVectors.apply(batchEngagements)
-    console.log("Inserting and ,updating snapshots...")
+    console.log("Inserting and, updating snapshots...")
     /** The last date in the batch. */
     const updateDate = new Date(batchPairs[batchPairs.length - 1][2])
     await Promise.all([
