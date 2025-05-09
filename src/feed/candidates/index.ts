@@ -3,7 +3,7 @@ import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { Post, posts } from "../../db/schema/posts";
 import { User, UserCommon, users } from "../../db/schema/users";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
-import { getInNetworkCandidates } from "./sources/inNetwork";
+import { getFollowedCandidates } from "./sources/followed";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
 import { commonFilters } from "../../db/controllers/posts/filters";
 import { getTrendCandidates } from "./sources/trending";
@@ -14,7 +14,7 @@ export async function getCandidates(common: CandidateCommonData) {
     // Get the candidates.
     let candidates = (
         await Promise.all([
-            getInNetworkCandidates(common),
+            getFollowedCandidates(common),
             getGraphClusterCandidates(common),
             getEmbeddingSimilarityCandidates(common),
             getTrendCandidates(common)
@@ -54,7 +54,7 @@ export type CandidateCommonData = {
 }
 
 /** The type of the post candidate. */
-export type CandidateSource = "InNetwork" | "GraphClusters" | "EmbeddingSimilarity" | "Trending"
+export type CandidateSource = "Followed" | "RepliedByFollowed" | "GraphClusters" | "EmbeddingSimilarity" | "Trending"
 
 /** Post returned by the candidate selectors. */
 export type CandidatePost = Omit<Post, "embedding"> & { candidateSource: CandidateSource }

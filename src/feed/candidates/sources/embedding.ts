@@ -5,7 +5,7 @@ import { posts } from "../../../db/schema/posts";
 import { minimalEngagement } from "../../../db/controllers/posts/filters";
 
 /** Max count of posts. */
-const count = 450;
+const count = 500;
 
 /** Selecting candidate posts those embedding is similar to the embedding of the user. 
  * @todo Use a separate embedding vector storage.

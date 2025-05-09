@@ -6,7 +6,7 @@ import { users } from "../../../db/schema/users";
 import { minimalEngagement } from "../../../db/controllers/posts/filters";
 
 /** Max count of posts */
-const count = 350;
+const count = 500;
 
 /** Selecting candidate posts from the graph cluster of the user.
  * @todo The user is added to the posts again later.

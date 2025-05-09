@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { getUser } from '../../authentication';
 import { getCandidates, getCommonData } from '../../feed/candidates';
 import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/sources/embedding';
-import { getInNetworkCandidates } from '../../feed/candidates/sources/inNetwork';
+import { getFollowedCandidates } from '../../feed/candidates/sources/followed';
 import { getGraphClusterCandidates } from '../../feed/candidates/sources/graphCluster';
 import { getTrendCandidates } from '../../feed/candidates/sources/trending';
 
@@ -23,7 +23,7 @@ router.get('/inNetwork', async (req: Request, res: Response) => {
     if (!user)
         return;
 
-    const posts = await getInNetworkCandidates(await getCommonData(user))
+    const posts = await getFollowedCandidates(await getCommonData(user))
     res.json(posts)
 });
 
