@@ -3,60 +3,51 @@ import { chunkedInsert } from "../db/chunkedInsert";
 import { posts, PostToCreate, PostToInsert } from "../db/schema/posts";
 import { generateEmbeddingVectors } from "../embedding";
 
+/** Calculate the metadata of posts and insert them into the database. */
 export async function createPosts(data: PostToCreate[]) {
     console.log(`Creating ${data.length} posts...`)
 
     // Generate embedding vector
-    const embeddings = await generateEmbeddingVectors(data.map(post=>post.text))
+    const { embeddings, keywords } = await generateEmbeddingVectors(data.map(post => post.text))
 
     // Find hashtags
-    const hashtags = data.map(post=>getHashtags(post.text))
+    const hashtags = data.map(post => getHashtags(post.text))
 
-    // Merge the result
-    const postsToInsert:PostToInsert[]=data.map(
-        (post,i)=>({
+    // Create rows to insert from the results
+    const postsToInsert: PostToInsert[] = data.map(
+        (post, i) => ({
             ...post,
-            embedding:embeddings[i],
-            hashtags:hashtags[i]
+            embedding: embeddings[i],
+            keywords: [...new Set([...keywords[i], ...hashtags[i]])], // Add the hashtags and the keywords
         })
     )
 
     // Insert to db and return
     const createdPosts = (await chunkedInsert(
         postsToInsert,
-        async (rows)=>(
+        async (rows) => (
             await db
-            .insert(posts)
-            .values(rows)
-            .returning()
+                .insert(posts)
+                .values(rows)
+                .returning()
         )
     )).flat()
 
     return createdPosts
 }
 
+/** Insert replies into the database. */
 export async function createReplies(data: PostToCreate[]) {
     console.log(`Creating ${data.length} replies...`)
 
-    // Find hashtags
-    const hashtags = data.map(post=>getHashtags(post.text))
-
-    // Merge the result
-    const postsToInsert:PostToInsert[]=data.map(
-        (post,i)=>({
-            ...post,
-            hashtags:hashtags[i]
-        })
-    )
-
     // Insert to db and return
     const createdPosts = (await chunkedInsert(
-        postsToInsert,
-        async (rows)=>(
+        data,
+        async (rows) => (
             await db
-            .insert(posts)
-            .values(rows)
-            .returning()
+                .insert(posts)
+                .values(rows)
+                .returning()
         )
     )).flat()
 
@@ -65,11 +56,12 @@ export async function createReplies(data: PostToCreate[]) {
 
 export const hashtagRegex = /(?<=#)[^#\s]{1,}/gm
 
-/** Get the hastags from a text. */
+/** Get the hastags from a text. Return the lowercase words without the hashtags.*/
 function getHashtags(text: string) {
-    return [...text.matchAll(hashtagRegex)].map(el => el[0])
+    return [...text.matchAll(hashtagRegex)].map(el => el[0].toLowerCase())
 }
 
+/** Create a single post. */
 export async function createPost(data: PostToCreate) {
     await createPosts([data])
 }

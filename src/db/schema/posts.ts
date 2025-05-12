@@ -26,8 +26,8 @@ export const posts = pgTable('posts', {
         )`
     ),
     embedding: embeddingVector("embedding"),
-    //the texts of the hashtags. used for trend calculations
-    hashtags: varchar({ length: 50 }).notNull().array()
+    //all kinds of keywords for the post. used for trend tracking. 
+    keywords: varchar({ length: 50 }).notNull().array()
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({

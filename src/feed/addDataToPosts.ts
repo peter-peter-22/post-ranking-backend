@@ -2,7 +2,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
 import { likes } from "../db/schema/likes";
 import { UserCommon, UserCommonColumns, users } from "../db/schema/users";
-import { removeDuplicates } from "../utilities/arrays/removeDuplicates";
 import { CandidateCommonData, CandidatePost } from "./candidates";
 
 /** Post with the user object and additional metadata. */
@@ -30,16 +29,16 @@ export async function addDataToPosts(posts: CandidatePost[], { user, followedUse
 /** Return the uniqe users and their viewer-specific metadata. */
 async function getUsers({ posts, followedUsers }: { posts: CandidatePost[], followedUsers: string[] }) {
     // Get the user ids from the posts
-    const userIds = posts.map(post => post.userId);
+    let userIds = posts.map(post => post.userId);
 
     // Filter out duplicates
-    const uniqueUserIds = removeDuplicates(userIds);
+    userIds = [...new Set(userIds)];
 
     // Select the users those belong to the ids
     const uniqueUsers = await db
         .select(UserCommonColumns)
         .from(users)
-        .where(inArray(users.id, uniqueUserIds))
+        .where(inArray(users.id, userIds))
 
     // Set the followed status of the users
     const uniqueUsersWithFollows: FullUser[] = uniqueUsers.map(user => ({
