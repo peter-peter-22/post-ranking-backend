@@ -1,6 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { integer, pgTable } from 'drizzle-orm/pg-core';
 
+/** User clusters. */
 export const clusters = pgTable('clusters', {
     id: integer().notNull().unique(),// The id is assigned by the cluster generator
 });

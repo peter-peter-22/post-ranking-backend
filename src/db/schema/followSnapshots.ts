@@ -1,14 +1,15 @@
-import { desc, InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { boolean, index, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { boolean, index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
+/** Snapshots of the follows. */
 export const followSnapshots = pgTable('follow_snapshots', {
     followerId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     followedId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     isFollowing: boolean().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.followerId,t.followedId,t.createdAt.desc())
+    index().on(t.followerId, t.followedId, t.createdAt.desc())
 ]);
 
 export type FollowShapshot = InferSelectModel<typeof followSnapshots>;

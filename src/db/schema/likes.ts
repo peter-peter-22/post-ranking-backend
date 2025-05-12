@@ -3,6 +3,7 @@ import { index, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { posts } from './posts';
 import { users } from './users';
 
+/** The likes of the posts. */
 export const likes = pgTable('likes', {
     postId: uuid().notNull().references(() => posts.id, { onDelete: "cascade" }),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),

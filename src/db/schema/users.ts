@@ -3,6 +3,7 @@ import { boolean, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm
 import { embeddingVector } from '../common';
 import { clusters } from './clusters';
 
+/** The users. */
 export const users = pgTable('users', {
     id: uuid().defaultRandom().primaryKey(),
     handle: varchar({ length: 50 }).notNull().unique(),

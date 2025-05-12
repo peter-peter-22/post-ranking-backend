@@ -3,6 +3,7 @@ import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid
 import { embeddingVector } from '../common';
 import { users } from './users';
 
+/** The posts. */
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),

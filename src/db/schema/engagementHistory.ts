@@ -2,6 +2,7 @@ import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { integer, pgTable, unique, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
+/** Engagement histories between the users. */
 export const engagementHistory = pgTable('engagement_history', {
     likes: integer().notNull().default(0),
     replies: integer().notNull().default(0),
