@@ -9,6 +9,7 @@ export const clicks = pgTable('clicks', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.postId, t.userId),
+    index("user_click_history").on(t.userId, t.createdAt.desc())
 ]);
 
 export type Click = InferSelectModel<typeof clicks>;

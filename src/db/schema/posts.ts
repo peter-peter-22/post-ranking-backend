@@ -36,7 +36,8 @@ export const posts = pgTable('posts', {
         name: "reply_to_post_fkey",
     }).onDelete("cascade"),
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
-    index('replyingToIndex').on(table.replyingTo),
+    index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),//used for reply counting, followed reply
+    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),//used for reply engagement history
 ]);
 
 export type Post = InferSelectModel<typeof posts>;

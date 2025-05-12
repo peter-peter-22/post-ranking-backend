@@ -11,7 +11,6 @@ const lastUpdate=persistentDate("engagementHistoryLastUpdate")
 /** Select the users those were active since the last update and update their engagement history. */
 export async function updateAllEngagementHistory() {// TODO make it faster
     console.log("Updating all engagement history...")
-    // TODO make a special update function for the seeding because the dates are random?
     const lastUpdateDate = await lastUpdate.get()
     // Select all unique users who viewed anything since the last update. 
     const usersToUpdate = await db
