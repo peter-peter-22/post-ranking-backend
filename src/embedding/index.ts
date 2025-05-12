@@ -1,8 +1,9 @@
 import axios from "axios";
+import { env } from "../zod/env";
 
 // Create axios instance for the embedding api
 const embeddingApi = axios.create({
-    baseURL: process.env.EMBEDDING_API_URL,//@todo: use zod for env
+    baseURL: env.EMBEDDING_API_URL,
 })
 
 /** Convert texts to embedding vectors via the embedding vector server.

@@ -1,11 +1,12 @@
 // Connect to redis and export the client.
 
 import redis from "redis";
+import { env } from "../zod/env";
 
 const cache = redis.createClient({
     socket: {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT!), 
+        host: env.REDIS_HOST,
+        port: env.REDIS_PORT, 
     },
 });
 

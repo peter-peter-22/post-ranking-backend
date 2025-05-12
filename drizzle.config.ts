@@ -1,11 +1,11 @@
 import { defineConfig } from 'drizzle-kit';
-import 'dotenv';
+import {env} from "./src/zod/env"
 
 export default defineConfig({
     out: './drizzle',
     schema: './src/db/schema',
     dialect: 'postgresql',
     dbCredentials: {
-        url: process.env.DB_URL!
+        url: env.DB_URL
     },
 });
