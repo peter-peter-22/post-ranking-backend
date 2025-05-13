@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { chunkedInsert } from "../db/chunkedInsert";
+import { chunkedInsert } from "../db/utils/chunkedInsert";
 import { posts, PostToCreate, PostToInsert } from "../db/schema/posts";
 import { generateEmbeddingVectors } from "../embedding";
 

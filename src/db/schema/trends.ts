@@ -1,10 +1,12 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { integer, pgTable, real, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, real, varchar } from 'drizzle-orm/pg-core';
+import { embeddingVector } from '../common';
 
+/** The trend scores at the time. */
 export const trends = pgTable('trends', {
     name: varchar({ length: 50 }).notNull(),
-    posts: integer().notNull(),
-    score: real().notNull()
+    score: real().notNull(),
+    embedding: embeddingVector("embedding").notNull(),
 });
 
 export type Trend = InferSelectModel<typeof trends>;

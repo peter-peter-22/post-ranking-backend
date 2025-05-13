@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../..";
-import { chunkedInsert } from "../../../chunkedInsert";
+import { chunkedInsert } from "../../../utils/chunkedInsert";
 import { posts } from "../../../schema/posts";
 import { PostEngagementCounts } from "./postEngagements";
 import { EngagementHistory, engagementHistory } from "../../../schema/engagementHistory";

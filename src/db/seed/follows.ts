@@ -1,6 +1,6 @@
 import { db } from "..";
 import { promisesAllTracked } from "../../utilities/arrays/trackedPromises";
-import { chunkedInsert } from "../chunkedInsert";
+import { chunkedInsert } from "../utils/chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
 import { UserCommon } from "../schema/users";

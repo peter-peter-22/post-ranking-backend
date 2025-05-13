@@ -1,6 +1,6 @@
 import { aliasedTable, and, eq, exists, isNull, SQL } from "drizzle-orm";
 import { db } from "..";
-import { chunkedInsert } from "../chunkedInsert";
+import { chunkedInsert } from "../utils/chunkedInsert";
 import { updateClickCounts } from "../controllers/posts/engagement/clicks/count";
 import { updateViewCounts } from "../controllers/posts/engagement/views/count";
 import { clicks, ClicksToInsert } from "../schema/clicks";

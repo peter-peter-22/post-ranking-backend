@@ -1,6 +1,6 @@
 import { db } from "../../..";
 import { Engagement } from "../../../../bots/getEngagements";
-import { chunkedInsert } from "../../../chunkedInsert";
+import { chunkedInsert } from "../../../utils/chunkedInsert";
 import { EngagementHistory } from "../../../schema/engagementHistory";
 import { EngagementHistoryShapshotToInsert, engagementHistorySnapshots } from "../../../schema/engagementHistorySnapshots";
 import { FollowToInsert } from "../../../schema/follows";
