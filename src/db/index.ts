@@ -9,6 +9,4 @@ const pool = new pg.Pool({
 
 export const db = drizzle({ client: pool });
 
-pool.
-db.$client.
 await installExtensions()
