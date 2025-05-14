@@ -52,7 +52,7 @@ export async function updateTrends() {
                         (${relativeCounts.currentCount}*${referenceInterval / currentInterval})::real
                         /
                         ${relativeCounts.referenceCount}`.as("growth"),
-            postCount: relativeCounts.currentCount
+            postCount: relativeCounts.currentCount,
         })
         .from(relativeCounts)
 

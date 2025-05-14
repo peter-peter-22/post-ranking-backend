@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
 import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
-import { embeddingVector } from '../common';
+import { embeddingVector, keyword } from '../common';
 import { users } from './users';
 
 /** The posts. */
@@ -28,7 +28,7 @@ export const posts = pgTable('posts', {
     ),
     embedding: embeddingVector("embedding"),
     //all kinds of keywords for the post. used for trend tracking. 
-    keywords: varchar({ length: 50 }).notNull().array()
+    keywords: keyword().notNull().array()//TODO add index
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({
@@ -39,6 +39,8 @@ export const posts = pgTable('posts', {
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
     index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),//used for reply counting, followed reply
     index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),//used for reply engagement history
+    index('recencyIndex').on(table.createdAt.desc()), 
+    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),//used for user cluster trends
 ]);
 
 export type Post = InferSelectModel<typeof posts>;

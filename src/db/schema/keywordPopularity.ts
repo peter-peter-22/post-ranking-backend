@@ -1,9 +1,10 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { index, integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { index, integer, pgTable, timestamp } from 'drizzle-orm/pg-core';
+import { keyword } from '../common';
 
 /** The popularity of the keywords per day. */
 export const keywordPopularity = pgTable('keyword_popularities', {
-    keyword: varchar({ length: 50 }).notNull(),
+    keyword: keyword().notNull(),
     posts: integer().notNull(),
     date: timestamp().notNull().defaultNow(),
 }, (t) => [

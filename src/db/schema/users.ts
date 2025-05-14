@@ -1,5 +1,5 @@
 import { getTableColumns, InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { boolean, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
 import { clusters } from './clusters';
 
@@ -14,7 +14,9 @@ export const users = pgTable('users', {
     bot: boolean().notNull().default(false),
     embedding: embeddingVector("embedding"),
     clusterId:integer().references(()=>clusters.id,{onDelete:"set null"})
-});
+},(t)=>[
+    index().on(t.clusterId),
+]);
 
 export type User = InferSelectModel<typeof users>;
 

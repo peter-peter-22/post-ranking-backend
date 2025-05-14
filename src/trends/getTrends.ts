@@ -2,14 +2,14 @@ import { db } from "../db"
 import { Trend, trends } from "../db/schema/trends"
 import { getOrGenerateCache } from "../redis/cachedRead"
 
-
 /** Query to fetch the top trends from the database. */
 async function fetchTrends() {
     return await db
-    .select()
-    .from(trends)
-    .orderBy(trends.score)
-    .limit(10)
+        .select()
+        .from(trends)
+        .orderBy(trends.score)
+        .limit(10)
+    //TODO: get personalized trends
 }
 
 /** Expiration time of cache. */
@@ -22,5 +22,5 @@ export async function getTrends() {
 
 /** Get the names of the top trends. */
 export async function getTrendNames() {
-    return (await getTrends()).map(trend => trend.name)
+    return (await getTrends()).map(trend => trend.keyword)
 }

@@ -1,7 +1,8 @@
-import { aliasedTable, and, desc, eq, inArray } from "drizzle-orm";
+import { aliasedTable, and, desc, eq, gt, inArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
+import { maxAge } from "../../../db/controllers/posts/filters";
 
 /** Max count of posts */
 const count = 200;
@@ -15,7 +16,10 @@ export async function getRepliedByFollowedCandidates({ user, followedUsers, comm
         .select(candidateColumns(user))
         .from(replies)
         .where(
-            inArray(replies.userId, followedUsers)
+            and(
+                inArray(replies.userId, followedUsers), // TODO: this is possibbly not efficient 
+                gt(replies.createdAt, maxAge())
+            )
         )
         .orderBy(desc(replies.createdAt))
         .innerJoin(posts, and(
