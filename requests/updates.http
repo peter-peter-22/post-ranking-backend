@@ -1,6 +1,3 @@
-### update the embedding vector of all users
-GET http://localhost:3000/update/userEmbeddings
-
 ### update the user clusters
 GET http://localhost:3000/update/userClusters
 

@@ -1,71 +1,66 @@
-import { and, desc, getTableColumns, isNotNull } from "drizzle-orm"
+import { and, eq, gte, sql, sum } from "drizzle-orm"
 import { db } from "../db"
-import { posts } from "../db/schema/posts"
-import { Trend, trends } from "../db/schema/trends"
-import { isPost, minimalEngagement, recencyFilter } from "../db/controllers/posts/filters"
+import { keywordPopularity } from "../db/schema/keywordPopularity"
+import { trends } from "../db/schema/trends"
+import { insertSelect } from "../db/utils/insertSelect"
+import { countKeywords, updateAllKeywordPopularities } from "./updateTrendTracker"
 
-// Only the hastags and the engagement score is needed.
-const { hashtags, engagementCount } = getTableColumns(posts)
-const columns = { hashtags, engagementCount }
+/** The time interval that decides the average popularity of a keyword. */
+const referenceInterval = 1000 * 60 * 60 * 24 * 10 //10 days
+/** The time interval where the current popularity of th posts are measured. */
+const currentInterval = 1000 * 60 * 60 * 24 //1 day
 
-/** How much trends are selected. */
-const trendCount = 5
+export async function updateTrends() {
+    console.log("Updating trends...")
 
-/** Calculate the top trends. */
-export async function updateTrendsList() {
-    console.log("Updating trends.")
+    // Update the keyword popularities before the trends.
+    await updateAllKeywordPopularities()
 
-    // Get the hastags of the recent posts.
-    const recentPosts = await db
-        .select(columns)
-        .from(posts)
-        .where(and(
-            isPost(),
-            recencyFilter(),
-            minimalEngagement(),
-            isNotNull(posts.hashtags),
-        ))
-        .orderBy(desc(posts.createdAt))
+    // Define the start of both intervals.
+    const referenceStart = new Date(Date.now() - referenceInterval)
+    const currentStart = new Date(Date.now() - currentInterval)
 
-    /** Hashtags paired with engagement metrics. */
-    const trendScores: { [key: string]: Omit<Trend, "name"> } = {}
+    /** Subquery to get post counts in the reference interval. */
+    const currentCount = countKeywords(currentStart, new Date()).as("current_count")
 
-    // Group the score of the posts by their hashtags.
-    recentPosts.forEach(({ hashtags, engagementCount }) => {
-        // The posts without hashtag array are excluded, but typescript ignores this.
-        if (!hashtags)
-            return;
+    /** Sub query to get the post count of both the current and the reference interval. */
+    const relativeCounts = db
+        .select({
+            keyword: currentCount.keyword,
+            // Total posts in the reference interval.
+            referenceCount: sql`
+            coalesce(
+                ${db
+                    .select({ count: sum(keywordPopularity.posts) })
+                    .from(keywordPopularity)
+                    .where(and(
+                        eq(keywordPopularity.keyword, currentCount.keyword),
+                        gte(keywordPopularity.date, referenceStart)
+                    ))
+                },1)`.as("reference_count"),
+            // Total posts in the current interval.
+            currentCount: currentCount.posts,
+        })
+        .from(currentCount)
+        .as("relative_counts")
 
-        hashtags.forEach(tag => {
-            // Get or create the current score of the hashtag.
-            let trend = trendScores[tag] || { score: 0, posts: 0 }
+    /** Subquery to get calculate the trend scores. */
+    const trendScores = db
+        .select({
+            keyword: relativeCounts.keyword,
+            growth: sql<number>`
+                        (${relativeCounts.currentCount}*${referenceInterval / currentInterval})::real
+                        /
+                        ${relativeCounts.referenceCount}`.as("growth"),
+            postCount: relativeCounts.currentCount
+        })
+        .from(relativeCounts)
 
-            // Add the score.
-            trend.score += engagementCount
+    // Delere the previous trends.
+    await db.delete(trends)
 
-            // Increase the post count.
-            trend.posts++
+    // Insert the new trends.
+    await insertSelect(trends, trendScores)
 
-            // Apply.
-            trendScores[tag] = trend
-        });
-    })
-
-    /** If not hashtags are found, exit. */
-    if (recentPosts.length === 0) {
-        console.log("Trend updading cancelled because the lack of posts.")
-        return
-    }
-
-    /** Trends sorted by score. */
-    const sortedTrends = Object.entries(trendScores).sort((a, b) => b[1].score - a[1].score);
-
-    /** Top trends. */
-    const topTrends = sortedTrends.slice(0, trendCount).map(el => ({ name: el[0], ...el[1] }))
-
-    /** Save to database. */
-    const clear = db.$with("clear").as(db.delete(trends))
-    await db.with(clear).insert(trends).values(topTrends)
-
-    console.log(`Calculated the top ${topTrends.length} trends from ${recentPosts.length} posts:`, topTrends)
+    console.log("Updated trends.")
 }

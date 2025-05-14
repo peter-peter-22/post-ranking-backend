@@ -5,6 +5,9 @@ import { PostToCreate } from "../schema/posts";
 import { UserCommon } from '../schema/users';
 import { getAllBots } from './utils';
 
+/** The age interval where the posts are created in days. */
+const ageInterval = 10
+
 /**
  * Returns a post with random values.
  * 
@@ -30,7 +33,7 @@ export function createRandomPost(user: UserCommon): PostToCreate {
         text: generatePostText(topic),
         topic: topic,
         engaging: Math.random(),
-        createdAt: faker.date.recent({ days: 2 })
+        createdAt: faker.date.recent({ days: ageInterval })
     };
 }
 
