@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
-import { integer, pgTable, real, varchar } from 'drizzle-orm/pg-core';
+import { index, integer, pgTable, real, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
 
 /** The trend scores at the time. */
@@ -9,7 +9,9 @@ export const trends = pgTable('trends', {
     postCount: integer().notNull(),
     score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}*${trends.postCount}`)
     //embedding: embeddingVector("embedding").notNull(),
-});
+}, (t) => [
+    index().on(t.score.desc())
+]);
 
 export type Trend = InferSelectModel<typeof trends>;
 
