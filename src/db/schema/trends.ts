@@ -7,7 +7,7 @@ export const trends = pgTable('trends', {
     keyword: keyword().notNull(),
     growth: real().notNull(),
     postCount: integer().notNull(),
-    score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}*${trends.postCount}`)
+    score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}*${trends.postCount}`).notNull()
 }, (t) => [
     index().on(t.score.desc())
 ]);

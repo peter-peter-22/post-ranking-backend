@@ -3,28 +3,28 @@ import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { getTrendNames } from "../../../trends/getTrends";
+import { isPost } from "../../../db/controllers/posts/filters";
 
 /** Selecting candidate posts from trending topics. 
  * @todo This approach limits how much posts can be displayed for a new user.
 */
 export async function getTrendCandidates({ user, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
     // Get the trends.
-    const trends = await getTrendNames()
+    const trends = await getTrendNames(user.clusterId)
 
     // Get the posts.
     let candidates = (
         await Promise.all(
             // Select the most recent posts from each trend.
-            trends.map(trend => (
-                db
-                    .select(candidateColumns(user))
-                    .from(posts)
-                    .where(and(
-                        arrayOverlaps(posts.keywords, [trend]),
-                        ...commonFilters
-                    ))
-                    .orderBy(desc(posts.createdAt))
-                    .limit(20)
+            trends.map(trend => (db
+                .select(candidateColumns(user))
+                .from(posts)
+                .where(and(
+                    arrayOverlaps(posts.keywords, [trend]),
+                    ...commonFilters
+                ))
+                .orderBy(desc(posts.createdAt))
+                .limit(20)
             ))
         )
     ).flat()
