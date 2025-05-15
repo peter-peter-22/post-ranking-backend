@@ -3,7 +3,6 @@ import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { getTrendNames } from "../../../trends/getTrends";
-import { isPost } from "../../../db/controllers/posts/filters";
 
 /** Selecting candidate posts from trending topics. 
  * @todo This approach limits how much posts can be displayed for a new user.

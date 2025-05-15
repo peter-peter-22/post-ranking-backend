@@ -19,7 +19,6 @@ const embeddingResponse = z.object({
  * @returns Embedding vectors and keywords.
  */
 export async function generateEmbeddingVectors(texts: string[]) {
-    // TODO clean text
     try {
         const res = await embeddingApi.post("/embedding", { texts: texts })
         return embeddingResponse.parse(res.data)
