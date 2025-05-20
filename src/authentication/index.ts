@@ -41,7 +41,7 @@ async function authenticate(req: Request): Promise<User> {
 declare module 'express' {
     interface Request {
         authentication?: {
-            user?:User;
+            user?: User;
             error?: string;
         }
     }
@@ -64,8 +64,16 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 }
 
 //get the authenticated user if exists
-export function getUser(req: Request):User | undefined {
+export function getUser(req: Request): User | undefined {
     return req.authentication?.user
+}
+
+//get the authenticated user or throw error
+export function getUserOrThrow(req: Request): User {
+    const user = req.authentication?.user
+    if (!user)
+        throw new Error("Unauthorized!")
+    return user
 }
 
 //throw error if unauthenticated 

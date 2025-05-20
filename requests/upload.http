@@ -1,0 +1,59 @@
+### Create a pending post
+POST http://localhost:3000/userActions/create/pendingPost HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+### Create a upload key for an image
+POST http://localhost:3000/userActions/signUpload/image HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+{
+    "pendingPostId": "548dc477-4066-4d42-af59-abd8f97942b8",
+    "id": 0,
+    "mimeType": "image/jpeg"
+}
+
+### Create a upload key for an video
+POST http://localhost:3000/userActions/signUpload/video HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+{
+    "pendingPostId": "548dc477-4066-4d42-af59-abd8f97942b8",
+    "id": 1,
+    "mimeType": "video/mp4"
+}
+
+### Create a upload key for a profile picture
+POST http://localhost:3000/userActions/signUpload/profile HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+{
+    "mimeType": "image/jpeg"
+}
+
+### Finalize the post
+POST http://localhost:3000/userActions/create/finalizePost HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+{
+    "id": "548dc477-4066-4d42-af59-abd8f97942b8",
+    "text":"hello world",
+    "media":[
+        {
+            "bucketName":"public",
+            "objectName":"users/caedf76c-33e5-4c12-9434-785647c2ea7a/posts/548dc477-4066-4d42-af59-abd8f97942b8/images/0.webp",
+            "mimeType":"image/webp",
+            "description":"hello world"
+        },
+        {
+            "bucketName":"public",
+            "objectName":"users/caedf76c-33e5-4c12-9434-785647c2ea7a/posts/548dc477-4066-4d42-af59-abd8f97942b8/videos/1.mp4",
+            "mimeType":"video/mp4",
+            "description":"hello world"
+        }
+    ]
+}

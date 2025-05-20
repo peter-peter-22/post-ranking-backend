@@ -1,4 +1,4 @@
-import { cache } from "./connect";
+import { redisClient } from "./connect";
 
 /** Attempt to read a value from the cache. If not cached or expired, generate it.
  * @param key The identifier of the cached item.
@@ -8,7 +8,7 @@ import { cache } from "./connect";
  */
 export async function getOrGenerateCache<T>(key: string, generate: () => Promise<T>, expiration:number): Promise<T> {
     // Check if the data is in Redis
-    const cachedData = await cache.get(key);
+    const cachedData = await redisClient.get(key);
 
     if (cachedData) {
         // If data is found in cache, parse and return it
@@ -18,7 +18,7 @@ export async function getOrGenerateCache<T>(key: string, generate: () => Promise
         const result = await generate();
 
         // Cache the result in Redis with an expiration of x seconds
-        await cache.setEx(key, expiration, JSON.stringify(result));
+        await redisClient.setEx(key, expiration, JSON.stringify(result));
 
         // Return the result
         return result;

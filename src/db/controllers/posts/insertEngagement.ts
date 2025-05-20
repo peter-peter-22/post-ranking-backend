@@ -1,6 +1,6 @@
 import { db } from "../.."
 import { Engagement } from "../../../bots/getEngagements"
-import { createReplies } from "../../../user_actions/createPost"
+import { createReplies } from "../../../userActions/posts/createPost"
 import { chunkedInsert } from "../../utils/chunkedInsert"
 import { clicks, ClicksToInsert } from "../../schema/clicks"
 import { likes, LikeToInsert } from "../../schema/likes"

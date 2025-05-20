@@ -9,25 +9,3 @@ export async function getFeed({ user, limit = 50, offset = 0 }: { user: User, li
     const fullPosts = addDataToPosts(candidates,common)
     return fullPosts
 }
-
-/** The posts from the main feed of a user in a more readable format.  */
-export async function getFeedSimplified({ user }: { user: User }) {
-    //    return (await getFeed({ user })).map(({ isLiked, likeCount, user: publisher, globalScore, personalScore, topic, viewCount, createdAt, clickCount }) => ({
-    //        handle: publisher?.handle,
-    //        topic,
-    //        score: globalScore + personalScore,
-    //        globalScore,
-    //        personalScore,
-    //        createdAt: createdAt.getDay(),
-    //        counts: {
-    //            likeCount,
-    //            clickCount,
-    //            viewCount,
-    //        },
-    //        personal: {
-    //            followed: publisher?.followedByUser,
-    //            followedIndirectly: publisher?.followedIndirectly,
-    //            liked: isLiked,
-    //        }
-    //    }))
-}

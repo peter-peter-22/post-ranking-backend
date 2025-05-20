@@ -1,5 +1,5 @@
-import { gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
-import { posts } from "../../schema/posts";
+import { eq, gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { posts } from "../db/schema/posts";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -18,16 +18,20 @@ export const maxAge = () => {
 
 /** Filter out the posts those are older than 2 days */
 export const recencyFilter = () => {
-    // Define the age limit.
     const maxAgeDate =maxAge()
-
     return gt(posts.createdAt, maxAgeDate)
+}
+
+/** Filter out pending posts. */
+export const noPending=()=>{
+    return eq(posts.pending,false)
 }
 
 /** The filters those are shared by all candidate selectors. */
 export const commonFilters = () => [
     isPost(),
     recencyFilter(),
+    noPending()
 ]
 
 /** @todo filter out overrepresentation */

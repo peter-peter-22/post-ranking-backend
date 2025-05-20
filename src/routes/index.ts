@@ -10,6 +10,7 @@ import feed from "./feed";
 import home from './home';
 import register from "./register";
 import update from "./update";
+import userActions from "./userActions/index";
 
 //unauthenticated routes
 
@@ -17,7 +18,7 @@ const router = Router();
 
 router.use(home);
 router.use("/reset", reset);
-router.use(register);
+router.use("/register", register);
 router.use("/bots", bot);
 router.use("/candidates", candidates);
 router.use("/update", update);
@@ -28,6 +29,7 @@ const authenticatedRouter = Router();
 authenticatedRouter.use(protectedMiddleware)
 
 authenticatedRouter.use("/feed", feed);
+authenticatedRouter.use("/userActions", userActions);
 
 //connect the authenticatin router to the base
 router.use(authenticatedRouter)

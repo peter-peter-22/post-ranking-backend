@@ -3,7 +3,7 @@ import { registerSchema } from '../zod/register';
 
 const router = Router();
 
-router.post('/register', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response) => {
     const data = registerSchema.parse(req.body)
     res.json(data);
 });

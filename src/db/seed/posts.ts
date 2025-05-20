@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { exampleComments, examplePosts } from '../../bots/examplePosts';
-import { createPosts } from '../../user_actions/createPost';
+import { createPosts } from '../../userActions/posts/createPost';
 import { PostToCreate } from "../schema/posts";
 import { UserCommon } from '../schema/users';
 import { getAllBots } from './utils';

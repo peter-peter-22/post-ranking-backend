@@ -1,13 +1,13 @@
 import { InferInsertModel, InferSelectModel, isNull, SQL, sql } from 'drizzle-orm';
-import { check, foreignKey, index, integer, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
-import { embeddingVector, keyword } from '../common';
+import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
 
 /** The posts. */
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
-    text: text().notNull(),
+    text: text(),
     createdAt: timestamp().notNull().defaultNow(),
     likeCount: integer().notNull().default(0),
     replyCount: integer().notNull().default(0),
@@ -28,7 +28,11 @@ export const posts = pgTable('posts', {
     ),
     embedding: embeddingVector("embedding"),
     //all kinds of keywords for the post. used for trend tracking. 
-    keywords: keyword().notNull().array()
+    keywords: keyword().notNull().array(),
+    //is the post published or not. pending posts need an id to define where their media is uploaded.
+    pending:boolean().notNull().default(false),
+    //the files those belong to this post.
+    media:jsonb().$type<MediaFile[]>()
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({
@@ -37,7 +41,7 @@ export const posts = pgTable('posts', {
         name: "reply_to_post_fkey",
     }).onDelete("cascade"),
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
-    index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),// used for reply counting, followed reply
+    index('replyingToIndex').on(table.replyingTo.nullsFirst(), table.userId, table.createdAt.desc()),// used for reply counting, followed reply
     index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
     index('recencyIndex').on(table.createdAt.desc()), 
     index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
@@ -47,6 +51,3 @@ export const posts = pgTable('posts', {
 export type Post = InferSelectModel<typeof posts>;
 
 export type PostToInsert = InferInsertModel<typeof posts>;
-
-/** Post for the create post function. */
-export type PostToCreate = Omit<PostToInsert, "embedding">

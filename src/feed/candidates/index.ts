@@ -1,13 +1,13 @@
 import { cosineDistance, getTableColumns, sql, SQL } from "drizzle-orm";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { Post, posts } from "../../db/schema/posts";
-import { User, UserCommon, users } from "../../db/schema/users";
+import { User } from "../../db/schema/users";
+import { commonFilters } from "../filters";
+import { deDuplicateCandidates } from "./filters";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
 import { getFollowedCandidates } from "./sources/followed";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
-import { commonFilters } from "../../db/controllers/posts/filters";
 import { getTrendCandidates } from "./sources/trending";
-import { deDuplicateCandidates } from "./filters";
 
 /** Selecting candidate posts from all groups */
 export async function getCandidates(common: CandidateCommonData) {

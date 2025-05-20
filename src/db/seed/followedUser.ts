@@ -1,5 +1,5 @@
 import { db } from ".."
-import { follow } from "../../user_actions/follow"
+import { follow } from "../../userActions/follow"
 import { User, UserCommon, users } from "../schema/users"
 import { topics } from "../../bots/examplePosts"
 

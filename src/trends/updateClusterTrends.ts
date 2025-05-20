@@ -1,6 +1,6 @@
 import { and, count, eq, gte, sql } from "drizzle-orm";
 import { db } from "../db";
-import { isPost, recencyFilter } from "../db/controllers/posts/filters";
+import { isPost, recencyFilter } from "../feed/filters";
 import { posts } from "../db/schema/posts";
 import { userClusterTrends } from "../db/schema/userClusterTrends";
 import { users } from "../db/schema/users";

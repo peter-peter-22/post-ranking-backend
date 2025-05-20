@@ -1,5 +1,5 @@
 import fs from "fs";
-import { hashtagRegex } from "../user_actions/createPost";
+import { hashtagRegex } from "../userActions/posts/preparePost";
 
 export const examplePosts: { [key: string]: string[] } = JSON.parse(fs.readFileSync('./src/bots/posts.json', 'utf8'));
 

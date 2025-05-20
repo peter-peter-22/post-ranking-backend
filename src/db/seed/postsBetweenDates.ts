@@ -1,6 +1,6 @@
 import { asc, desc } from "drizzle-orm"
 import { db } from ".."
-import { createPosts } from "../../user_actions/createPost"
+import { createPosts } from "../../userActions/posts/createPost"
 import { posts, PostToCreate } from "../schema/posts"
 import { User, UserCommon } from "../schema/users"
 

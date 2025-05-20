@@ -3,17 +3,17 @@
 import redis from "redis";
 import { env } from "../zod/env";
 
-const cache = redis.createClient({
+const redisClient = redis.createClient({
     socket: {
         host: env.REDIS_HOST,
         port: env.REDIS_PORT, 
     },
 });
 
-cache.on('error', (err) => {
+redisClient.on('error', (err) => {
     console.error('Redis error:', err);
 });
 
-cache.connect().then(()=>console.log("Redis connected"))
+redisClient.connect().then(()=>console.log("Redis connected"))
 
-export {cache}
+export {redisClient}
