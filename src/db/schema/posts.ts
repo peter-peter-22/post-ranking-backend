@@ -9,6 +9,7 @@ export const posts = pgTable('posts', {
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     text: text(),
     createdAt: timestamp().notNull().defaultNow(),
+    //engagement counts
     likeCount: integer().notNull().default(0),
     replyCount: integer().notNull().default(0),
     viewCount: integer().notNull().default(0),
@@ -26,13 +27,16 @@ export const posts = pgTable('posts', {
             ${posts.clickCount} 
         )`
     ),
+    //the text that was used to generate the embedding vector
+    embeddingText: text(),
+    //the embedding vector
     embedding: embeddingVector("embedding"),
     //all kinds of keywords for the post. used for trend tracking. 
     keywords: keyword().notNull().array(),
     //is the post published or not. pending posts need an id to define where their media is uploaded.
-    pending:boolean().notNull().default(false),
+    pending: boolean().notNull().default(false),
     //the files those belong to this post.
-    media:jsonb().$type<MediaFile[]>()
+    media: jsonb().$type<MediaFile[]>(),
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({
@@ -43,9 +47,9 @@ export const posts = pgTable('posts', {
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
     index('replyingToIndex').on(table.replyingTo.nullsFirst(), table.userId, table.createdAt.desc()),// used for reply counting, followed reply
     index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
-    index('recencyIndex').on(table.createdAt.desc()), 
+    index('recencyIndex').on(table.createdAt.desc()),
     index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
-    index('postsKeywordIndex').using("gin",table.keywords).where(isNull(table.replyingTo))// used for trending cancidates.
+    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo))// used for trending cancidates.
 ]);
 
 export type Post = InferSelectModel<typeof posts>;
