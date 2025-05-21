@@ -6,6 +6,7 @@ const envModel=z.object({
 
     EMBEDDING_API_URL:z.string().url(),
     CLUSTERING_API_URL:z.string().url(),
+    RANKER_API_URL:z.string().url(),
     
     REDIS_HOST:z.string(),
     REDIS_PORT:z.coerce.number(),

@@ -48,7 +48,8 @@ export async function getCandidates(common: CandidateCommonData) {
             eq(follows.followerId, common.user.id),
             eq(follows.followedId, unionSq.userId)
         ))
-    ).as("followed_by_viewer")
+        
+    ).as<boolean>("followed_by_viewer")
 
     // Replied by followed user
     const replies=aliasedTable(posts,"replies")
@@ -62,7 +63,7 @@ export async function getCandidates(common: CandidateCommonData) {
             eq(follows.followedId, replies.userId),
             eq(follows.followerId, common.user.id)
         ))
-    ).as("replied_by_followed")
+    ).as<boolean>("replied_by_followed")
 
     // Liked by viewer
     const likedByViewerSq = exists(db
@@ -72,7 +73,7 @@ export async function getCandidates(common: CandidateCommonData) {
             eq(likes.postId, unionSq.id),
             eq(likes.userId, common.user.id)
         ))
-    ).as("liked_by_viewer")
+    ).as<boolean>("liked_by_viewer")
 
     // Post processing
     return await db
@@ -105,12 +106,16 @@ export async function getCandidates(common: CandidateCommonData) {
         ))
 }
 
-const { embedding, ...rest } = getTableColumns(posts)
+/** Post with relative data returned by the candidate selector. */
+export type PostCandidate=Awaited<ReturnType<typeof getCandidates>>[number]
+
+// Remove unnecessary columns from the post
+const { embedding, ...simplePostColumns } = getTableColumns(posts)
 
 /** The columns those are selected from the post candidates. */
 export function candidateColumns(user: User, candidateType: CandidateSource = "EmbeddingSimilarity") {
     return {
-        ...rest,
+        ...simplePostColumns,
         candidateType: sql<string>`${candidateType}`.as("candidate_type"),
         similarity: (user.embedding ? sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})` : sql<number>`0`).as("embedding_similarity"),
     }
