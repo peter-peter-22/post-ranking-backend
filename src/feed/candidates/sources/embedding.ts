@@ -1,8 +1,7 @@
-import { and, asc, cosineDistance, eq, notInArray } from "drizzle-orm";
+import { and, asc, cosineDistance, notInArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
-import { users } from "../../../db/schema/users";
 import { minimalEngagement } from "../../filters";
 
 /** Max count of posts. */
