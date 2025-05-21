@@ -47,7 +47,7 @@ const expiration = 60 * 5 // 5 minutes
 
 /** Get the the top trends. */
 export async function getTrends(clusterId: number|null) {
-    return await getOrGenerateCache<Trend[]>("trends", async () => await fetchTrends(clusterId), expiration)
+    return await getOrGenerateCache<Trend[]>(`trends_c${clusterId}`, async () => await fetchTrends(clusterId), expiration)
 }
 
 /** Get the names of the top trends. */

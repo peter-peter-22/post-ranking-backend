@@ -4,7 +4,7 @@ GET http://localhost:3000/update/userClusters
 ### update the user cluster trends
 GET http://localhost:3000/update/clusterTrends
 
-### recalculate the trends
+### update the trends
 GET http://localhost:3000/update/trends
 
 ### update engagement history

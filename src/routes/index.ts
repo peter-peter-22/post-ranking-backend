@@ -6,7 +6,7 @@ import { protectedMiddleware } from '../authentication';
 import bot from "./bots";
 import candidates from "./development/candidates";
 import reset from "./development/reset";
-import feed from "./feed";
+import feed from "./userActions/feed";
 import home from './home';
 import register from "./register";
 import update from "./update";
@@ -28,7 +28,6 @@ router.use("/update", update);
 const authenticatedRouter = Router();
 authenticatedRouter.use(protectedMiddleware)
 
-authenticatedRouter.use("/feed", feed);
 authenticatedRouter.use("/userActions", userActions);
 
 //connect the authenticatin router to the base

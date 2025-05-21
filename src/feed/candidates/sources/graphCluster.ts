@@ -1,5 +1,5 @@
 import { and, desc, eq, notInArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
+import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { users } from "../../../db/schema/users";
@@ -11,32 +11,26 @@ const count = 500;
 /** Selecting candidate posts from the graph cluster of the user.
  * @todo The user is added to the posts again later.
 */
-export async function getGraphClusterCandidates({ user, commonFilters,followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
+export function getGraphClusterCandidates({ user, commonFilters, followedUsers }: CandidateCommonData) {
     // If the user isn't a member of a cluster, exit.
     if (!user.clusterId) {
         console.log("Graph cluster candidates cancelled.")
-        return []
+        return
     }
 
     // Get the posts.
-    const candidates = await db
-        .select(candidateColumns(user))
+    return db
+        .select(candidateColumns(user, "GraphClusters"))
         .from(posts)
-        .innerJoin(users, and(eq(users.clusterId, user.clusterId),eq(posts.userId,users.id)))
         .where(
             and(
                 ...commonFilters,
                 minimalEngagement(),
                 eq(users.clusterId, user.clusterId),
-                notInArray(posts.userId,followedUsers),
+                notInArray(posts.userId, followedUsers),
             )
         )
+        .innerJoin(users, eq(users.id, posts.userId))
         .orderBy(desc(posts.createdAt))
         .limit(count)
-    console.log(`Graph cluster candidates: ${candidates.length}`)
-
-    // Set the candidate type.
-    const candidatesWithType = setCandidatesType(candidates, "GraphClusters")
-
-    return candidatesWithType
 }

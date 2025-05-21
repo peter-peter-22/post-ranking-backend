@@ -1,7 +1,8 @@
-import { and, asc, cosineDistance, notInArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
+import { and, asc, cosineDistance, eq, notInArray } from "drizzle-orm";
+import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
+import { users } from "../../../db/schema/users";
 import { minimalEngagement } from "../../filters";
 
 /** Max count of posts. */
@@ -11,31 +12,25 @@ const count = 500;
  * @todo Use a separate embedding vector storage.
  * @todo Over-representation filter.
 */
-export async function getEmbeddingSimilarityCandidates({ user, commonFilters,followedUsers }: CandidateCommonData): Promise<CandidatePost[]> {
+export function getEmbeddingSimilarityCandidates({ user, commonFilters, followedUsers }: CandidateCommonData) {
 
     // If the user has no embedding vector, exit.
     if (!user.embedding) {
         console.log(`Embedding similarity candidates cancelled.`)
-        return []
+        return
     }
 
     // Get the posts.
-    const candidates = await db
-        .select(candidateColumns(user))
+    return db
+        .select(candidateColumns(user, "EmbeddingSimilarity"))
         .from(posts)
         .where(
             and(
                 ...commonFilters,
-                notInArray(posts.userId,followedUsers),
+                notInArray(posts.userId, followedUsers),
                 minimalEngagement(),
             )
         )
         .orderBy(asc(cosineDistance(posts.embedding, user.embedding)))
         .limit(count)
-    console.log(`Embedding similarity candidates: ${candidates.length}`)
-
-    // Set the candidate type.
-    const candidatesWithType=setCandidatesType(candidates,"EmbeddingSimilarity")
-
-    return candidatesWithType
 }

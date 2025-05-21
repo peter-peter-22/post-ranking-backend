@@ -1,16 +1,17 @@
-import { and, desc, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData, CandidatePost, setCandidatesType } from "..";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
+import { users } from "../../../db/schema/users";
 
 /** Max count of posts */
 const count = 500;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export async function getFollowedCandidates({user, followedUsers, commonFilters }: CandidateCommonData): Promise<CandidatePost[]> {
+export function getFollowedCandidates({user, followedUsers, commonFilters }: CandidateCommonData) {
     // Get the posts
-    let candidates = await db
-        .select(candidateColumns(user))
+    return db
+        .select(candidateColumns(user,"Followed"))
         .from(posts)
         .where(
             and(
@@ -20,10 +21,4 @@ export async function getFollowedCandidates({user, followedUsers, commonFilters 
         )
         .orderBy(desc(posts.createdAt))
         .limit(count)
-    console.log(`Followed candidates: ${candidates.length}`)
-
-    // Set the candidate type
-    const candidatesWithType=setCandidatesType(candidates,"Followed")
-
-    return candidatesWithType
 }

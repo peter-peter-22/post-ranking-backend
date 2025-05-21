@@ -1,14 +1,11 @@
 import { Request, Response, Router } from 'express';
-import { getUser } from '../authentication';
-import { getFeed } from '../feed';
+import { getUserOrThrow } from '../../authentication';
+import { getFeed } from '../../feed';
 
 const router = Router();
 
 router.get('/', async (req: Request, res: Response) => {
-    const user = getUser(req);
-    if (!user)
-        return;
-
+    const user = getUserOrThrow(req);
     const posts = await getFeed({ user });
     res.json(posts)
 });
