@@ -1,8 +1,8 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData } from "..";
-import { db } from "../../../db";
-import { posts } from "../../../db/schema/posts";
-import { users } from "../../../db/schema/users";
+import { db } from "../../../../db";
+import { posts } from "../../../../db/schema/posts";
+import { users } from "../../../../db/schema/users";
 
 /** Max count of posts */
 const count = 500;

@@ -1,8 +1,8 @@
-import { User } from "../db/schema/users";
+import { User } from "../../db/schema/users";
 import { getCandidates, getCommonData } from ".";
 import { rankPosts } from "../feed/ranker";
-import { db } from "../db";
-import { posts } from "../db/schema/posts";
+import { db } from "../../db";
+import { posts } from "../../db/schema/posts";
 import { eq } from "drizzle-orm";
 
 /** Get posts from the main feed of a user. */

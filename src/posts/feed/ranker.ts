@@ -1,5 +1,5 @@
 import axios from "axios";
-import { env } from "../zod/env";
+import { env } from "../../zod/env";
 import { PostCandidate } from "./candidates";
 import { z } from "zod";
 

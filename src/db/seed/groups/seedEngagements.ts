@@ -1,7 +1,7 @@
 import { getTableName } from "drizzle-orm";
 import { db } from "../..";
 import { Engagement, getEngagements, ViewerPublisherRelationship } from "../../../bots/getEngagements";
-import { isPost } from "../../../feed/filters";
+import { isPost } from "../../../posts/feed/filters";
 import { cosineSimilarity } from "../../../utilities/arrays/cosineSimilarity";
 import { clearClusters } from "../../controllers/clusters/clear";
 import { insertEngagements } from "../../controllers/posts/insertEngagement";

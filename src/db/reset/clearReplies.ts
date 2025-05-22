@@ -1,5 +1,5 @@
 import { db } from '..';
-import { isReply } from '../../feed/filters';
+import { isReply } from '../../posts/feed/filters';
 import { posts } from '../schema/posts';
 
 /**

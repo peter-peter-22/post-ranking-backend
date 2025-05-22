@@ -1,5 +1,5 @@
 import { eq, gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
-import { posts } from "../db/schema/posts";
+import { posts } from "../../db/schema/posts";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)

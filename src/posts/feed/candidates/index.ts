@@ -1,8 +1,8 @@
 import { cosineDistance, getTableColumns, sql, SQL } from "drizzle-orm";
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
-import { posts } from "../../db/schema/posts";
-import { User } from "../../db/schema/users";
-import { getTrendNames } from "../../trends/getTrends";
+import { getFollowedUsers } from "../../../db/controllers/users/getFollowers";
+import { posts } from "../../../db/schema/posts";
+import { User } from "../../../db/schema/users";
+import { getTrendNames } from "../../../trends/getTrends";
 import { commonFilters } from "../filters";
 import { fetchPosts } from "./fetchPosts";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";

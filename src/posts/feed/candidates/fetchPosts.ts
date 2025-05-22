@@ -1,11 +1,11 @@
 import { aliasedTable, and, eq, exists } from "drizzle-orm"
 import { CandidateCommonData, CandidateSubquery } from "."
-import { db } from "../../db"
-import { follows } from "../../db/schema/follows"
-import { posts } from "../../db/schema/posts"
-import { likes } from "../../db/schema/likes"
-import { engagementHistory } from "../../db/schema/engagementHistory"
-import { users } from "../../db/schema/users"
+import { db } from "../../../db"
+import { follows } from "../../../db/schema/follows"
+import { posts } from "../../../db/schema/posts"
+import { likes } from "../../../db/schema/likes"
+import { engagementHistory } from "../../../db/schema/engagementHistory"
+import { users } from "../../../db/schema/users"
 import { countCandidateSources } from "./logCandidateSources"
 
 /** Use candidate selectors to fetch posts then add metadata to the posts. 

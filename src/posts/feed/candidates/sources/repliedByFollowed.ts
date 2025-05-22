@@ -1,8 +1,8 @@
 import { aliasedTable, and, desc, eq, gt, inArray } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData } from "..";
-import { db } from "../../../db";
-import { posts } from "../../../db/schema/posts";
-import { users } from "../../../db/schema/users";
+import { db } from "../../../../db";
+import { posts } from "../../../../db/schema/posts";
+import { users } from "../../../../db/schema/users";
 import { maxAge } from "../../filters";
 
 /** Max count of posts */

@@ -1,7 +1,7 @@
 import { and, asc, cosineDistance, gt, lt } from "drizzle-orm";
 import { RelevantPostsCandidateCommonData } from "..";
-import { db } from "../../db";
-import { posts } from "../../db/schema/posts";
+import { db } from "../../../db";
+import { posts } from "../../../db/schema/posts";
 import { candidateColumns } from "../../feed/candidates";
 
 /** Max count of posts. */

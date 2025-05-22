@@ -1,7 +1,7 @@
 import { and, arrayOverlaps, desc } from "drizzle-orm";
 import { candidateColumns, CandidateCommonData } from "..";
-import { db } from "../../../db";
-import { posts } from "../../../db/schema/posts";
+import { db } from "../../../../db";
+import { posts } from "../../../../db/schema/posts";
 
 /** Selecting candidate posts from trending topics. */
 export function getTrendCandidates({ user, commonFilters }: CandidateCommonData,trends:string[]) {

@@ -1,4 +1,4 @@
-import { User } from "../db/schema/users";
+import { User } from "../../db/schema/users";
 import { getCandidates, getCommonData } from "./candidates";
 import { rankPosts } from "./ranker";
 

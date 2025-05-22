@@ -1,10 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { getUser } from '../../authentication';
-import { getCandidates, getCommonData } from '../../feed/candidates';
-import { getEmbeddingSimilarityCandidates } from '../../feed/candidates/sources/embedding';
-import { getFollowedCandidates } from '../../feed/candidates/sources/followed';
-import { getGraphClusterCandidates } from '../../feed/candidates/sources/graphCluster';
-import { getTrendCandidates } from '../../feed/candidates/sources/trending';
+import { getCandidates, getCommonData } from '../../posts/feed/candidates';
+import { getEmbeddingSimilarityCandidates } from '../../posts/feed/candidates/sources/embedding';
+import { getFollowedCandidates } from '../../posts/feed/candidates/sources/followed';
+import { getGraphClusterCandidates } from '../../posts/feed/candidates/sources/graphCluster';
+import { getTrendCandidates } from '../../posts/feed/candidates/sources/trending';
 
 const router = Router();
 

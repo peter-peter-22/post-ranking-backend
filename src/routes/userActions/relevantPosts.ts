@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { getUserOrThrow } from '../../authentication';
-import { getRelevantPosts } from '../../relevantPosts/getRelevantPosts';
+import { getRelevantPosts } from '../../posts/relevantPosts/getRelevantPosts';
 import { z } from 'zod';
 
 const router = Router();

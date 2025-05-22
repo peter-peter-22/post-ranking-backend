@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { getUserOrThrow } from '../../authentication';
-import { getFeed } from '../../feed';
+import { getFeed } from '../../posts/feed';
 
 const router = Router();
 
