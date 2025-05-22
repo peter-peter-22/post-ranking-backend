@@ -7,7 +7,7 @@ import { candidateColumns } from "../../feed/candidates";
 /** Max count of posts. */
 const count = 500;
 /** Maximum cosine distance of the selected posts */
-const maxDistance = 0.2
+const maxDistance = 0.5
 
 /** Selecting candidate posts those embedding is similar to the embedding of the user, with a minimum threshold. 
  * @todo Use a separate embedding vector storage.
