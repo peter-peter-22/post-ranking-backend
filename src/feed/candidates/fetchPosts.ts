@@ -6,6 +6,7 @@ import { posts } from "../../db/schema/posts"
 import { likes } from "../../db/schema/likes"
 import { engagementHistory } from "../../db/schema/engagementHistory"
 import { users } from "../../db/schema/users"
+import { countCandidateSources } from "./logCandidateSources"
 
 /** Use candidate selectors to fetch posts then add metadata to the posts. 
  * @param candidateSqs The subqueries of the candidate sources.
@@ -21,8 +22,8 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
 
     // Union the subqueries
     let unionSq = candidateSqs[0].$dynamic()
-    for (const sq of candidateSqs.slice(1)) 
-       unionSq=unionSq.unionAll(sq)
+    for (const sq of candidateSqs.slice(1))
+        unionSq = unionSq.unionAll(sq)
 
     // Create a with query from all candidate selectors
     const candidates = db.$with("candidate_union").as(unionSq)
@@ -65,7 +66,7 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
     ).as<boolean>("liked_by_viewer")
 
     // Fetch
-    return await db
+    let postsToDisplay = await db
         .with(candidates)
         .select({
             id: candidates.id,
@@ -94,6 +95,30 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
             eq(engagementHistory.publisherId, candidates.userId)
         ))
 
-    // TODO: deduplicate
-    // TODO: log candidate counts
+    // Log candidate sources
+    console.log("Before deduplication")
+    countCandidateSources(postsToDisplay)
+
+    // Deduplicate
+    postsToDisplay = deduplicatePosts(postsToDisplay)
+
+    // Log candidate sources
+    console.log("After deduplication")
+    countCandidateSources(postsToDisplay)
+    return postsToDisplay
+}
+
+export type PostToDisplay = Awaited<ReturnType<typeof fetchPosts>>[number];
+
+/** Remove posts with duplicated ids. */
+function deduplicatePosts(posts: PostToDisplay[]) {
+    const seen = new Set<string>();
+    return posts.filter(post => {
+        if (seen.has(post.id))
+            return false;
+        else {
+            seen.add(post.id);
+            return true;
+        }
+    })
 }
