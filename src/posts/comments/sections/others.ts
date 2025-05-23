@@ -18,6 +18,6 @@ export function getOtherComments(user: User,commonFilters:SQL[],skip:string[]) {
             notInArray(posts.id,skip)
         ))
         .limit(commentsPerPage)
-        .orderBy(desc(posts.commentScore))
+        .orderBy(desc(posts.commentScore),desc(posts.createdAt))
         .$dynamic()
 }

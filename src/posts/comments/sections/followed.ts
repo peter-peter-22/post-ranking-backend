@@ -19,6 +19,6 @@ export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]
             eq(follows.followerId, user.id),
             eq(follows.followedId, posts.userId),
         ))
-        .orderBy(desc(posts.commentScore))
+        .orderBy(desc(posts.commentScore),desc(posts.createdAt))
         .$dynamic()
 }

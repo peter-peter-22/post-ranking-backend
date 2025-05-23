@@ -1,4 +1,4 @@
-import { InferInsertModel, InferSelectModel, isNull, SQL, sql } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, isNotNull, isNull, SQL, sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
@@ -38,7 +38,7 @@ export const posts = pgTable('posts', {
     //the files those belong to this post.
     media: jsonb().$type<MediaFile[]>(),
     commentScore: real().notNull().generatedAlwaysAs(
-        ():SQL=>sql`
+        (): SQL => sql`
             ((${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount} + 10) / (${posts.viewCount} + 10)) 
             * 
             (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})`
@@ -51,12 +51,12 @@ export const posts = pgTable('posts', {
         name: "reply_to_post_fkey",
     }).onDelete("cascade"),
     index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
-    index('replyingToIndex').on(table.replyingTo.nullsFirst(), table.userId, table.createdAt.desc()),// used for reply counting, followed reply
-    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
-    index('recencyIndex').on(table.createdAt.desc()),
-    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
+    index('replyingToIndex').on(table.replyingTo.nullsFirst(), table.userId, table.createdAt.desc().nullsFirst()),// used for reply counting, followed reply
+    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc().nullsFirst()),// used for reply engagement history
+    index('recencyIndex').on(table.createdAt.desc().nullsFirst()),
+    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc().nullsFirst()),// used for user cluster trends
     index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),// used for trending cancidates.
-    index('orderRepliesByScoreIndex').on(table.replyingTo.nullsLast(),table.commentScore.desc(),table.createdAt.desc()),// used for ordering replies in the comment section of a post.
+    index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc().nullsFirst(), table.createdAt.desc().nullsFirst()).where(isNotNull(table.replyingTo)),// used for ordering replies in the comment section of a post.
 ]);
 
 export type Post = InferSelectModel<typeof posts>;
