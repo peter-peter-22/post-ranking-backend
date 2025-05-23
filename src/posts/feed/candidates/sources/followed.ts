@@ -21,4 +21,5 @@ export function getFollowedCandidates({user, followedUsers, commonFilters }: Can
         )
         .orderBy(desc(posts.createdAt))
         .limit(count)
+        .$dynamic()
 }

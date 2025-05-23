@@ -16,5 +16,6 @@ export function getTrendCandidates({ user, commonFilters }: CandidateCommonData,
         ))
         .orderBy(desc(posts.createdAt))
         .limit(20)
+        .$dynamic()
     ))
 }

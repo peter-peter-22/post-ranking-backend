@@ -1,4 +1,4 @@
-import { and, asc, cosineDistance, gt, lt } from "drizzle-orm";
+import { and, asc, cosineDistance, lt } from "drizzle-orm";
 import { RelevantPostsCandidateCommonData } from "..";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
@@ -34,4 +34,5 @@ export function getPostEmbeddingSimilarityCandidates({ user, commonFilters, post
         )
         .orderBy(asc(cosineDistance(posts.embedding, post.embedding)))
         .limit(count)
+        .$dynamic()
 }

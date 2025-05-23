@@ -4,7 +4,7 @@ import { posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
 import { getTrendNames } from "../../../trends/getTrends";
 import { commonFilters } from "../filters";
-import { fetchPosts } from "./fetchPosts";
+import { deduplicatePosts, fetchPosts } from "./fetchPosts";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
 import { getFollowedCandidates } from "./sources/followed";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
@@ -37,7 +37,7 @@ export async function getCandidates(common: CandidateCommonData) {
         candidateSqs.push(sq)
 
     // Process candidates
-    return await fetchPosts(candidateSqs, common)
+    return deduplicatePosts(await fetchPosts(candidateSqs, common.user))
 }
 
 /** Post with relative data returned by the candidate selector. */
@@ -50,7 +50,7 @@ export type CandidateSubquery = ReturnType<typeof getFollowedCandidates>
 const { embedding, ...simplePostColumns } = getTableColumns(posts)
 
 /** The columns those are selected from the post candidates. */
-export function candidateColumns(user: User, candidateType: CandidateSource = "EmbeddingSimilarity") {
+export function candidateColumns(user: User, candidateType: CandidateSource) {
     return {
         ...simplePostColumns,
         candidateType: sql<string>`${candidateType}`.as("candidate_type"),
@@ -75,4 +75,4 @@ export type CandidateCommonData = {
 }
 
 /** The type of the post candidate. */
-export type CandidateSource = "Followed" | "RepliedByFollowed" | "GraphClusters" | "EmbeddingSimilarity" | "Trending"
+export type CandidateSource = "Followed" | "RepliedByFollowed" | "GraphClusters" | "EmbeddingSimilarity" | "Trending" | "Rest" | "Publisher"

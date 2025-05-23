@@ -1,5 +1,6 @@
-import { eq, gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { posts } from "../../db/schema/posts";
+import { globalFilters } from "../globalFilters";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -22,16 +23,11 @@ export const recencyFilter = () => {
     return gt(posts.createdAt, maxAgeDate)
 }
 
-/** Filter out pending posts. */
-export const noPending=()=>{
-    return eq(posts.pending,false)
-}
-
 /** The filters those are shared by all candidate selectors. */
 export const commonFilters = () => [
+    ...globalFilters(),
     isPost(),
     recencyFilter(),
-    noPending()
 ]
 
 /** @todo filter out overrepresentation */

@@ -34,6 +34,11 @@ const rankerResponeSchema = z.object({
 
 /** Use the ranker api to score the post then order them. */
 export async function rankPosts(posts: PostCandidate[]):Promise<ScoredPost[]> {
+    if(posts.length===0)
+    {
+        console.log("No posts to rank")
+        return []
+    }
     // Format the posts for the ranker
     const rankerInputs:PostToRank[] = posts.map((post) => ({
         age: (post.createdAt.getTime() - Date.now()) / 1000 / 60 / 60, // age in hours

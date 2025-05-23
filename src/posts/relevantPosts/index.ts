@@ -3,7 +3,7 @@ import { getFollowedUsers } from "../../db/controllers/users/getFollowers"
 import { Post } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
 import { CandidateSubquery } from "../feed/candidates"
-import { fetchPosts } from "../feed/candidates/fetchPosts"
+import { deduplicatePosts, fetchPosts } from "../feed/candidates/fetchPosts"
 import { getTrendCandidates } from "../feed/candidates/sources/trending"
 import { commonFilters } from "../feed/filters"
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding"
@@ -46,5 +46,5 @@ export async function getCandidates(common: RelevantPostsCandidateCommonData) {
     }
 
     // Process candidates
-    return await fetchPosts(candidateSqs, common)
+    return deduplicatePosts(await fetchPosts(candidateSqs, common.user))
 }

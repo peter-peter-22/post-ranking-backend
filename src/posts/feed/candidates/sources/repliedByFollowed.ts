@@ -28,4 +28,5 @@ export function getRepliedByFollowedCandidates({ user, followedUsers, commonFilt
             ...commonFilters,
         ))
         .limit(count)
+        .$dynamic()
 }

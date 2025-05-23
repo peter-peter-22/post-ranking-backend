@@ -32,4 +32,5 @@ export function getEmbeddingSimilarityCandidates({ user, commonFilters, followed
         )
         .orderBy(asc(cosineDistance(posts.embedding, user.embedding)))
         .limit(count)
+        .$dynamic()
 }

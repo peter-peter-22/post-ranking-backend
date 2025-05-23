@@ -33,4 +33,5 @@ export function getGraphClusterCandidates({ user, commonFilters, followedUsers }
         .innerJoin(users, eq(users.id, posts.userId))
         .orderBy(desc(posts.createdAt))
         .limit(count)
+        .$dynamic()
 }

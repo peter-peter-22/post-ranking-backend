@@ -1,19 +1,19 @@
 import { aliasedTable, and, eq, exists } from "drizzle-orm"
-import { CandidateCommonData, CandidateSubquery } from "."
+import { CandidateSubquery } from "."
 import { db } from "../../../db"
-import { follows } from "../../../db/schema/follows"
-import { posts } from "../../../db/schema/posts"
-import { likes } from "../../../db/schema/likes"
 import { engagementHistory } from "../../../db/schema/engagementHistory"
-import { users } from "../../../db/schema/users"
-import { countCandidateSources } from "./logCandidateSources"
+import { follows } from "../../../db/schema/follows"
+import { likes } from "../../../db/schema/likes"
+import { posts } from "../../../db/schema/posts"
+import { User, users } from "../../../db/schema/users"
+import { countCandidateSources } from "./countSources"
 
 /** Use candidate selectors to fetch posts then add metadata to the posts. 
- * @param candidateSqs The subqueries of the candidate sources.
- * @param common The common data of the candidate selection.
+ * @param candidateSqs The subqueries of the candidate sources. The subqueries must return the pre-defined candidate rows and be dynamic.
+ * @param user The viewer.
  * @returns The posts with metadata.
 */
-export async function fetchPosts(candidateSqs: CandidateSubquery[], common: CandidateCommonData) {
+export async function fetchPosts(candidateSqs: CandidateSubquery[], user: User) {
     // Exit if no candidate selectors
     if (candidateSqs.length === 0) {
         console.log("All candidate selectors cancelled")
@@ -21,7 +21,7 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
     }
 
     // Union the subqueries
-    let unionSq = candidateSqs[0].$dynamic()
+    let unionSq = candidateSqs[0]
     for (const sq of candidateSqs.slice(1))
         unionSq = unionSq.unionAll(sq)
 
@@ -35,7 +35,7 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
         .select()
         .from(follows)
         .where(and(
-            eq(follows.followerId, common.user.id),
+            eq(follows.followerId, user.id),
             eq(follows.followedId, candidates.userId)
         ))
 
@@ -51,7 +51,7 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
         ))
         .innerJoin(follows, and(
             eq(follows.followedId, replies.userId),
-            eq(follows.followerId, common.user.id)
+            eq(follows.followerId, user.id)
         ))
     ).as<boolean>("replied_by_followed")
 
@@ -61,7 +61,7 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
         .from(likes)
         .where(and(
             eq(likes.postId, candidates.id),
-            eq(likes.userId, common.user.id)
+            eq(likes.userId, user.id)
         ))
     ).as<boolean>("liked_by_viewer")
 
@@ -91,29 +91,18 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], common: Cand
         .from(candidates)
         .innerJoin(users, eq(users.id, candidates.userId))
         .leftJoin(engagementHistory, and(
-            eq(engagementHistory.viewerId, common.user.id),
+            eq(engagementHistory.viewerId, user.id),
             eq(engagementHistory.publisherId, candidates.userId)
         ))
-
-    // Log candidate sources
-    console.log("Before deduplication")
-    countCandidateSources(postsToDisplay)
-
-    // Deduplicate
-    postsToDisplay = deduplicatePosts(postsToDisplay)
-
-    // Log candidate sources
-    console.log("After deduplication")
-    countCandidateSources(postsToDisplay)
     return postsToDisplay
 }
 
 export type PostToDisplay = Awaited<ReturnType<typeof fetchPosts>>[number];
 
 /** Remove posts with duplicated ids. */
-function deduplicatePosts(posts: PostToDisplay[]) {
+export function deduplicatePosts(posts: PostToDisplay[]) {
     const seen = new Set<string>();
-    return posts.filter(post => {
+    const deduplicated= posts.filter(post => {
         if (seen.has(post.id))
             return false;
         else {
@@ -121,4 +110,6 @@ function deduplicatePosts(posts: PostToDisplay[]) {
             return true;
         }
     })
+    console.log("Before deduplication:",countCandidateSources(posts),"After deduplication:",countCandidateSources(deduplicated))
+    return deduplicated
 }

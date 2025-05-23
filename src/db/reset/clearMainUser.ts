@@ -9,7 +9,6 @@ import { db } from "..";
 export async function clearMainUser() {
     await Promise.all([
         db.delete(users).where(eq(users.handle, "main-user")),
-        db.delete(users).where(eq(users.handle, "followed-user")),
     ])
     const newMainUser = await seedMainUser()
     console.log("Recreated main users.")

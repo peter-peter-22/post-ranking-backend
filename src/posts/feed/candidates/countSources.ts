@@ -7,5 +7,5 @@ export function countCandidateSources(posts:PostToDisplay[]){
         const count=candidateSourceCounts.get(post.candidateType)||0
         candidateSourceCounts.set(post.candidateType,count+1)
     })
-    console.log("Candidate source counts:",candidateSourceCounts)
+    return candidateSourceCounts
 }
