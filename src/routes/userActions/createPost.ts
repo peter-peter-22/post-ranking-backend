@@ -8,9 +8,9 @@ import { createPosts, createReplies, finalizePost } from '../../userActions/post
 const router = Router();
 
 const createPostSchema = z.object({
-    text: z.string(),
+    text: z.string().optional(),
     replyingTo: z.string().optional(),
-    media: z.array(mediaFileSchema)
+    media: z.array(mediaFileSchema).optional()
 })
 export type PostToCreate = z.infer<typeof createPostSchema> & { userId: string }
 

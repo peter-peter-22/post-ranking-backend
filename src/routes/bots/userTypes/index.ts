@@ -21,9 +21,9 @@ router.get('/interactTopic', async (req: Request, res: Response) => {
 });
 
 router.get('/commentRanking', async (req: Request, res: Response) => {
-    await testCommentRanker()
+    const id=await testCommentRanker()
     console.log("Test started: comment ranking")
-    res.sendStatus(200)
+    res.json({id})
 });
 
 export default router;

@@ -1,4 +1,4 @@
-import { and, notInArray, SQL } from "drizzle-orm";
+import { and, desc, notInArray, SQL } from "drizzle-orm";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
@@ -18,5 +18,6 @@ export function getOtherComments(user: User,commonFilters:SQL[],skip:string[]) {
             notInArray(posts.id,skip)
         ))
         .limit(commentsPerPage)
+        .orderBy(desc(posts.commentScore))
         .$dynamic()
 }

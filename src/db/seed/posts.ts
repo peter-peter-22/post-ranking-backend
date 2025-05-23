@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { exampleComments, examplePosts } from '../../bots/examplePosts';
 import { createPosts } from '../../userActions/posts/createPost';
-import { PostToCreate } from "../schema/posts";
 import { UserCommon } from '../schema/users';
 import { getAllBots } from './utils';
+import { PostToInsert } from '../schema/posts';
 
 /** The age interval where the posts are created in days. */
 const ageInterval = 10
@@ -14,7 +14,7 @@ const ageInterval = 10
  * @param users possible publishers
  * @returns post to insert
  */
-function createRandomPostFromRandomUser(users: UserCommon[]): PostToCreate {
+function createRandomPostFromRandomUser(users: UserCommon[]): PostToInsert {
     //randomly selected user
     const user = users[Math.floor(Math.random() * users.length)];
     return createRandomPost(user)
@@ -26,7 +26,7 @@ function createRandomPostFromRandomUser(users: UserCommon[]): PostToCreate {
  * @param users the publisher
  * @returns post to insert
  */
-export function createRandomPost(user: UserCommon): PostToCreate {
+export function createRandomPost(user: UserCommon): PostToInsert {
     const topic = getRandomTopicFromUser(user)
     return {
         userId: user.id,

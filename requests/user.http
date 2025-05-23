@@ -7,5 +7,5 @@ GET http://localhost:3000/userActions/relevantPosts?postId=033c5aa7-605c-45b8-91
 Authorization: userhandle main-user
 
 ### comment section
-POST http://localhost:3000/userActions/commentSection?postId=033c5aa7-605c-45b8-910f-4b5e5ac2bfd5 HTTP/1.1
+POST http://localhost:3000/userActions/commentSection?postId=edd2df9b-7680-4ffa-b909-19f8819ae2d4 HTTP/1.1
 Authorization: userhandle main-user

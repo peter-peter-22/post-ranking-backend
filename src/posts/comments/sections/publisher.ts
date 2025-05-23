@@ -1,4 +1,4 @@
-import { and, eq, SQL } from "drizzle-orm";
+import { and, desc, eq, SQL } from "drizzle-orm";
 import { db } from "../../../db";
 import { Post, posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
@@ -13,5 +13,6 @@ export function getPublisherComments(user: User, post: Post, commonFilters: SQL[
             ...commonFilters,
             eq(posts.userId, post.userId)
         ))
+        .orderBy(desc(posts.createdAt))
         .$dynamic()
 }

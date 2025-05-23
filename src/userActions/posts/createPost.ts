@@ -1,21 +1,20 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { MediaFile } from "../../db/common";
 import { pendingUploads } from "../../db/schema/pendingUploads";
 import { posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
+import { PostToFinalize } from "../../routes/userActions/createPost";
 import { preparePosts, prepareReplies } from "./preparePost";
-import { PostToCreate, PostToFinalize } from "../../routes/userActions/createPost";
 
 /** Calculate the metadata of posts and insert them into the database. */
-export async function createPosts(data: PostToCreate[]) {
+export async function createPosts(data: PostToInsert[]) {
     console.log(`Creating ${data.length} posts...`)
     const postsToInsert = await preparePosts(data)
     return await insertPosts(postsToInsert)
 }
 
 /** Insert replies into the database. */
-export async function createReplies(data: PostToCreate[]) {
+export async function createReplies(data: PostToInsert[]) {
     console.log(`Creating ${data.length} replies...`)
     const postsToInsert = await prepareReplies(data)
     return await insertPosts(postsToInsert)
@@ -78,6 +77,8 @@ export async function finalizeReply(post: PostToFinalize) {
 
 /** Validate and finalize the media files of a post. */
 async function finalizeMediaOfPost(post: PostToFinalize) {
+    if(!post.media||post.media.length===0)
+        return
     // Delete the pending upload entries from the database
     const deleted = (
         await Promise.all(

@@ -6,3 +6,6 @@ GET http://localhost:3000/bots/userType/followsOne
 
 ### interacts with the posts of a topic
 GET http://localhost:3000/bots/userType/interactTopic
+
+### create a post with different kinds of comments
+GET http://localhost:3000/bots/userType/commentRanking

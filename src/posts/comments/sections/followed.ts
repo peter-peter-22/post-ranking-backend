@@ -1,4 +1,4 @@
-import { and, eq, not, SQL } from "drizzle-orm";
+import { and, desc, eq, not, SQL } from "drizzle-orm";
 import { db } from "../../../db";
 import { Post, posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
@@ -12,12 +12,13 @@ export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]
         .from(posts)
         .where(and(
             ...commonFilters,
+            // Skip the comments of the poster
+            not(eq(posts.userId, post.userId))
         ))
         .innerJoin(follows, and(
             eq(follows.followerId, user.id),
-            eq(follows.followedId, post.userId),
-            // Skip the comments of the poster
-            not(eq(posts.userId,post.userId))
+            eq(follows.followedId, posts.userId),
         ))
+        .orderBy(desc(posts.commentScore))
         .$dynamic()
 }

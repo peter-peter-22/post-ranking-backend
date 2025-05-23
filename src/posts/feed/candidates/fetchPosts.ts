@@ -86,7 +86,8 @@ export async function fetchPosts(candidateSqs: CandidateSubquery[], user: User) 
             media: candidates.media,
             //debug
             keywords: candidates.keywords,
-            embeddingText: candidates.embeddingText
+            embeddingText: candidates.embeddingText,
+            commentScore:candidates.commentScore
         })
         .from(candidates)
         .innerJoin(users, eq(users.id, candidates.userId))
