@@ -11,7 +11,7 @@ export const postSnapshots = pgTable('post_snapshots', {
     viewCount:integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.postId,t.createdAt.desc())
+    index().on(t.postId,t.createdAt.desc().nullsFirst())
 ]);
 
 export type PostSnapshot = InferSelectModel<typeof postSnapshots>;

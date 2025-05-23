@@ -9,7 +9,7 @@ export const followSnapshots = pgTable('follow_snapshots', {
     isFollowing: boolean().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.followerId, t.followedId, t.createdAt.desc())
+    index().on(t.followerId, t.followedId, t.createdAt.desc().nullsFirst())
 ]);
 
 export type FollowShapshot = InferSelectModel<typeof followSnapshots>;

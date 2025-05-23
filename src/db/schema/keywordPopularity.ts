@@ -8,8 +8,8 @@ export const keywordPopularity = pgTable('keyword_popularities', {
     posts: integer().notNull(),
     date: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.date.desc()),
-    index().on(t.keyword, t.date.desc())
+    index().on(t.date.desc().nullsFirst()),
+    index().on(t.keyword, t.date.desc().nullsFirst())
 ]);
 
 export type KeywordPopularity = InferSelectModel<typeof keywordPopularity>;

@@ -11,7 +11,7 @@ export const engagementHistorySnapshots = pgTable('engagement_history_snapshots'
     clickCount: integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.viewerId, t.posterId, t.createdAt.desc())
+    index().on(t.viewerId, t.posterId, t.createdAt.desc().nullsFirst())
 ]);
 
 export type EngagementHistoryShapshot = InferSelectModel<typeof engagementHistorySnapshots>;

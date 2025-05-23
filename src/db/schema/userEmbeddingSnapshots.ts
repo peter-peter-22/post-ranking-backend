@@ -9,7 +9,7 @@ export const userEmbeddingSnapshots = pgTable('user_embedding_snapshots', {
     embedding: embeddingVector("embedding").notNull(),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
-    index().on(t.userId, t.createdAt.desc())
+    index().on(t.userId, t.createdAt.desc().nullsFirst())
 ]);
 
 export type UserEmbeddingSnapshot = InferSelectModel<typeof userEmbeddingSnapshots>;

@@ -10,7 +10,7 @@ export const likes = pgTable('likes', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.postId, t.userId),
-    index("user_like_history").on(t.userId, t.createdAt.desc())
+    index("user_like_history").on(t.userId, t.createdAt.desc().nullsFirst())
 ]);
 
 export type Like = InferSelectModel<typeof likes>;

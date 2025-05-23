@@ -10,7 +10,7 @@ export const views = pgTable('views', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     unique().on(t.postId, t.userId),
-    index("user_view_history").on(t.userId, t.createdAt.desc())
+    index("user_view_history").on(t.userId, t.createdAt.desc().nullsFirst())
 ]);
 
 export type View = InferSelectModel<typeof views>;

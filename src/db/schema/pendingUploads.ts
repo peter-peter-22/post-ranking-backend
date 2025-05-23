@@ -11,7 +11,7 @@ export const pendingUploads = pgTable('pending_uploads', {
 }, (t) => [
     unique().on(t.bucketName, t.objectName),
     index("pending_files_of_user").on(t.userId),
-    index("pending_uploads_age").on(t.createdAt.desc())
+    index("pending_uploads_age").on(t.createdAt.desc().nullsFirst())
 ]);
 
 export type PendingUpload = InferSelectModel<typeof pendingUploads>;
