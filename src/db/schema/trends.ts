@@ -4,7 +4,7 @@ import { keyword } from '../common';
 
 /** The trend scores at the time. */
 export const trends = pgTable('trends', {
-    keyword: keyword().notNull(),
+    keyword: keyword().notNull().primaryKey(),
     growth: real().notNull(),
     postCount: integer().notNull(),
     score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}*${trends.postCount}`).notNull()

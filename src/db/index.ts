@@ -1,6 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
-import { installExtensions } from './seed/extensions';
 import { env } from '../zod/env';
 
 const pool = new pg.Pool({
@@ -8,5 +7,3 @@ const pool = new pg.Pool({
 });
 
 export const db = drizzle({ client: pool });
-
-await installExtensions()

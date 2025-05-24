@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { integer, pgTable, unique, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, primaryKey, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 /** Engagement histories between the users. */
@@ -10,7 +10,7 @@ export const engagementHistory = pgTable('engagement_history', {
     viewerId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     publisherId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
 }, (t) => [
-    unique().on(t.viewerId, t.publisherId),
+    primaryKey({ columns: [t.viewerId, t.publisherId] })
 ]);
 
 export type EngagementHistory = InferSelectModel<typeof engagementHistory>;
