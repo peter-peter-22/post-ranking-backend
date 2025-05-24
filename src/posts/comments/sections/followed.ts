@@ -8,7 +8,7 @@ import { follows } from "../../../db/schema/follows";
 /** Get the replies of the followed users.  */
 export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]) {
     return db
-        .select(candidateColumns(user, "Followed"))
+        .select(candidateColumns("Followed"))
         .from(posts)
         .where(and(
             ...commonFilters,

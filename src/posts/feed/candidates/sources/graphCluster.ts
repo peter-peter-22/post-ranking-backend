@@ -20,7 +20,7 @@ export function getGraphClusterCandidates({ user, commonFilters, followedUsers }
 
     // Get the posts.
     return db
-        .select(candidateColumns(user, "GraphClusters"))
+        .select(candidateColumns( "GraphClusters"))
         .from(posts)
         .where(
             and(

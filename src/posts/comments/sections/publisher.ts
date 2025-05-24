@@ -5,9 +5,9 @@ import { User } from "../../../db/schema/users";
 import { candidateColumns } from "../../feed/candidates";
 
 /** Get the replies of the publisher of the post.  */
-export function getPublisherComments(user: User, post: Post, commonFilters: SQL[]) {
+export function getPublisherComments( post: Post, commonFilters: SQL[]) {
     return db
-        .select(candidateColumns(user, "Publisher"))
+        .select(candidateColumns("Publisher"))
         .from(posts)
         .where(and(
             ...commonFilters,

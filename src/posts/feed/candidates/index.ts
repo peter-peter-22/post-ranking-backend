@@ -1,10 +1,10 @@
-import { cosineDistance, getTableColumns, sql, SQL } from "drizzle-orm";
+import { sql, SQL } from "drizzle-orm";
 import { getFollowedUsers } from "../../../db/controllers/users/getFollowers";
 import { posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
 import { getTrendNames } from "../../../trends/getTrends";
 import { commonFilters } from "../filters";
-import { deduplicatePosts, fetchPosts } from "./fetchPosts";
+import { deduplicatePosts, fetchCandidates } from "./fetchPosts";
 import { getEmbeddingSimilarityCandidates } from "./sources/embedding";
 import { getFollowedCandidates } from "./sources/followed";
 import { getGraphClusterCandidates } from "./sources/graphCluster";
@@ -37,24 +37,20 @@ export async function getCandidates(common: CandidateCommonData) {
         candidateSqs.push(sq)
 
     // Process candidates
-    return deduplicatePosts(await fetchPosts(candidateSqs, common.user))
+    return deduplicatePosts(await fetchCandidates(candidateSqs))
 }
 
-/** Post with relative data returned by the candidate selector. */
+/** Post id with candidate source. */
 export type PostCandidate = Awaited<ReturnType<typeof getCandidates>>[number]
 
 /** A candidate selector subquery. */
 export type CandidateSubquery = ReturnType<typeof getFollowedCandidates>
 
-// Remove unnecessary columns from the post
-const { embedding, ...simplePostColumns } = getTableColumns(posts)
-
 /** The columns those are selected from the post candidates. */
-export function candidateColumns(user: User, candidateType: CandidateSource) {
+export function candidateColumns(candidateType: CandidateSource) {
     return {
-        ...simplePostColumns,
-        candidateType: sql<string>`${candidateType}`.as("candidate_type"),
-        similarity: (user.embedding ? sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})` : sql<number>`0`).as("embedding_similarity"),
+        id:posts.id,
+        source: sql<CandidateSource>`${candidateType}`.as("candidate_type"),
     }
 }
 
@@ -75,4 +71,4 @@ export type CandidateCommonData = {
 }
 
 /** The type of the post candidate. */
-export type CandidateSource = "Followed" | "RepliedByFollowed" | "GraphClusters" | "EmbeddingSimilarity" | "Trending" | "Rest" | "Publisher"
+export type CandidateSource = "Followed" | "RepliedByFollowed" | "GraphClusters" | "EmbeddingSimilarity" | "Trending" | "Rest" | "Publisher" | "Unknown"

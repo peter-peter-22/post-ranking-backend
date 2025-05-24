@@ -7,10 +7,7 @@ import { minimalEngagement } from "../../filters";
 /** Max count of posts. */
 const count = 500;
 
-/** Selecting candidate posts those embedding is similar to the embedding of the user. 
- * @todo Use a separate embedding vector storage.
- * @todo Over-representation filter.
-*/
+/** Selecting candidate posts those embedding is similar to the embedding of the user. */
 export function getEmbeddingSimilarityCandidates({ user, commonFilters, followedUsers }: CandidateCommonData) {
 
     // If the user has no embedding vector, exit.
@@ -21,7 +18,7 @@ export function getEmbeddingSimilarityCandidates({ user, commonFilters, followed
 
     // Get the posts.
     return db
-        .select(candidateColumns(user, "EmbeddingSimilarity"))
+        .select(candidateColumns( "EmbeddingSimilarity"))
         .from(posts)
         .where(
             and(

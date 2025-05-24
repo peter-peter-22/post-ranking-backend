@@ -8,10 +8,10 @@ import { users } from "../../../../db/schema/users";
 const count = 500;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export function getFollowedCandidates({user, followedUsers, commonFilters }: CandidateCommonData) {
+export function getFollowedCandidates({ followedUsers, commonFilters }: CandidateCommonData) {
     // Get the posts
     return db
-        .select(candidateColumns(user,"Followed"))
+        .select(candidateColumns("Followed"))
         .from(posts)
         .where(
             and(

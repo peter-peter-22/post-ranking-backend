@@ -1,6 +1,6 @@
 import axios from "axios";
 import { env } from "../../zod/env";
-import { PostCandidate } from "./candidates";
+import { HydratedPost } from "../hydratePosts";
 import { z } from "zod";
 
 /** Axios instance to communicate with the ranker api */
@@ -23,7 +23,7 @@ type PostToRank = {
 }
 
 /** Post with score. */
-type ScoredPost = PostCandidate & {
+type ScoredPost = HydratedPost & {
     score: number
 }
 
@@ -33,7 +33,7 @@ const rankerResponeSchema = z.object({
 })
 
 /** Use the ranker api to score the post then order them. */
-export async function rankPosts(posts: PostCandidate[]):Promise<ScoredPost[]> {
+export async function rankPosts(posts: HydratedPost[]):Promise<ScoredPost[]> {
     if(posts.length===0)
     {
         console.log("No posts to rank")

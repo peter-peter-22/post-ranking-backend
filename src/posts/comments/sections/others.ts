@@ -8,9 +8,9 @@ import { candidateColumns } from "../../feed/candidates";
 const commentsPerPage=50;
 
 /** Get the rest of the replies.  */
-export function getOtherComments(user: User,commonFilters:SQL[],skip:string[]) {
+export function getOtherComments(commonFilters:SQL[],skip:string[]) {
     return db
-        .select(candidateColumns(user, "Rest"))
+        .select(candidateColumns( "Rest"))
         .from(posts)
         .where(and(
             ...commonFilters,
