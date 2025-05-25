@@ -20,7 +20,7 @@ export const posts = pgTable('posts', {
     engaging: real().notNull().default(0),
     replyingTo: uuid(),
     //the total engagement count.
-    engagementCount: real().notNull().generatedAlwaysAs(
+    engagementCount: integer().notNull().generatedAlwaysAs(
         (): SQL => sql`(
             ${posts.likeCount} +
             ${posts.replyCount} +
@@ -39,9 +39,11 @@ export const posts = pgTable('posts', {
     media: jsonb().$type<MediaFile[]>(),
     commentScore: real().notNull().generatedAlwaysAs(
         (): SQL => sql`
+        (
             ((${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount} + 10) / (${posts.viewCount} + 10)) 
             * 
-            (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})`
+            (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})
+        )::real`
     )
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
