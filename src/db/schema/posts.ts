@@ -40,10 +40,10 @@ export const posts = pgTable('posts', {
     commentScore: real().notNull().generatedAlwaysAs(
         (): SQL => sql`
         (
-            ((${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount} + 10) / (${posts.viewCount} + 10)) 
+            ((${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount} + 10) / (${posts.viewCount} + 10))::float 
             * 
-            (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})
-        )::real`
+            (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})::float
+        )`
     )
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
@@ -52,13 +52,12 @@ export const posts = pgTable('posts', {
         foreignColumns: [table.id],
         name: "reply_to_post_fkey",
     }).onDelete("cascade"),
-    index('embeddingIndex').using('hnsw', table.embedding.op('vector_cosine_ops')),
-    index('replyingToIndex').on(table.replyingTo.nullsFirst(), table.userId, table.createdAt.desc().nullsFirst()),// used for reply counting, followed reply
-    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc().nullsFirst()),// used for reply engagement history
-    index('recencyIndex').on(table.createdAt.desc().nullsFirst()),
-    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc().nullsFirst()),// used for user cluster trends
+    index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),// used for reply counting, followed reply
+    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
+    index('recencyIndex').on(table.createdAt.desc()),
+    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
     index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),// used for trending cancidates.
-    index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc().nullsFirst(), table.createdAt.desc().nullsFirst()).where(isNotNull(table.replyingTo)),// used for ordering replies in the comment section of a post.
+    index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),// used for ordering replies in the comment section of a post.
 ]);
 
 export type Post = InferSelectModel<typeof posts>;
