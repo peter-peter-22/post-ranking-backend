@@ -49,12 +49,15 @@ export async function updateTrends() {
         .select({
             keyword: relativeCounts.keyword,
             growth: sql<number>`
-                        (${relativeCounts.currentCount}*${referenceInterval / currentInterval})::real
+                        (${relativeCounts.currentCount}*${referenceInterval / currentInterval})::float
                         /
-                        ${relativeCounts.referenceCount}`.as("growth"),
+                        ${relativeCounts.referenceCount}::float`.as("growth"),
             postCount: relativeCounts.currentCount,
         })
         .from(relativeCounts)
+
+        console.log(trendScores.toSQL())
+
 
     // Delere the previous trends.
     await db.delete(trends)

@@ -50,7 +50,7 @@ export type CandidateSubquery = ReturnType<typeof getFollowedCandidates>
 export function candidateColumns(candidateType: CandidateSource) {
     return {
         id:posts.id,
-        source: sql<CandidateSource>`${candidateType}`.as("candidate_type"),
+        source: sql<CandidateSource>`${candidateType}::string`.as("candidate_type"),
     }
 }
 

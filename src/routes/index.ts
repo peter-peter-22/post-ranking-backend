@@ -4,9 +4,7 @@ import { protectedMiddleware } from '../authentication';
 //routers
 
 import bot from "./bots";
-import candidates from "./development/candidates";
 import reset from "./development/reset";
-import feed from "./userActions/feed";
 import home from './home';
 import register from "./register";
 import update from "./update";
@@ -20,7 +18,6 @@ router.use(home);
 router.use("/reset", reset);
 router.use("/register", register);
 router.use("/bots", bot);
-router.use("/candidates", candidates);
 router.use("/update", update);
 
 //protected routes
