@@ -3,7 +3,7 @@ import { eq, not } from "drizzle-orm";
 import { db } from "../..";
 import { createPosts, createReplies } from "../../../userActions/posts/createPost";
 import { clearMainUser } from "../../reset/clearMainUser";
-import { follows } from "../../schema_pending/follows";
+import { follows } from "../../schema/follows";
 import { users } from "../../schema/users";
 
 //** A post appears with all kinds of replies to test the reply ranker. */

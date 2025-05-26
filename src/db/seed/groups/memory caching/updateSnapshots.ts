@@ -3,7 +3,7 @@ import { Engagement } from "../../../../bots/getEngagements";
 import { chunkedInsert } from "../../../utils/chunkedInsert";
 import { EngagementHistory } from "../../../schema/engagementHistory";
 import { EngagementHistoryShapshotToInsert, engagementHistorySnapshots } from "../../../schema_pending/engagementHistorySnapshots";
-import { FollowToInsert } from "../../../schema_pending/follows";
+import { FollowToInsert } from "../../../schema/follows";
 import { FollowShapshotToInsert, followSnapshots } from "../../../schema_pending/followSnapshots";
 import { postSnapshots, PostSnapshotToInsert } from "../../../schema_pending/postSnapshots";
 import { userEmbeddingSnapshots, UserEmbeddingSnapshotToInsert } from "../../../schema_pending/userEmbeddingSnapshots";

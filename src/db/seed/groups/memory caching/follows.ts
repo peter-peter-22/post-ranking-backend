@@ -1,5 +1,5 @@
 import { db } from "../../..";
-import { follows } from "../../../schema_pending/follows";
+import { follows } from "../../../schema/follows";
 
 /** Get a nested map of follow relationships. */
 async function getFollowMap() {

@@ -1,6 +1,6 @@
-import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { users } from '../schema/users';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { users } from './users';
 
 /** Follows between the users. */
 export const follows = pgTable('follows', {

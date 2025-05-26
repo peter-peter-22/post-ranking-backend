@@ -1,6 +1,6 @@
 import { eq, SQL } from "drizzle-orm";
 import { db } from "../../../..";
-import { follows } from "../../../../schema_pending/follows";
+import { follows } from "../../../../schema/follows";
 import { users } from "../../../../schema/users";
 
 /**Recalculate the follow count on the selected users. */

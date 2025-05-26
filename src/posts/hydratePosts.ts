@@ -1,7 +1,7 @@
 import { aliasedTable, and, cosineDistance, eq, exists, inArray, sql } from "drizzle-orm"
 import { db } from "../db"
 import { engagementHistory } from "../db/schema/engagementHistory"
-import { follows } from "../db/schema_pending/follows"
+import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
