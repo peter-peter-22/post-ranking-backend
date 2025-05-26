@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
-import { users } from '../schema/users';
+import { users } from './users';
 
 /** Snapshots of the user embeddings. */
 export const userEmbeddingSnapshots = pgTable('user_embedding_snapshots', {
@@ -10,7 +10,7 @@ export const userEmbeddingSnapshots = pgTable('user_embedding_snapshots', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({ columns: [t.userId, t.createdAt] }),
-    index().on(t.userId, t.createdAt.desc().nullsFirst())
+    index().on(t.userId, t.createdAt.desc())
 ]);
 
 export type UserEmbeddingSnapshot = InferSelectModel<typeof userEmbeddingSnapshots>;

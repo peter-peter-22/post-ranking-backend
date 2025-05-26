@@ -4,7 +4,7 @@ import { chunkedInsert } from "../../../utils/chunkedInsert";
 import { posts } from "../../../schema/posts";
 import { PostEngagementCounts } from "./postEngagements";
 import { EngagementHistory, engagementHistory } from "../../../schema/engagementHistory";
-import { UserEmbeddingSnapshotToInsert } from "../../../schema_pending/userEmbeddingSnapshots";
+import { UserEmbeddingSnapshotToInsert } from "../../../schema/userEmbeddingSnapshots";
 import { users } from "../../../schema/users";
 
 /** Apply the engagement counts from the memory to the database to avoid recalculating them unnecessarily. 

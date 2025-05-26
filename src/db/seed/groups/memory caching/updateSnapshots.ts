@@ -2,11 +2,11 @@ import { db } from "../../..";
 import { Engagement } from "../../../../bots/getEngagements";
 import { chunkedInsert } from "../../../utils/chunkedInsert";
 import { EngagementHistory } from "../../../schema/engagementHistory";
-import { EngagementHistoryShapshotToInsert, engagementHistorySnapshots } from "../../../schema_pending/engagementHistorySnapshots";
+import { EngagementHistoryShapshotToInsert, engagementHistorySnapshots } from "../../../schema/engagementHistorySnapshots";
 import { FollowToInsert } from "../../../schema/follows";
-import { FollowShapshotToInsert, followSnapshots } from "../../../schema_pending/followSnapshots";
-import { postSnapshots, PostSnapshotToInsert } from "../../../schema_pending/postSnapshots";
-import { userEmbeddingSnapshots, UserEmbeddingSnapshotToInsert } from "../../../schema_pending/userEmbeddingSnapshots";
+import { FollowShapshotToInsert, followSnapshots } from "../../../schema/followSnapshots";
+import { postSnapshots, PostSnapshotToInsert } from "../../../schema/postSnapshots";
+import { userEmbeddingSnapshots, UserEmbeddingSnapshotToInsert } from "../../../schema/userEmbeddingSnapshots";
 import { PostEngagementCounts } from "./postEngagements";
 
 /** Create post snapshots from the posts in the memory.

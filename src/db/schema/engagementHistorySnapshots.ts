@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, integer, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { users } from '../schema/users';
+import { users } from './users';
 
 /** Snapshots of the engagement histories. */
 export const engagementHistorySnapshots = pgTable('engagement_history_snapshots', {
@@ -12,7 +12,7 @@ export const engagementHistorySnapshots = pgTable('engagement_history_snapshots'
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({ columns: [t.viewerId, t.posterId] }),
-    index().on(t.viewerId, t.posterId, t.createdAt.desc().nullsFirst())
+    index().on(t.viewerId, t.posterId, t.createdAt.desc())
 ]);
 
 export type EngagementHistoryShapshot = InferSelectModel<typeof engagementHistorySnapshots>;

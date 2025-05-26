@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { boolean, index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { users } from '../schema/users';
+import { users } from './users';
 
 /** Snapshots of the follows. */
 export const followSnapshots = pgTable('follow_snapshots', {
@@ -10,7 +10,7 @@ export const followSnapshots = pgTable('follow_snapshots', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({ columns: [t.followerId, t.followedId, t.createdAt] }),
-    index().on(t.followerId, t.followedId, t.createdAt.desc().nullsFirst())
+    index().on(t.followerId, t.followedId, t.createdAt.desc())
 ]);
 
 export type FollowShapshot = InferSelectModel<typeof followSnapshots>;
