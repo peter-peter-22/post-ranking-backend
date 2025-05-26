@@ -57,6 +57,13 @@
       "when": 1748246363985,
       "tag": "0007_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1748249691696,
+      "tag": "0008_misc",
+      "breakpoints": true
     }
   ]
 }

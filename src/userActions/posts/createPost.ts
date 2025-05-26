@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { pendingUploads } from "../../db/schema_pending/pendingUploads";
+import { pendingUploads } from "../../db/schema/pendingUploads";
 import { posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
 import { PostToFinalize } from "../../routes/userActions/createPost";

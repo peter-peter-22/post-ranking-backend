@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../..";
-import { persistentDates } from "../../schema_pending/persistentDates";
+import { persistentDates } from "../../schema/persistentDates";
 
 /** Get a date from the db or return default. 
  * @param id - The id of the date to be retrieved.

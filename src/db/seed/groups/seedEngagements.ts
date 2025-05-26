@@ -11,7 +11,7 @@ import { clicks } from "../../schema/clicks";
 import { engagementHistory } from "../../schema/engagementHistory";
 import { engagementHistorySnapshots } from "../../schema/engagementHistorySnapshots";
 import { likes } from "../../schema/likes";
-import { persistentDates } from "../../schema_pending/persistentDates";
+import { persistentDates } from "../../schema/persistentDates";
 import { Post, posts } from "../../schema/posts";
 import { postSnapshots } from "../../schema/postSnapshots";
 import { trends } from "../../schema/trends";
