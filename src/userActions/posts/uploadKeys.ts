@@ -1,5 +1,5 @@
 import { db } from "../../db";
-import { pendingUploads } from "../../db/schema/pendingUploads";
+import { pendingUploads } from "../../db/schema_pending/pendingUploads";
 import { mediaTransformerApi } from "../../objectStorage/mediaTransformer";
 import { ImageUploadOptions, VideoUploadOptions } from "../../objectStorage/uploadOptions";
 import crypto from "crypto";

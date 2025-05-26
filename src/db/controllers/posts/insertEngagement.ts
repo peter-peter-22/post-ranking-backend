@@ -2,10 +2,10 @@ import { db } from "../.."
 import { Engagement } from "../../../bots/getEngagements"
 import { createReplies } from "../../../userActions/posts/createPost"
 import { chunkedInsert } from "../../utils/chunkedInsert"
-import { clicks, ClicksToInsert } from "../../schema/clicks"
-import { likes, LikeToInsert } from "../../schema/likes"
+import { clicks, ClicksToInsert } from "../../schema_pending/clicks"
+import { likes, LikeToInsert } from "../../schema_pending/likes"
 import { PostToCreate } from "../../schema/posts"
-import { views, ViewToInsert } from "../../schema/views"
+import { views, ViewToInsert } from "../../schema_pending/views"
 import { generateReplyText, getRandomTopicFromUser } from "../../seed/posts"
 
 /** Format the engagement data and insert it into the DB. */

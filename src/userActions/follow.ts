@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { follows } from "../db/schema/follows";
+import { follows } from "../db/schema_pending/follows";
 
 /**
  * Make a user follow another

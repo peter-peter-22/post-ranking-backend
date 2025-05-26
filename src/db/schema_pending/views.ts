@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { posts } from './posts';
+import { posts } from '../schema/posts';
 import { users } from './users';
 
 /** The views of the posts. */

@@ -1,7 +1,7 @@
 import { desc, eq, getTableColumns, notInArray } from "drizzle-orm"
 import { db } from "../db"
-import { Trend, trends } from "../db/schema/trends"
-import { userClusterTrends } from "../db/schema/userClusterTrends"
+import { Trend, trends } from "../db/schema_pending/trends"
+import { userClusterTrends } from "../db/schema_pending/userClusterTrends"
 import { getOrGenerateCache } from "../redis/cachedRead"
 
 /** Return the the top and personalized trends. */

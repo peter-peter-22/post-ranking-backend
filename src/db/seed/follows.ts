@@ -2,7 +2,7 @@ import { db } from "..";
 import { promisesAllTracked } from "../../utilities/arrays/trackedPromises";
 import { chunkedInsert } from "../utils/chunkedInsert";
 import { updateFollowCounts } from "../controllers/posts/engagement/follow/count";
-import { follows, FollowToInsert } from "../schema/follows";
+import { follows, FollowToInsert } from "../schema_pending/follows";
 import { UserCommon } from "../schema/users";
 import { updateFollowSnapshots } from "./groups/memory caching/updateSnapshots";
 

@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
-import { users } from './users';
+import { users } from '../schema/users';
 
 /** Snapshots of the user embeddings. */
 export const userEmbeddingSnapshots = pgTable('user_embedding_snapshots', {

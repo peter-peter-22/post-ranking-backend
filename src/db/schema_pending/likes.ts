@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { posts } from './posts';
-import { users } from './users';
+import { posts } from '../schema/posts';
+import { users } from '../schema/users';
 
 /** The likes of the posts. */
 export const likes = pgTable('likes', {

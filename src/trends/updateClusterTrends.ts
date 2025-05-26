@@ -2,7 +2,7 @@ import { and, count, eq, gte, sql } from "drizzle-orm";
 import { db } from "../db";
 import { isPost, recencyFilter } from "../posts/feed/filters";
 import { posts } from "../db/schema/posts";
-import { userClusterTrends } from "../db/schema/userClusterTrends";
+import { userClusterTrends } from "../db/schema_pending/userClusterTrends";
 import { users } from "../db/schema/users";
 
 export async function updateClusterTrends() {

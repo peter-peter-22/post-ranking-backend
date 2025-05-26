@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, integer, pgTable, primaryKey } from 'drizzle-orm/pg-core';
 import { keyword } from '../common';
-import { clusters } from './clusters';
+import { clusters } from '../schema/clusters';
 
 /** The top trends in the user clusers. Used for getting personalized trends. */
 export const userClusterTrends = pgTable('user_cluster_trends', {

@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
-import { users } from './users';
+import { users } from '../schema/users';
 
 /** The pending uploads of the users. Used for tracking the max pending upload count and to identify failed/cancelled uploads. */
 export const pendingUploads = pgTable('pending_uploads', {

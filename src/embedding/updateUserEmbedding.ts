@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import { isPost } from "../posts/feed/filters";
-import { likes } from "../db/schema/likes";
+import { likes } from "../db/schema_pending/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
 

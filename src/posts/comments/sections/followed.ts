@@ -3,7 +3,7 @@ import { db } from "../../../db";
 import { Post, posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
 import { candidateColumns } from "../../feed/candidates";
-import { follows } from "../../../db/schema/follows";
+import { follows } from "../../../db/schema_pending/follows";
 
 /** Get the replies of the followed users.  */
 export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]) {

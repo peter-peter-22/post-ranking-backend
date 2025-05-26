@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, integer, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { posts } from './posts';
+import { posts } from '../schema/posts';
 
 /** The snapshots of the post engagement counts. */
 export const postSnapshots = pgTable('post_snapshots', {

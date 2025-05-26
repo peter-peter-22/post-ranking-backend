@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm"
 import { db } from "../.."
 import { getOrGenerateCache } from "../../../redis/cachedRead"
-import { follows } from "../../schema/follows"
+import { follows } from "../../schema_pending/follows"
 import { UserCommon } from "../../schema/users"
 
 /** The expiration time of the cache. */

@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { boolean, index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { users } from './users';
+import { users } from '../schema/users';
 
 /** Snapshots of the follows. */
 export const followSnapshots = pgTable('follow_snapshots', {

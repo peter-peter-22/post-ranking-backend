@@ -1,5 +1,5 @@
 import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { users } from './users';
+import { users } from '../schema/users';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
 /** Follows between the users. */

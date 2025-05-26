@@ -1,7 +1,7 @@
 import { getTableColumns, InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { boolean, index, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
-import { clusters } from './clusters';
+import { clusters } from '../schema/clusters';
 
 /** The users. */
 export const users = pgTable('users', {

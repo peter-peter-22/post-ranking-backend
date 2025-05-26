@@ -1,6 +1,6 @@
 import { lt } from "drizzle-orm";
 import { db } from "../..";
-import { pendingUploads } from "../../schema/pendingUploads";
+import { pendingUploads } from "../../schema_pending/pendingUploads";
 import { minioClient } from "../../../objectStorage/client";
 import { posts } from "../../schema/posts";
 

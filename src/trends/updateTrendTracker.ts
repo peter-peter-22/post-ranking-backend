@@ -1,6 +1,6 @@
 import { and, asc, count, desc, gte, lt, sql } from "drizzle-orm";
 import { db } from "../db";
-import { keywordPopularity } from "../db/schema/keywordPopularity";
+import { keywordPopularity } from "../db/schema_pending/keywordPopularity";
 import { posts } from "../db/schema/posts";
 import { formatDate } from "../utilities/date/formatDates";
 
