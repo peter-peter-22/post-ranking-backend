@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { posts } from '../schema/posts';
+import { posts } from './posts';
 import { users } from './users';
 
 /** The views of the posts. */
@@ -10,7 +10,7 @@ export const views = pgTable('views', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({columns: [t.postId, t.userId]}),
-    index("user_view_history").on(t.userId, t.createdAt.desc().nullsFirst())
+    index("user_view_history").on(t.userId, t.createdAt.desc())
 ]);
 
 export type View = InferSelectModel<typeof views>;

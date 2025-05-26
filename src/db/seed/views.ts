@@ -3,11 +3,11 @@ import { db } from "..";
 import { chunkedInsert } from "../utils/chunkedInsert";
 import { updateClickCounts } from "../controllers/posts/engagement/clicks/count";
 import { updateViewCounts } from "../controllers/posts/engagement/views/count";
-import { clicks, ClicksToInsert } from "../schema_pending/clicks";
-import { likes } from "../schema_pending/likes";
+import { clicks, ClicksToInsert } from "../schema/clicks";
+import { likes } from "../schema/likes";
 import { posts } from "../schema/posts";
 import { users } from "../schema/users";
-import { views, ViewToInsert } from "../schema_pending/views";
+import { views, ViewToInsert } from "../schema/views";
 
 const comments = aliasedTable(posts, "comments")
 

@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
-import { posts } from '../schema/posts';
-import { users } from '../schema/users';
+import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { posts } from './posts';
+import { users } from './users';
 
 /** The clicks of the posts. */
 export const clicks = pgTable('clicks', {
@@ -10,7 +10,7 @@ export const clicks = pgTable('clicks', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({ columns: [t.postId, t.userId] }),
-    index("user_click_history").on(t.userId, t.createdAt.desc().nullsFirst())
+    index("user_click_history").on(t.userId, t.createdAt.desc())
 ]);
 
 export type Click = InferSelectModel<typeof clicks>;

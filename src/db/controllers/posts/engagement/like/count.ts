@@ -1,6 +1,6 @@
 import { eq, SQL } from "drizzle-orm";
 import { db } from "../../../..";
-import { likes } from "../../../../schema_pending/likes";
+import { likes } from "../../../../schema/likes";
 import { posts } from "../../../../schema/posts";
 
 /**Recalculate the like count on the selected posts. */

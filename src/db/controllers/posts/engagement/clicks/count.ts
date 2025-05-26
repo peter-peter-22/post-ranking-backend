@@ -1,6 +1,6 @@
 import { eq, SQL } from "drizzle-orm";
 import { db } from "../../../..";
-import { clicks } from "../../../../schema_pending/clicks";
+import { clicks } from "../../../../schema/clicks";
 import { posts } from "../../../../schema/posts";
 
 /**Recalculate the click count on the selected posts. */

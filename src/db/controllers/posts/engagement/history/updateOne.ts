@@ -1,9 +1,9 @@
 import { aliasedTable, and, eq, gt, SQL } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
 import { db } from "../../../..";
-import { clicks } from "../../../../schema_pending/clicks";
+import { clicks } from "../../../../schema/clicks";
 import { engagementHistory, EngagementHistoryToInsert } from "../../../../schema/engagementHistory";
-import { likes } from "../../../../schema_pending/likes";
+import { likes } from "../../../../schema/likes";
 import { posts } from "../../../../schema/posts";
 import { chunkedInsert } from "../../../../utils/chunkedInsert";
 

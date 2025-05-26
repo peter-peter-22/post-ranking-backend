@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { posts } from '../schema/posts';
-import { users } from '../schema/users';
+import { posts } from './posts';
+import { users } from './users';
 
 /** The likes of the posts. */
 export const likes = pgTable('likes', {
@@ -10,7 +10,7 @@ export const likes = pgTable('likes', {
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({columns:[t.postId, t.userId]}),
-    index("user_like_history").on(t.userId, t.createdAt.desc().nullsFirst())
+    index("user_like_history").on(t.userId, t.createdAt.desc())
 ]);
 
 export type Like = InferSelectModel<typeof likes>;
