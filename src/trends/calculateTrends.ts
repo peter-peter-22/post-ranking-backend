@@ -1,7 +1,7 @@
 import { and, eq, gte, sql, sum } from "drizzle-orm"
 import { db } from "../db"
-import { keywordPopularity } from "../db/schema_pending/keywordPopularity"
-import { trends } from "../db/schema_pending/trends"
+import { keywordPopularity } from "../db/schema/keywordPopularity"
+import { trends } from "../db/schema/trends"
 import { insertSelect } from "../db/utils/insertSelect"
 import { countKeywords, updateAllKeywordPopularities } from "./updateTrendTracker"
 

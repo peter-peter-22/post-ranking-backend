@@ -43,6 +43,13 @@
       "when": 1748245743719,
       "tag": "0005_follows",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1748246281855,
+      "tag": "0006_trends",
+      "breakpoints": true
     }
   ]
 }

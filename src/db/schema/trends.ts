@@ -7,9 +7,9 @@ export const trends = pgTable('trends', {
     keyword: keyword().notNull().primaryKey(),
     growth: real().notNull(),
     postCount: integer().notNull(),
-    score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}*${trends.postCount}`).notNull()
+    score: real().generatedAlwaysAs((): SQL => sql`${trends.growth}::float*${trends.postCount}::float`).notNull()
 }, (t) => [
-    index().on(t.score.desc().nullsFirst())
+    index().on(t.score.desc())
 ]);
 
 export type Trend = InferSelectModel<typeof trends>;

@@ -14,7 +14,7 @@ import { likes } from "../../schema/likes";
 import { persistentDates } from "../../schema_pending/persistentDates";
 import { Post, posts } from "../../schema/posts";
 import { postSnapshots } from "../../schema_pending/postSnapshots";
-import { trends } from "../../schema_pending/trends";
+import { trends } from "../../schema/trends";
 import { userEmbeddingSnapshots } from "../../schema_pending/userEmbeddingSnapshots";
 import { User } from "../../schema/users";
 import { views } from "../../schema/views";
