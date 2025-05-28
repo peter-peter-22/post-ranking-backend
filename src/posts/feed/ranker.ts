@@ -33,32 +33,37 @@ const rankerResponeSchema = z.object({
 })
 
 /** Use the ranker api to score the post then order them. */
-export async function rankPosts(posts: HydratedPost[]):Promise<ScoredPost[]> {
-    if(posts.length===0)
-    {
-        console.log("No posts to rank")
-        return []
+export async function rankPosts(posts: HydratedPost[]): Promise<ScoredPost[]> {
+    try {
+        if (posts.length === 0) {
+            console.log("No posts to rank")
+            return []
+        }
+        // Format the posts for the ranker
+        const rankerInputs: PostToRank[] = posts.map((post) => ({
+            age: (post.createdAt.getTime() - Date.now()) / 1000 / 60 / 60, // age in hours
+            like_count: post.likes,
+            reply_count: post.replies,
+            click_count: post.clicks,
+            embedding_similarity: post.similarity,
+            like_history: post.engagementHistory?.likes || 0,
+            reply_history: post.engagementHistory?.replies || 0,
+            click_history: post.engagementHistory?.clicks || 0,
+            followed: post.followed,
+            replied_by_followed: post.repliedByFollowed
+        }))
+        // Fetch the post scores
+        const res = await rankerApi.post("/rank", { posts: rankerInputs })
+        // Validate response
+        const { scores } = rankerResponeSchema.parse(res.data)
+        // Add the scores to the posts
+        let scoredPosts = posts.map((post, i) => ({ ...post, score: scores[i] }))
+        // Order the posts by score
+        scoredPosts = scoredPosts.sort((a, b) => b.score - a.score)
+        return scoredPosts
     }
-    // Format the posts for the ranker
-    const rankerInputs:PostToRank[] = posts.map((post) => ({
-        age: (post.createdAt.getTime() - Date.now()) / 1000 / 60 / 60, // age in hours
-        like_count: post.likes,
-        reply_count: post.replies,
-        click_count: post.clicks,
-        embedding_similarity: post.similarity,
-        like_history: post.engagementHistory?.likes || 0,
-        reply_history: post.engagementHistory?.replies || 0,
-        click_history: post.engagementHistory?.clicks || 0,
-        followed: post.followed,
-        replied_by_followed: post.repliedByFollowed
-    }))
-    // Fetch the post scores
-    const res = await rankerApi.post("/rank", { posts: rankerInputs })
-    // Validate response
-    const {scores} = rankerResponeSchema.parse(res.data)
-    // Add the scores to the posts
-    let scoredPosts = posts.map((post, i) => ({ ...post, score: scores[i] }))
-    // Order the posts by score
-    scoredPosts = scoredPosts.sort((a, b) => b.score - a.score)
-    return scoredPosts
+    catch (e) {
+        console.error(e)
+        throw new Error("Failed to rank posts")
+    }
 }

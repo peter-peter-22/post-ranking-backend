@@ -64,5 +64,5 @@ content-type: application/json
 Authorization: userhandle main-user
 
 {
-    "text":"Hello world"
+    "text":"Hello #1234 #hello"
 }

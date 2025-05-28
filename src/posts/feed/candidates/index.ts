@@ -18,6 +18,8 @@ export async function getCandidates(common: CandidateCommonData) {
 
     // Get the subqueries of the candidate sources and union them
     const candidateSqs:CandidateSubquery[]=[]
+    // Promises to fetch the candidates
+    const promises=[]
     
     // Followed
     candidateSqs.push(getFollowedCandidates(common))
@@ -27,21 +29,29 @@ export async function getCandidates(common: CandidateCommonData) {
     const graphClusterSq = getGraphClusterCandidates(common)
     if (graphClusterSq)
         candidateSqs.push(graphClusterSq)
-    // Embedding
-    const embeddingSq = getEmbeddingSimilarityCandidates(common)
-    if (embeddingSq)
-        candidateSqs.push(embeddingSq)
     // Trending
     const trendingSqs = getTrendCandidates(common, trends)
     for (const sq of trendingSqs)
         candidateSqs.push(sq)
+    // Embedding
+    if (common.user.embedding)
+        promises.push(getEmbeddingSimilarityCandidates(common.user.embedding))
+    
+    // Fetch candidates from the database
+    promises.push(fetchCandidates(candidateSqs))
 
+    // Await the promises to get all candidates
+    const allCandidates=(await Promise.all(promises)).flat()
+    
     // Process candidates
-    return deduplicatePosts(await fetchCandidates(candidateSqs))
+    return deduplicatePosts(allCandidates)
 }
 
 /** Post id with candidate source. */
-export type PostCandidate = Awaited<ReturnType<typeof getCandidates>>[number]
+export type PostCandidate = {
+    id:string
+    source:CandidateSource
+}
 
 /** A candidate selector subquery. */
 export type CandidateSubquery = ReturnType<typeof getFollowedCandidates>

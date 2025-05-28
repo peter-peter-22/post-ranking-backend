@@ -9,6 +9,8 @@ import { CandidateSource, PostCandidate } from "./feed/candidates"
 
 /** Use an array of post ids to fetch posts and their data. */
 export async function hydratePosts(candidates: PostCandidate[], user: User) {
+    if (candidates.length === 0)
+        return []
 
     // With query to get the posts of the provided ids
     const hydratePosts = db.$with("post_ids_to_hydrate").as(
@@ -54,7 +56,7 @@ export async function hydratePosts(candidates: PostCandidate[], user: User) {
     ).as<boolean>("liked_by_viewer")
 
     // Embedding similarty between the viewer and the post
-    const similarity = (user.embedding ? sql<number>`1 - (${cosineDistance(posts.embedding, user.embedding)})` : sql<number>`0`).as("embedding_similarity")
+    const similarity = (user.embedding ? sql<number>`1 - (${cosineDistance(hydratePosts.embedding, user.embedding)})` : sql<number>`0`).as("embedding_similarity")
 
     // Fetch
     const hydratedPosts = await db

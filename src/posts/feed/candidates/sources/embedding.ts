@@ -1,33 +1,26 @@
-import { and, asc, cosineDistance, notInArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from "..";
-import { db } from "../../../../db";
-import { posts } from "../../../../db/schema/posts";
-import { minimalEngagement } from "../../filters";
+import { PostCandidate } from "..";
+import { Vector } from "../../../../embedding/updateUserEmbedding";
+import { postsCollection, postVectorSearch } from "../../../../weaviate/controllers/posts";
+import { maxAge } from "../../filters";
 
 /** Max count of posts. */
 const count = 500;
 
-/** Selecting candidate posts those embedding is similar to the embedding of the user. */
-export function getEmbeddingSimilarityCandidates({ user, commonFilters, followedUsers }: CandidateCommonData) {
+/** Selecting candidate posts those embedding is similar to a provided vector. */
+export async function getEmbeddingSimilarityCandidates(embedding:Vector) {
 
-    // If the user has no embedding vector, exit.
-    if (!user.embedding) {
-        console.log(`Embedding similarity candidates cancelled.`)
-        return
-    }
+    // Get the similar posts.
+    const rows = await postVectorSearch(
+        embedding,
+        count,
+        postsCollection.filter.byProperty("createdAt").greaterThan(maxAge())
+    )
+    
+    // Format the rows.
+    const formatted:PostCandidate[]=rows.map(row=>({
+        id:row.id,
+        source:"EmbeddingSimilarity"
+    }))
 
-    // Get the posts.
-    return db
-        .select(candidateColumns( "EmbeddingSimilarity"))
-        .from(posts)
-        .where(
-            and(
-                ...commonFilters,
-                notInArray(posts.userId, followedUsers),
-                minimalEngagement(),
-            )
-        )
-        .orderBy(asc(cosineDistance(posts.embedding, user.embedding)))
-        .limit(count)
-        .$dynamic()
+    return formatted
 }

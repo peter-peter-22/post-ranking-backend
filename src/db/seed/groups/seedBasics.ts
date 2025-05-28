@@ -1,3 +1,4 @@
+import { resetWeaviateSchema } from "../../../weaviate/controllers/reset";
 import { clearAllTables } from "../../reset/clearTables";
 import { seedFollows } from "../follows";
 import { seedPosts } from "../posts";
@@ -8,6 +9,7 @@ import { seedMainUser, seedUsers } from "../users";
  */
 export async function seedBasics() {
     await clearAllTables()
+    await resetWeaviateSchema()
     await seedMainUser()
     const allUsers = await seedUsers(1000)
     await seedPosts(10000)

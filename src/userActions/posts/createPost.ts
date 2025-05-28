@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { pendingUploads } from "../../db/schema/pendingUploads";
-import { Post, posts, PostToInsert } from "../../db/schema/posts";
+import { posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
 import { PostToFinalize } from "../../routes/userActions/createPost";
+import { insertVectorsOfPosts } from "../../weaviate/controllers/posts";
 import { preparePosts, prepareReplies } from "./preparePost";
-import { insertPostVectors, PostVectorInput } from "../../weaviate/controllers/posts";
 
 /** Calculate the metadata of posts and insert them into the database. */
 export async function createPosts(data: PostToInsert[]) {
@@ -21,11 +21,11 @@ export async function createReplies(data: PostToInsert[]) {
     return await insertPosts(postsToInsert)
 }
 
-
 /** Insert posts to the database. */
 async function insertPosts(postsToInsert: PostToInsert[]) {
 
     // Insert to db and return
+    console.log(`Inserting posts`)
     const createdPosts = (
         await chunkedInsert(
             postsToInsert,
@@ -39,7 +39,12 @@ async function insertPosts(postsToInsert: PostToInsert[]) {
     ).flat()
 
     // Insert the vector and other data of the post to the vector db
-    await insertVectorsOfPosts(createdPosts)
+    console.log(`Inserting the vectors of the posts`)
+    await chunkedInsert(
+        createdPosts,
+        insertVectorsOfPosts
+    )
+    console.log(`Posts inserted`)
 
     return createdPosts
 }
@@ -102,19 +107,3 @@ async function finalizeMediaOfPost(post: PostToFinalize) {
         throw new Error(`The uploaded files are invalid or expired. Uploaded file count: ${post.media.length}, valid file count: ${deleted.length}`)
 }
 
-/** Create entries in the vector database based on posts. */
-async function insertVectorsOfPosts(createdPosts: Post[]) {
-    // Get the vectors to insert
-    const vectorsToInsert: PostVectorInput[] = []
-    for (const post of createdPosts) {
-        if (!post.embeddingText || !post.embedding)
-            continue
-        vectorsToInsert.push({
-            postId: post.id,
-            text: post.embeddingText,
-            vector: post.embedding
-        })
-    }
-    // Insert
-    await insertPostVectors(vectorsToInsert);
-}

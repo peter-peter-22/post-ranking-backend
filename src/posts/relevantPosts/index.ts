@@ -28,23 +28,30 @@ export async function getCommonData(user: User, post: Post): Promise<RelevantPos
 
 /** Selecting candidate posts from all groups */
 export async function getCandidates(common: RelevantPostsCandidateCommonData) {
-    // Get the trends.
-    const trends = common.post.keywords
+    // Get the keywords of the post.
+    const keywords = common.post.keywords
 
     // Get the subqueries of the candidate sources and union them
     const candidateSqs: CandidateSubquery[] = []
+    // Promises to fetch the candidates
+    const promises = []
 
-    // Embedding
-    const embeddingSq = getPostEmbeddingSimilarityCandidates(common)
-    if (embeddingSq)
-        candidateSqs.push(embeddingSq)
     // Same keywords
-    if (trends) {
-        const trendingSqs = getTrendCandidates(common, trends)
+    if (keywords) {
+        const trendingSqs = getTrendCandidates(common, keywords)
         for (const sq of trendingSqs)
             candidateSqs.push(sq)
     }
+    // Embedding
+    if (common.post.embedding)
+        promises.push(getPostEmbeddingSimilarityCandidates(common.post.embedding))
+
+    // Fetch candidates from the database
+    promises.push(fetchCandidates(candidateSqs))
+
+    // Await the promises to get all candidates
+    const allCandidates = (await Promise.all(promises)).flat()
 
     // Process candidates
-    return deduplicatePosts(await fetchCandidates(candidateSqs))
+    return deduplicatePosts(allCandidates)
 }

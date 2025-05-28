@@ -7,7 +7,6 @@ export async function initWeaviateSchemas(weaviateClient:WeaviateClient) {
     postVectorSchema
   ]
   // Create the schemas those don't exist
-  await weaviateClient.collections.deleteAll()
   for(const schema of schemas){
     if(!schema.name)
       throw new Error(`Weaviate schema class is missing at: ${JSON.stringify(schema)}`)
