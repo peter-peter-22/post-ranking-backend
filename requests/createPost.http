@@ -57,3 +57,12 @@ Authorization: userhandle main-user
         }
     ]
 }
+
+### Create a post without media
+POST http://localhost:3000/userActions/create/post HTTP/1.1
+content-type: application/json
+Authorization: userhandle main-user
+
+{
+    "text":"Hello world"
+}
