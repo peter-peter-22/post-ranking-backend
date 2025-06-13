@@ -56,9 +56,6 @@ export async function updateTrends() {
         })
         .from(relativeCounts)
 
-        console.log(trendScores.toSQL())
-
-
     // Delere the previous trends.
     await db.delete(trends)
 

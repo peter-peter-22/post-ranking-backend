@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { getUserOrThrow } from '../../authentication';
-import { mediaFileSchema } from '../../db/common';
-import { createPendingPost } from '../../userActions/posts/createPendingPost';
-import { createPosts, createReplies, finalizePost } from '../../userActions/posts/createPost';
+import { mediaFileSchema } from '../../../db/common';
+import { createPendingPost } from '../../../userActions/posts/createPendingPost';
+import { createPosts, createReplies, finalizePost } from '../../../userActions/posts/createPost';
+import { authRequestStrict } from '../../../authentication';
 
 const router = Router();
 
@@ -21,7 +21,7 @@ export type PostToFinalize = z.infer<typeof finalizePostSchema> & { userId: stri
 
 router.post('/post', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Get the values of the post
     const post = createPostSchema.parse(req.body);
     // Create the posts
@@ -35,7 +35,7 @@ router.post('/post', async (req: Request, res: Response) => {
 
 router.post('/finalizePost', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Get the values of the post
     const post = finalizePostSchema.parse(req.body);
     // Update the posts
@@ -46,7 +46,7 @@ router.post('/finalizePost', async (req: Request, res: Response) => {
 
 router.post('/pendingPost', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Create pending posts
     const id = await createPendingPost(user.id)
     // Send back the id

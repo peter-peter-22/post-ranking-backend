@@ -1,12 +1,12 @@
+import { eq } from 'drizzle-orm';
 import { Request, Response, Router } from 'express';
 import z from "zod";
-import { getUserOrThrow } from '../../authentication';
-import { ImageUploadOptions, VideoUploadOptions } from '../../objectStorage/uploadOptions';
-import { env } from '../../zod/env';
-import { createImageUploadKey, createVideoUploadKey } from '../../userActions/posts/uploadKeys';
-import { db } from '../../db';
-import { eq } from 'drizzle-orm';
-import { posts } from '../../db/schema/posts';
+import { authRequestStrict } from '../../../authentication';
+import { db } from '../../../db';
+import { posts } from '../../../db/schema/posts';
+import { ImageUploadOptions, VideoUploadOptions } from '../../../objectStorage/uploadOptions';
+import { createImageUploadKey, createVideoUploadKey } from '../../../userActions/posts/uploadKeys';
+import { env } from '../../../zod/env';
 
 const router = Router();
 
@@ -38,7 +38,7 @@ const expiration = 20
 /** Create an upload key for an image uploaded by an user. */
 router.post('/image', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Parse input
     const data = signPostImageUploadSchema.parse(req.body)
     await checkPostOwnership(user.id, data.pendingPostId)
@@ -62,7 +62,7 @@ router.post('/image', async (req: Request, res: Response) => {
 /** Create an upload key for an video uploaded by an user. */
 router.post('/video', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Parse input
     const data = signPostVideoUploadSchema.parse(req.body)
     await checkPostOwnership(user.id, data.pendingPostId)
@@ -86,7 +86,7 @@ router.post('/video', async (req: Request, res: Response) => {
 /** Create an upload key for an profile picture uploaded by an user. */
 router.post('/profile', async (req: Request, res: Response) => {
     // Get user
-    const user = getUserOrThrow(req)
+    const user = await authRequestStrict(req)
     // Parse input
     const data = signProfileUploadSchema.parse(req.body)
     // Define options

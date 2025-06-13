@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { getUserOrThrow } from '../../authentication';
-import { getReplies } from '../../posts/comments/getReplies';
+import { getReplies } from '../../../posts/comments/getReplies';
+import { authRequestStrict } from '../../../authentication';
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.post('/', async (req: Request, res: Response) => {
     const { postId } = commentSectionUrlSchema.parse(req.query)
     const { skip } = commentSectionBodySchema.parse(req.body)
     // Get user
-    const user = getUserOrThrow(req);
+    const user = await authRequestStrict(req);
     // Get posts
     const posts = await getReplies(postId, user, skip);
     res.json(posts)

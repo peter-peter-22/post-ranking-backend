@@ -1,7 +1,6 @@
 import cors from 'cors';
 import express from 'express';
 import "express-async-errors";
-import { authMiddleware } from './authentication';
 import { errorHandler } from './middlewares/errorHandler';
 import routes from "./routes";
 
@@ -11,11 +10,12 @@ const PORT = 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(authMiddleware)
-app.use(errorHandler);
 
 // Routes
 app.use(routes);
+
+// Error handler
+app.use(errorHandler);
 
 // Start the server
 app.listen(PORT, () => {

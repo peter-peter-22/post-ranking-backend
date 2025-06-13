@@ -3,7 +3,7 @@ import { db } from "../../db";
 import { pendingUploads } from "../../db/schema/pendingUploads";
 import { posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
-import { PostToFinalize } from "../../routes/userActions/createPost";
+import { PostToFinalize } from "../../routes/userActions/posts/createPost";
 import { insertVectorsOfPosts } from "../../weaviate/controllers/posts";
 import { preparePosts, prepareReplies } from "./preparePost";
 

@@ -10,6 +10,7 @@ export const users = pgTable('users', {
     name: varchar({ length: 50 }).notNull().unique(),
     createdAt: timestamp().defaultNow(),
     followerCount: integer().notNull().default(0),
+    followingCount:integer().notNull().default(0),
     interests: varchar({ length: 50 }).array().notNull().default([]),//what kinds of posts the bot user creates and wants to see
     bot: boolean().notNull().default(false),
     embedding: embeddingVector("embedding"),

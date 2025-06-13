@@ -8,7 +8,7 @@ import { User, users } from "../db/schema/users"
 import { CandidateSource, PostCandidate } from "./feed/candidates"
 
 /** Use an array of post ids to fetch posts and their data. */
-export async function hydratePosts(candidates: PostCandidate[], user: User) {
+export async function hydratePosts(candidates: string[], user: User | undefined) {
     if (candidates.length === 0)
         return []
 
@@ -17,49 +17,62 @@ export async function hydratePosts(candidates: PostCandidate[], user: User) {
         db
             .select()
             .from(posts)
-            .where(inArray(posts.id, candidates.map(c => c.id)))
+            .where(inArray(posts.id, candidates))
     )
 
     // Followed by viewer
-    const isFollowedSq = exists(db
-        .select()
-        .from(follows)
-        .where(and(
-            eq(follows.followerId, user.id),
-            eq(follows.followedId, hydratePosts.userId)
-        ))
-
-    ).as<boolean>("followed_by_viewer")
+    const isFollowedSq = (user ? (
+        exists(db
+            .select()
+            .from(follows)
+            .where(and(
+                eq(follows.followerId, user.id),
+                eq(follows.followedId, hydratePosts.userId)
+            )))
+    ) : (
+        sql<boolean>`false::boolean`
+    )).as<boolean>("followed_by_viewer")
 
     // Replied by followed user
     const replies = aliasedTable(posts, "replies")
-    const isRepliedByFollowedSq = exists(db
-        .select()
-        .from(replies)
-        .where(and(
-            eq(replies.replyingTo, hydratePosts.id),
-        ))
-        .innerJoin(follows, and(
-            eq(follows.followedId, replies.userId),
-            eq(follows.followerId, user.id)
-        ))
-    ).as<boolean>("replied_by_followed")
+    const isRepliedByFollowedSq = (user ? (
+        exists(db
+            .select()
+            .from(replies)
+            .where(and(
+                eq(replies.replyingTo, hydratePosts.id),
+            ))
+            .innerJoin(follows, and(
+                eq(follows.followedId, replies.userId),
+                eq(follows.followerId, user.id)
+            )))
+    ) : (
+        sql<boolean>`false::boolean`
+    )).as<boolean>("replied_by_followed")
 
     // Liked by viewer
-    const likedByViewerSq = exists(db
-        .select()
-        .from(likes)
-        .where(and(
-            eq(likes.postId, hydratePosts.id),
-            eq(likes.userId, user.id)
-        ))
-    ).as<boolean>("liked_by_viewer")
+    const likedByViewerSq = (user ? (
+        exists(db
+            .select()
+            .from(likes)
+            .where(and(
+                eq(likes.postId, hydratePosts.id),
+                eq(likes.userId, user.id)
+            ))
+        )
+    ) : (
+        sql<boolean>`false::boolean`
+    )).as<boolean>("liked_by_viewer")
 
     // Embedding similarty between the viewer and the post
-    const similarity = (user.embedding ? sql<number>`1 - (${cosineDistance(hydratePosts.embedding, user.embedding)})` : sql<number>`0`).as("embedding_similarity")
+    const similarity = (user?.embedding ? (
+        sql<number>`1 - (${cosineDistance(hydratePosts.embedding, user.embedding)})`
+    ) : (
+        sql<number>`0::real`
+    )).as("embedding_similarity")
 
-    // Fetch
-    const hydratedPosts = await db
+    // The main query
+    const query = db
         .with(hydratePosts)
         .select({
             id: hydratePosts.id,
@@ -70,7 +83,7 @@ export async function hydratePosts(candidates: PostCandidate[], user: User) {
             clicks: hydratePosts.clickCount,
             views: hydratePosts.viewCount,
             similarity: similarity,
-            engagementHistory: engagementHistory,
+            engagementHistory: user ? engagementHistory : sql`null`,
             followed: isFollowedSq,
             repliedByFollowed: isRepliedByFollowedSq,
             liked: likedByViewerSq,
@@ -84,11 +97,25 @@ export async function hydratePosts(candidates: PostCandidate[], user: User) {
         })
         .from(hydratePosts)
         .innerJoin(users, eq(users.id, hydratePosts.userId))
-        .leftJoin(engagementHistory, and(
+        .$dynamic()
+
+    // Engagement history between the viewer and the poster
+    if (user)
+        query.leftJoin(engagementHistory, and(
             eq(engagementHistory.viewerId, user.id),
             eq(engagementHistory.publisherId, hydratePosts.userId)
         ))
 
+
+    // Fetch
+    const hydratedPosts = await query
+    return hydratedPosts
+}
+
+export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number];
+
+/** Set the candidate source of the hydrated posts based on the canditates those were used to create them. */
+export function addSourceToHydratedPosts(candidates: PostCandidate[], hydratedPosts: HydratedPost[]) {
     // Create a map of ids and candidate sources
     const idMap: Map<string, CandidateSource> = new Map()
     candidates.forEach(c => {
@@ -99,8 +126,16 @@ export async function hydratePosts(candidates: PostCandidate[], user: User) {
     hydratedPosts.forEach(post => {
         post.source = idMap.get(post.id) || "Unknown"
     })
-
-    return hydratedPosts
 }
 
-export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number];
+/** Return the ids of the provided post candidates. */
+function getCandidateIds(candidates: PostCandidate[]) {
+    return candidates.map(c => c.id)
+}
+
+/** Hydrate the posts and set the candidate source. */
+export async function hydratePostsWithSources(candidates: PostCandidate[], user: User) {
+    const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
+    addSourceToHydratedPosts(candidates, hydratedPosts);
+    return hydratedPosts
+}

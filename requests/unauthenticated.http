@@ -1,11 +1,10 @@
 ### focus post
 GET http://localhost:3000/users/main-user/status/main-post
 
-### register
-POST http://localhost:3000/register HTTP/1.1
+### register or login
+POST http://localhost:3000/authenticate HTTP/1.1
 content-type: application/json
 
 {
-    "handle": "new-user",
-    "name": "New User"
+    "handle": "new_user"
 }

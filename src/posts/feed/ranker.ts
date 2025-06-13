@@ -23,7 +23,7 @@ type PostToRank = {
 }
 
 /** Post with score. */
-type ScoredPost = HydratedPost & {
+export type ScoredPost = HydratedPost & {
     score: number
 }
 

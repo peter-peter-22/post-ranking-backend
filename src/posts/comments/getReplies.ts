@@ -4,10 +4,10 @@ import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
 import { fetchCandidates, PostToDisplay } from "../feed/candidates/fetchPosts"
+import { hydratePostsWithSources } from "../hydratePosts"
 import { getFollowedComments } from "./sections/followed"
 import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
-import { hydratePosts } from "../hydratePosts"
 
 export async function getReplies(postId: string, user: User, skip: string[]) {
     // Get the main post 
@@ -31,7 +31,7 @@ export async function getReplies(postId: string, user: User, skip: string[]) {
     }
     // Get the other replies
     replies.push(...await fetchCandidates([getOtherComments(commonFilters, skip)]))
-    return hydratePosts(replies, user)
+    return hydratePostsWithSources(replies, user)
 }
 
 async function getMainPost(postId: string) {
