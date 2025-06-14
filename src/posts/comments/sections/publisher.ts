@@ -1,8 +1,7 @@
 import { and, desc, eq, SQL } from "drizzle-orm";
 import { db } from "../../../db";
 import { Post, posts } from "../../../db/schema/posts";
-import { User } from "../../../db/schema/users";
-import { candidateColumns } from "../../feed/candidates";
+import { candidateColumns } from "../../common";
 
 /** Get the replies of the publisher of the post.  */
 export function getPublisherComments( post: Post, commonFilters: SQL[]) {

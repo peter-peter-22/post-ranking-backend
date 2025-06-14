@@ -1,14 +1,14 @@
 import { aliasedTable, and, desc, eq, gt, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../../db";
 import { posts } from "../../../../db/schema/posts";
-import { maxAge } from "../../filters";
+import { candidateColumns } from "../../../common";
+import { isPost, maxAge, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../../filters";
 
 /** Max count of posts */
 const count = 200;
 
 /** Selecting posts those were replied by a followed user */
-export function getRepliedByFollowedCandidates({ followedUsers, commonFilters }: CandidateCommonData) {
+export function getRepliedByFollowedCandidates({ followedUsers, skipIds }: { followedUsers: string[], skipIds?: string[] }) {
     const replies = aliasedTable(posts, "replies")
 
     // Get the followed replies, find posts
@@ -24,7 +24,11 @@ export function getRepliedByFollowedCandidates({ followedUsers, commonFilters }:
         .orderBy(desc(replies.createdAt))
         .innerJoin(posts, and(
             eq(posts.id, replies.replyingTo),
-            ...commonFilters,
+            isPost(),
+            recencyFilter(),
+            noPending(),
+            notDisplayed(skipIds),
+            minimalEngagement()
         ))
         .limit(count)
         .$dynamic()

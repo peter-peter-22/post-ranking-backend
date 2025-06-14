@@ -1,9 +1,9 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
-import { isPost } from "../posts/feed/filters";
 import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
+import { isPost } from "../posts/filters";
 
 /** The max count of total engagements those affect the embedding vector. */
 export const maxUserEmbeddingHistory = 1000;

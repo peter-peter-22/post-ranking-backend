@@ -1,21 +1,24 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from "..";
+import { and, desc, inArray } from "drizzle-orm";
 import { db } from "../../../../db";
 import { posts } from "../../../../db/schema/posts";
-import { users } from "../../../../db/schema/users";
+import { isPost, noPending, notDisplayed, recencyFilter } from "../../../filters";
+import { candidateColumns } from "../../../common";
 
 /** Max count of posts */
 const count = 500;
 
 /** Selecting candidate posts from the users those the viewer follows */
-export function getFollowedCandidates({ followedUsers, commonFilters }: CandidateCommonData) {
+export function getFollowedCandidates({ followedUsers, skipIds }: { followedUsers: string[], skipIds?: string[] }) {
     // Get the posts
     return db
         .select(candidateColumns("Followed"))
         .from(posts)
         .where(
             and(
-                ...commonFilters,
+                recencyFilter(),
+                isPost(),
+                noPending(),
+                notDisplayed(skipIds),
                 inArray(posts.userId, followedUsers)
             )
         )

@@ -1,20 +1,23 @@
 import { eq } from "drizzle-orm"
-import { commentsCommonFilters } from "."
 import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
-import { fetchCandidates } from "../feed/candidates/fetchPosts"
+import { noPending, replyOfPost } from "../filters"
+import { fetchCandidates } from "../forYou/candidates/fetchPosts"
+import { PostCandidate } from "../common"
 import { hydratePostsWithMeta } from "../hydratePosts"
 import { getFollowedComments } from "./sections/followed"
 import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
-import { PostCandidate } from "../feed/candidates"
 
 export async function getReplies(postId: string, user: User, skip: string[]) {
     // Get the main post 
     const post = await getMainPost(postId)
     /** Filters shared by all comment selectors */
-    const commonFilters = commentsCommonFilters(post.id)
+    const commonFilters = [
+        replyOfPost(post.id),
+        noPending()
+    ]
     // Assume this is the first page if no comments were displayed so far
     const isFirstPage = skip.length === 0
     /** All fetched comments */
@@ -32,6 +35,7 @@ export async function getReplies(postId: string, user: User, skip: string[]) {
     }
     // Get the other replies
     replies.push(...await fetchCandidates([getOtherComments(commonFilters, skip)]))
+    // Hydrate
     return hydratePostsWithMeta(replies, user)
 }
 

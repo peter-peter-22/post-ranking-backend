@@ -1,9 +1,9 @@
 import { and, desc, eq, notInArray } from "drizzle-orm";
-import { candidateColumns, CandidateCommonData } from "..";
 import { db } from "../../../../db";
 import { posts } from "../../../../db/schema/posts";
-import { users } from "../../../../db/schema/users";
-import { minimalEngagement } from "../../filters";
+import { User, users } from "../../../../db/schema/users";
+import { isPost, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../../filters";
+import { candidateColumns } from "../../../common";
 
 /** Max count of posts */
 const count = 500;
@@ -11,7 +11,7 @@ const count = 500;
 /** Selecting candidate posts from the graph cluster of the user.
  * @todo The user is added to the posts again later.
 */
-export function getGraphClusterCandidates({ user, commonFilters, followedUsers }: CandidateCommonData) {
+export function getGraphClusterCandidates({ user, followedUsers,skipIds }: {user:User, followedUsers: string[], skipIds?: string[] }) {
     // If the user isn't a member of a cluster, exit.
     if (!user.clusterId) {
         console.log("Graph cluster candidates cancelled.")
@@ -24,8 +24,11 @@ export function getGraphClusterCandidates({ user, commonFilters, followedUsers }
         .from(posts)
         .where(
             and(
-                ...commonFilters,
+                isPost(),
                 minimalEngagement(),
+                recencyFilter(),
+                noPending(),
+                notDisplayed(skipIds),
                 eq(users.clusterId, user.clusterId),
                 notInArray(posts.userId, followedUsers),
             )

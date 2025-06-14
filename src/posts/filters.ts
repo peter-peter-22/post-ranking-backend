@@ -1,7 +1,10 @@
-import { gt, gte, isNotNull, isNull, lte, notInArray, or } from "drizzle-orm";
-import { posts } from "../../db/schema/posts";
-import { globalFilters } from "../globalFilters";
-import { CandidateCommonData } from "./candidates";
+import { eq, gt, gte, isNotNull, isNull, lte, notInArray, or } from "drizzle-orm";
+import { posts } from "../db/schema/posts";
+
+/** Filter out pending posts. */
+export const noPending = () => {
+    return eq(posts.pending, false)
+}
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -20,16 +23,14 @@ export const maxAge = () => {
 
 /** Filter out the posts those are older than 2 days */
 export const recencyFilter = () => {
-    const maxAgeDate =maxAge()
+    const maxAgeDate = maxAge()
     return gt(posts.createdAt, maxAgeDate)
 }
 
-/** The filters those are shared by all candidate selectors. */
-export const commonFilters = (common:CandidateCommonData) => [
-    ...globalFilters(),
-    isPost(),
-    recencyFilter(),
-    notInArray(posts.id,common.skipIds)
-]
+/** Skip the posts those are already displayed */
+export const notDisplayed = (skipIds: string[] = []) => notInArray(posts.id, skipIds)
 
-/** @todo filter out overrepresentation */
+/** Get the replies of a post. */
+export const replyOfPost = (postId: string) => {
+    return eq(posts.replyingTo, postId)
+}

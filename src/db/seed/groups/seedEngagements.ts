@@ -1,7 +1,6 @@
 import { getTableName } from "drizzle-orm";
 import { db } from "../..";
 import { Engagement, getEngagements, ViewerPublisherRelationship } from "../../../bots/getEngagements";
-import { isPost } from "../../../posts/feed/filters";
 import { cosineSimilarity } from "../../../utilities/arrays/cosineSimilarity";
 import { clearClusters } from "../../controllers/clusters/clear";
 import { insertEngagements } from "../../controllers/posts/insertEngagement";
@@ -26,6 +25,7 @@ import { getCommenterChecker } from "./memory caching/replies";
 import { applyMemoryEngagementCounts, applyMemoryEngagementHistory, applyMemoryUserEmbeddingVectors } from "./memory caching/saveCounts";
 import { updateHistorySnapshots, updatePostSnapshots, updateUserEmbeddingSnapshots } from "./memory caching/updateSnapshots";
 import { userEmbeddingVectorHandler } from "./memory caching/userEmbeddingVectors";
+import { isPost } from "../../../posts/filters";
 
 type UserPostPair = [
   user: User,

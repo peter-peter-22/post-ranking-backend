@@ -5,7 +5,7 @@ import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
-import { CandidateSource, PostCandidate } from "./feed/candidates"
+import { CandidateSource, PostCandidate } from "./common"
 
 /** Use an array of post ids to fetch posts and their data. */
 export async function hydratePosts(candidates: string[], user: User | undefined) {
