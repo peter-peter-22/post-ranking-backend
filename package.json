@@ -30,7 +30,6 @@
     "pg": "^8.16.0",
     "pg-cursor": "^2.15.0",
     "redis": "^4.7.0",
-    "weaviate-client": "^3.5.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {

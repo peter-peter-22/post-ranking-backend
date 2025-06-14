@@ -1,6 +1,4 @@
-import { Filters } from "weaviate-client";
 import { Vector } from "../../../../embedding/updateUserEmbedding";
-import { postsCollection, postVectorSearch } from "../../../../weaviate/controllers/posts";
 import { maxAge } from "../../../filters";
 import { PostCandidate } from "../../../common";
 

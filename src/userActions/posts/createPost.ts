@@ -4,7 +4,6 @@ import { pendingUploads } from "../../db/schema/pendingUploads";
 import { posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
 import { PostToFinalize } from "../../routes/userActions/posts/createPost";
-import { insertVectorsOfPosts } from "../../weaviate/controllers/posts";
 import { preparePosts, prepareReplies } from "./preparePost";
 
 /** Calculate the metadata of posts and insert them into the database. */
@@ -37,13 +36,6 @@ async function insertPosts(postsToInsert: PostToInsert[]) {
             )
         )
     ).flat()
-
-    // Insert the vector and other data of the post to the vector db
-    console.log(`Inserting the vectors of the posts`)
-    await chunkedInsert(
-        createdPosts,
-        insertVectorsOfPosts
-    )
     console.log(`Posts inserted`)
 
     return createdPosts

@@ -1,5 +1,4 @@
 import { Vector } from "../../../embedding/updateUserEmbedding";
-import { postsCollection, postVectorSearch } from "../../../weaviate/controllers/posts";
 
 /** Max count of posts. */
 const count = 500;

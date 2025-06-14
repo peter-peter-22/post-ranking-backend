@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel, isNotNull, isNull, SQL, sql } from 'drizzle-orm';
-import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
 
