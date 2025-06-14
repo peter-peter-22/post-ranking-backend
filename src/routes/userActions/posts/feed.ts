@@ -1,24 +1,33 @@
 import { Request, Response, Router } from 'express';
+import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
-import { dehydratePosts, getFeed } from '../../../posts/feed';
-import { ScoredPost } from '../../../posts/feed/ranker';
+import { getFeed, preparePosts } from '../../../posts/feed';
+import { hydratePostsWithMeta } from '../../../posts/hydratePosts';
+import { PostCandidateSchema } from '../../../posts/feed/candidates';
 
 const router = Router();
 
-const postsPerPage = 50
+const FeedSchema = z.object({
+    limit: z.number().int(),
+    skipIds: z.array(z.string()).optional()
+})
 
 router.post('/', async (req: Request, res: Response) => {
+    const { skipIds, limit } = FeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const posts = await getFeed({ user });
-    res.json(preparePosts(posts))
+    const posts = await getFeed({ user,skipIds });
+    res.json(preparePosts(posts, limit))
 });
 
-/** Get the first page of posts and keep them hydrated while dehydrating the others to prevent an additional fetch for the first hydration. */
-function preparePosts(posts: ScoredPost[]) {
-    const firstPage = posts.slice(0, postsPerPage)
-    const rest = posts.slice(postsPerPage)
-    const dehydrated = dehydratePosts(rest)
-    return { hydrated: firstPage, dehydrated }
-}
+const HydrateSchema=z.object({
+    dehydrated:PostCandidateSchema.array()
+})
+
+router.post('/hydrate', async (req: Request, res: Response) => {
+    const { dehydrated } = HydrateSchema.parse(req.body)
+    const user = await authRequestStrict(req);
+    const hydrated = await hydratePostsWithMeta(dehydrated,user)
+    res.json({hydrated})
+});
 
 export default router;

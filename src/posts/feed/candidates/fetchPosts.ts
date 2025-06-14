@@ -1,4 +1,4 @@
-import { CandidateSubquery } from "."
+import { CandidateSubquery, PostCandidate } from "."
 import { db } from "../../../db"
 import { countCandidateSources } from "./countSources"
 
@@ -27,10 +27,8 @@ export async function fetchCandidates(candidateSqs: CandidateSubquery[]) {
     return postsToDisplay
 }
 
-export type PostToDisplay = Awaited<ReturnType<typeof fetchCandidates>>[number];
-
 /** Remove posts with duplicated ids. */
-export function deduplicatePosts(posts: PostToDisplay[]) {
+export function deduplicatePosts(posts: PostCandidate[]) {
     const seen = new Set<string>();
     const deduplicated= posts.filter(post => {
         if (seen.has(post.id))

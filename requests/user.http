@@ -2,6 +2,23 @@
 POST http://localhost:3000/userActions/feed HTTP/1.1
 Authorization: userhandle main-user
 
+{
+    "limit":50
+}
+
+### feed
+POST http://localhost:3000/userActions/feed/hydrate HTTP/1.1
+Authorization: userhandle main-user
+
+{
+    "dehydrated":[
+        {
+            "id":"48540ad2-a0fe-4655-9cdc-efc6993aa161",
+            "source":"Unknown"
+        }
+    ]
+}
+
 ### one post
 GET http://localhost:3000/userActions/getPost/48540ad2-a0fe-4655-9cdc-efc6993aa161 HTTP/1.1
 Authorization: userhandle main-user

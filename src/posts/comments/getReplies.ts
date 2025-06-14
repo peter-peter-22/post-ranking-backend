@@ -3,11 +3,12 @@ import { commentsCommonFilters } from "."
 import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
-import { fetchCandidates, PostToDisplay } from "../feed/candidates/fetchPosts"
-import { hydratePostsWithSources } from "../hydratePosts"
+import { fetchCandidates } from "../feed/candidates/fetchPosts"
+import { hydratePostsWithMeta } from "../hydratePosts"
 import { getFollowedComments } from "./sections/followed"
 import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
+import { PostCandidate } from "../feed/candidates"
 
 export async function getReplies(postId: string, user: User, skip: string[]) {
     // Get the main post 
@@ -17,7 +18,7 @@ export async function getReplies(postId: string, user: User, skip: string[]) {
     // Assume this is the first page if no comments were displayed so far
     const isFirstPage = skip.length === 0
     /** All fetched comments */
-    const replies: PostToDisplay[] = []
+    const replies: PostCandidate[] = []
     // If this is the first page, add the replies of the publisher and the followed users
     if (isFirstPage) {
         const [publisherComments, followedComments] = await Promise.all([
@@ -31,7 +32,7 @@ export async function getReplies(postId: string, user: User, skip: string[]) {
     }
     // Get the other replies
     replies.push(...await fetchCandidates([getOtherComments(commonFilters, skip)]))
-    return hydratePostsWithSources(replies, user)
+    return hydratePostsWithMeta(replies, user)
 }
 
 async function getMainPost(postId: string) {

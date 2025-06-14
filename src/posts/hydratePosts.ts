@@ -1,6 +1,6 @@
 import { aliasedTable, and, cosineDistance, eq, exists, inArray, sql } from "drizzle-orm"
 import { db } from "../db"
-import { engagementHistory } from "../db/schema/engagementHistory"
+import { EngagementHistory, engagementHistory } from "../db/schema/engagementHistory"
 import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
@@ -83,7 +83,7 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             clicks: hydratePosts.clickCount,
             views: hydratePosts.viewCount,
             similarity: similarity,
-            engagementHistory: user ? engagementHistory : sql`null`,
+            engagementHistory: user ? engagementHistory : sql<EngagementHistory>`null`,
             followed: isFollowedSq,
             repliedByFollowed: isRepliedByFollowedSq,
             liked: likedByViewerSq,
@@ -93,7 +93,6 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             keywords: hydratePosts.keywords,
             embeddingText: hydratePosts.embeddingText,
             commentScore: hydratePosts.commentScore,
-            source: sql<CandidateSource>`'Unknown'`.as("candidate_type"),
         })
         .from(hydratePosts)
         .innerJoin(users, eq(users.id, hydratePosts.userId))
@@ -112,30 +111,35 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
     return hydratedPosts
 }
 
-export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number];
+export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number] & {
+    score?: number
+    source?: CandidateSource
+};
 
 /** Set the candidate source of the hydrated posts based on the canditates those were used to create them. */
-export function addSourceToHydratedPosts(candidates: PostCandidate[], hydratedPosts: HydratedPost[]) {
+export function addMetaToHydratedPosts(candidates: PostCandidate[], hydratedPosts: HydratedPost[]) {
     // Create a map of ids and candidate sources
-    const idMap: Map<string, CandidateSource> = new Map()
+    const candidatesMap: Map<string, PostCandidate> = new Map()
     candidates.forEach(c => {
-        idMap.set(c.id, c.source)
+        candidatesMap.set(c.id, c)
     });
 
     // Set the candidate sources of the posts
     hydratedPosts.forEach(post => {
-        post.source = idMap.get(post.id) || "Unknown"
+        const candidate = candidatesMap.get(post.id)
+        post.source = candidate?.source || "Unknown"
+        post.score = candidate?.score || 0
     })
 }
 
 /** Return the ids of the provided post candidates. */
-function getCandidateIds(candidates: PostCandidate[]) {
+export function getCandidateIds(candidates: PostCandidate[]) {
     return candidates.map(c => c.id)
 }
 
-/** Hydrate the posts and set the candidate source. */
-export async function hydratePostsWithSources(candidates: PostCandidate[], user: User) {
+/** Hydrate the posts, transfer the metadata of the candidate to the posts. */
+export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User) {
     const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
-    addSourceToHydratedPosts(candidates, hydratedPosts);
+    addMetaToHydratedPosts(candidates, hydratedPosts);
     return hydratedPosts
 }

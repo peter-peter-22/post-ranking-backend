@@ -1,6 +1,7 @@
-import { gt, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { gt, gte, isNotNull, isNull, lte, notInArray, or } from "drizzle-orm";
 import { posts } from "../../db/schema/posts";
 import { globalFilters } from "../globalFilters";
+import { CandidateCommonData } from "./candidates";
 
 /** Filter out replies. */
 export const isPost = () => isNull(posts.replyingTo)
@@ -24,10 +25,11 @@ export const recencyFilter = () => {
 }
 
 /** The filters those are shared by all candidate selectors. */
-export const commonFilters = () => [
+export const commonFilters = (common:CandidateCommonData) => [
     ...globalFilters(),
     isPost(),
     recencyFilter(),
+    notInArray(posts.id,common.skipIds)
 ]
 
 /** @todo filter out overrepresentation */
