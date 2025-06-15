@@ -20,7 +20,9 @@ export async function createReplies(data: PostToInsert[]) {
     return await insertPosts(postsToInsert)
 }
 
-/** Insert posts to the database. */
+/** Insert posts to the database. 
+ * @tood bulk insert combined with vector index is not recommended.
+*/
 async function insertPosts(postsToInsert: PostToInsert[]) {
 
     // Insert to db and return

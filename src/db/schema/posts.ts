@@ -4,6 +4,9 @@ import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
 
 /** The posts. */
+
+// todo: List known filterings
+
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -44,6 +47,10 @@ export const posts = pgTable('posts', {
             * 
             (${posts.likeCount} + ${posts.replyCount} + ${posts.clickCount})::float
         )`
+    ),
+    //half day long time buckets. used for filtering date when using the vector index
+    timeBucket: integer().notNull().generatedAlwaysAs(
+        (): SQL => sql<number>`round(extract(epoch from ${posts.createdAt})/60/60/12)::int`
     )
 }, (table) => [
     check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
@@ -54,10 +61,11 @@ export const posts = pgTable('posts', {
     }).onDelete("cascade"),
     index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),// used for reply counting, followed reply
     index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
-    index('recencyIndex').on(table.createdAt.desc()),
+    index('recencyIndex').on(table.createdAt.desc()),//todo: use hash index instead?
     index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
     index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),// used for trending cancidates.
     index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),// used for ordering replies in the comment section of a post.
+    index("recentPostsESimIndex").using("hnsw", table.timeBucket, table.embedding.op("vector_l2_ops"))
 ]);
 
 export type Post = InferSelectModel<typeof posts>;
