@@ -1,10 +1,10 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "../db";
-import { likes } from "../db/schema/likes";
-import { posts } from "../db/schema/posts";
-import { User, users } from "../db/schema/users";
-import { isPost } from "../posts/filters";
-import { normalizeVector } from "../utilities/arrays/normalize";
+import { db } from "../..";
+import { likes } from "../../schema/likes";
+import { posts } from "../../schema/posts";
+import { User, users } from "../../schema/users";
+import { isPost } from "../../../posts/filters";
+import { normalizeVector } from "../../../utilities/arrays/normalize";
 
 /** The max count of total engagements those affect the embedding vector. */
 export const maxUserEmbeddingHistory = 1000;
@@ -58,7 +58,7 @@ async function getEngagementEmbeddingVectors(user: User): Promise<Vector[]> {
     return (
         await db
             .select({
-                embedding: posts.embedding
+                embedding: posts.embeddingNormalized
             })
             .from(likes)
             .where(
