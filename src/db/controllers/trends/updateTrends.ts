@@ -1,8 +1,8 @@
 import { and, eq, gte, sql, sum } from "drizzle-orm"
-import { db } from "../db"
-import { keywordPopularity } from "../db/schema/keywordPopularity"
-import { trends } from "../db/schema/trends"
-import { insertSelect } from "../db/utils/insertSelect"
+import { db } from "../.."
+import { keywordPopularity } from "../../schema/keywordPopularity"
+import { trends } from "../../schema/trends"
+import { insertSelect } from "../../utils/insertSelect"
 import { countKeywords, updateAllKeywordPopularities } from "./updateTrendTracker"
 
 /** The time interval that decides the average popularity of a keyword. */

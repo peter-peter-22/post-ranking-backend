@@ -1,10 +1,9 @@
 import { and, asc, count, desc, gte, lt, sql } from "drizzle-orm";
-import { db } from "../db";
-import { keywordPopularity } from "../db/schema/keywordPopularity";
-import { posts } from "../db/schema/posts";
-import { formatDate } from "../utilities/date/formatDates";
-import { isPost } from "../posts/filters";
-import { persistentDate } from "../db/controllers/persistentDates";
+import { db } from "../..";
+import { isPost } from "../../../posts/filters";
+import { formatDate } from "../../../utilities/date/formatDates";
+import { keywordPopularity } from "../../schema/keywordPopularity";
+import { posts } from "../../schema/posts";
 
 /** The length of the intervals where the keyword popularities are measured. */
 const interval = 1000 * 60 * 60 * 24; // 1 day

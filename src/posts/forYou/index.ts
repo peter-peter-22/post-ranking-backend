@@ -1,6 +1,6 @@
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { User } from "../../db/schema/users";
-import { getTrendNames } from "../../trends/getTrends";
+import { getTrendNames } from "../../db/controllers/trends/getTrends";
 import { hydratePostsWithMeta } from "../hydratePosts";
 import { fetchCandidates } from "./candidates/fetchPosts";
 import { getFollowedCandidates } from "./candidates/sources/followed";

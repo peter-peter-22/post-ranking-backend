@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { updateUserClusters } from '../../db/controllers/clusters/updateClusters';
-import { updateTrends } from '../../trends/updateTrends';
+import { updateTrends } from '../../db/controllers/trends/updateTrends';
 import { updateAllEngagementHistory } from '../../db/controllers/engagementHistory/updateAll';
 
 const router = Router();

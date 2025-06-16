@@ -1,9 +1,9 @@
 import { and, count, eq, gte, sql } from "drizzle-orm";
-import { db } from "../db";
-import { posts } from "../db/schema/posts";
-import { userClusterTrends } from "../db/schema/userClusterTrends";
-import { users } from "../db/schema/users";
-import { isPost, recencyFilter } from "../posts/filters";
+import { db } from "../..";
+import { posts } from "../../schema/posts";
+import { userClusterTrends } from "../../schema/userClusterTrends";
+import { users } from "../../schema/users";
+import { isPost, recencyFilter } from "../../../posts/filters";
 
 export async function updateClusterTrends() {
     /** The minimum posts of a keyword in a cluster to be counter as trend. */

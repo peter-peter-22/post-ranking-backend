@@ -1,8 +1,8 @@
 import { desc, eq, getTableColumns, notInArray } from "drizzle-orm"
-import { db } from "../db"
-import { Trend, trends } from "../db/schema/trends"
-import { userClusterTrends } from "../db/schema/userClusterTrends"
-import { getOrGenerateCache } from "../redis/cachedRead"
+import { db } from "../.."
+import { Trend, trends } from "../../schema/trends"
+import { userClusterTrends } from "../../schema/userClusterTrends"
+import { getOrGenerateCache } from "../../../redis/cachedRead"
 
 /** Return the the top and personalized trends. */
 async function fetchTrends(clusterId: number | null) {
