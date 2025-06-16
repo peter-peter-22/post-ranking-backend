@@ -4,9 +4,9 @@ import { createReplies } from "../../../userActions/posts/createPost"
 import { chunkedInsert } from "../../utils/chunkedInsert"
 import { clicks, ClicksToInsert } from "../../schema/clicks"
 import { likes, LikeToInsert } from "../../schema/likes"
-import { PostToCreate } from "../../schema/posts"
 import { views, ViewToInsert } from "../../schema/views"
 import { generateReplyText, getRandomTopicFromUser } from "../../seed/posts"
+import { PostToCreate } from "../../../routes/userActions/posts/createPost"
 
 /** Format the engagement data and insert it into the DB. */
 export async function insertEngagements(engagements: Engagement[]) {
