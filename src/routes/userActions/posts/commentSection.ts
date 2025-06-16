@@ -10,18 +10,18 @@ const commentSectionUrlSchema = z.object({
 })
 
 const commentSectionBodySchema = z.object({
-    skip: z.array(z.string()).default([]),
+    skipIds: z.array(z.string()).default([]),
 })
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/:postId', async (req: Request, res: Response) => {
     // Get params
-    const { postId } = commentSectionUrlSchema.parse(req.query)
-    const { skip } = commentSectionBodySchema.parse(req.body)
+    const { postId } = commentSectionUrlSchema.parse(req.params)
+    const { skipIds: skip } = commentSectionBodySchema.parse(req.body)
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
     const posts = await getReplies(postId, user, skip);
-    res.json(posts)
+    res.json({posts})
 });
 
 export default router;

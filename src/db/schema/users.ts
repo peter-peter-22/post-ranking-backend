@@ -7,7 +7,7 @@ import { clusters } from '../schema/clusters';
 export const users = pgTable('users', {
     id: uuid().defaultRandom().primaryKey(),
     handle: varchar({ length: 50 }).notNull().unique(),
-    name: varchar({ length: 50 }).notNull().unique(),
+    name: varchar({ length: 50 }).notNull(),
     createdAt: timestamp().defaultNow(),
     followerCount: integer().notNull().default(0),
     followingCount:integer().notNull().default(0),

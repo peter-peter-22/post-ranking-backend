@@ -7,7 +7,7 @@ import { candidateColumns } from "../../common";
 const commentsPerPage = 50;
 
 /** Get the rest of the replies.  */
-export function getOtherComments(commonFilters: SQL[], skip: string[]) {
+export function getOtherComments(commonFilters: SQL[], skip: string[]=[]) {
     return db
         .select(candidateColumns("Rest"))
         .from(posts)

@@ -1,5 +1,5 @@
 ### focus post
-GET http://localhost:3000/users/main-user/status/main-post
+GET http://localhost:3000/users/main_user/status/main-post
 
 ### register or login
 POST http://localhost:3000/authenticate HTTP/1.1

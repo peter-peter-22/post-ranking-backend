@@ -1,12 +1,12 @@
 ### Create a pending post
 POST http://localhost:3000/userActions/create/pendingPost HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 ### Create a upload key for an image
 POST http://localhost:3000/userActions/signUpload/image HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 {
     "pendingPostId": "548dc477-4066-4d42-af59-abd8f97942b8",
@@ -17,7 +17,7 @@ Authorization: userhandle main-user
 ### Create a upload key for an video
 POST http://localhost:3000/userActions/signUpload/video HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 {
     "pendingPostId": "548dc477-4066-4d42-af59-abd8f97942b8",
@@ -28,7 +28,7 @@ Authorization: userhandle main-user
 ### Create a upload key for a profile picture
 POST http://localhost:3000/userActions/signUpload/profile HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 {
     "mimeType": "image/jpeg"
@@ -37,7 +37,7 @@ Authorization: userhandle main-user
 ### Finalize the post
 POST http://localhost:3000/userActions/create/finalizePost HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 {
     "id": "548dc477-4066-4d42-af59-abd8f97942b8",
@@ -61,7 +61,7 @@ Authorization: userhandle main-user
 ### Create a post without media
 POST http://localhost:3000/userActions/create/post HTTP/1.1
 content-type: application/json
-Authorization: userhandle main-user
+Authorization: userhandle main_user
 
 {
     "text":"Hello #1234 #hello"
