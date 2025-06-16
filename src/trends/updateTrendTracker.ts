@@ -3,6 +3,7 @@ import { db } from "../db";
 import { keywordPopularity } from "../db/schema/keywordPopularity";
 import { posts } from "../db/schema/posts";
 import { formatDate } from "../utilities/date/formatDates";
+import { isPost } from "../posts/filters";
 
 /** The length of the intervals where the keyword popularities are measured. */
 const interval = 1000 * 60 * 60 * 24; // 1 day
@@ -76,6 +77,7 @@ function getKeywords(startDate: Date, endDate: Date) {
             and(
                 gte(posts.createdAt, startDate),
                 lt(posts.createdAt, endDate),
+                isPost()
             )
         )
 }
@@ -89,7 +91,7 @@ function needUpdate(lastUpdate: Date) {
 export async function updateAllKeywordPopularities() {
     console.log("Updating all keyword popularity.")
 
-    // Get the date of the last update
+    // Get the date of the last update todo: use persistent dates instead.
     let lastUpdate = (
         await db
             .select({ date: keywordPopularity.date })

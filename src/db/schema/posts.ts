@@ -1,12 +1,21 @@
-import { InferInsertModel, InferSelectModel, isNotNull, isNull, SQL, sql } from 'drizzle-orm';
+import { eq, InferInsertModel, InferSelectModel, isNotNull, isNull, SQL, sql } from 'drizzle-orm';
 import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
 
+// Queries: Used indexes
+
+// Main feed, embedding similarity candidates: recentPostsESimIndex
+// Relevant posts, embedding similarity candidates with threshold: recentPostsESimIndex
+// Main feed and relevant posts, trend candidates: postsKeywordIndex
+// Replies, publisher candidates: replyingToIndex
+// Replies, followed candidates: replyingToIndex?
+// Replies, rest of candidates: orderRepliesByScoreIndex
+// Counting keywords between date intervals for trend and cluster trend updates: recentPostsIndex
+// Posts and replies of a user, replies of engagement history: userContentsIndex
+// Deleting expired pending posts: pendingPostsIndex
+
 /** The posts. */
-
-// todo: List known filterings
-
 export const posts = pgTable('posts', {
     id: uuid().defaultRandom().primaryKey(),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -42,6 +51,7 @@ export const posts = pgTable('posts', {
     pending: boolean().notNull().default(false),
     //the files those belong to this post.
     media: jsonb().$type<MediaFile[]>(),
+    //score based on engagement rate to rank comments
     commentScore: real().notNull().generatedAlwaysAs(
         (): SQL => sql`
         (
@@ -53,21 +63,23 @@ export const posts = pgTable('posts', {
     //half day long time buckets. used for filtering date when using the vector index
     timeBucket: integer().notNull().generatedAlwaysAs(
         (): SQL => sql<number>`floor(extract(epoch from ${posts.createdAt})/60/60/12)::int`
-    )
+    ),
+    //indicate if this is a reply
+    isReply: boolean().notNull().generatedAlwaysAs((): SQL => isNotNull(posts.replyingTo))
 }, (table) => [
-    check("engaging clamp", sql`${table.engaging} >= 0 AND ${table.engaging} <= 1`),
     foreignKey({
         columns: [table.replyingTo],
         foreignColumns: [table.id],
         name: "reply_to_post_fkey",
     }).onDelete("cascade"),
-    index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),// used for reply counting, followed reply
-    index('userReplyHistoryIndex').on(table.userId, table.createdAt.desc()),// used for reply engagement history
-    index('recencyIndex').on(table.createdAt.desc()),//todo: use hash index instead?
-    index('recentPostsIndex').on(table.replyingTo, table.createdAt.desc()),// used for user cluster trends
-    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),// used for trending cancidates.
-    index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),// used for ordering replies in the comment section of a post.
-    index("recentPostsESimIndex").using("hnsw", table.timeBucket, table.embeddingNormalized.op("vector_l2_ops"))
+    index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),
+    index('userContentsIndex').on(table.userId, table.isReply, table.createdAt.desc()),
+    index('recentPostsIndex').on(table.createdAt.desc()).where(isNull(table.replyingTo)),//What this one is used for?
+    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),
+    index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),
+    index("recentPostsESimIndex").using("hnsw", table.timeBucket, table.embeddingNormalized.op("vector_l2_ops")),
+    index("pendingPostsIndex").on(table.createdAt.asc()).where(eq(table.pending,true))
+
 ]);
 
 export type Post = InferSelectModel<typeof posts>;

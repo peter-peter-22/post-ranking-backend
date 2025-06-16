@@ -1,11 +1,11 @@
 import { aliasedTable, and, eq, gt, SQL } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
-import { db } from "../../../..";
-import { clicks } from "../../../../schema/clicks";
-import { engagementHistory, EngagementHistoryToInsert } from "../../../../schema/engagementHistory";
-import { likes } from "../../../../schema/likes";
-import { posts } from "../../../../schema/posts";
-import { chunkedInsert } from "../../../../utils/chunkedInsert";
+import { db } from "../..";
+import { clicks } from "../../schema/clicks";
+import { engagementHistory, EngagementHistoryToInsert } from "../../schema/engagementHistory";
+import { likes } from "../../schema/likes";
+import { posts } from "../../schema/posts";
+import { chunkedInsert } from "../../utils/chunkedInsert";
 
 /** Filter out the engagements those are older than 30 days
  * @param column The date column.
@@ -101,7 +101,8 @@ async function getEngagementHistory(userId: string): Promise<EngagementHistoryTo
             .where(
                 and(
                     eq(replies.userId, userId),
-                    recencyFilter(replies.createdAt)
+                    recencyFilter(replies.createdAt),
+                    eq(replies.isReply,true)
                 )
             )
             .innerJoin(posts, eq(replies.replyingTo, posts.id))

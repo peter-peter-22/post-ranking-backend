@@ -1,7 +1,7 @@
 import axios from "axios";
-import { env } from "../zod/env";
+import { env } from "../../../zod/env";
 import { z } from "zod";
-import { embeddingVector } from "../zod/common/embeddingVector";
+import { embeddingVector } from "../../../zod/common/embeddingVector";
 
 // Create axios instance for the embedding api
 const embeddingApi = axios.create({

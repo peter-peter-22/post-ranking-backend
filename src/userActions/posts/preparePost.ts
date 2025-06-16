@@ -1,5 +1,5 @@
 import { PostToInsert } from "../../db/schema/posts";
-import { generateEmbeddingVectors } from "../../embedding";
+import { generateEmbeddingVectors } from "../../db/controllers/embedding";
 import emojiRegex from "emoji-regex";
 import { normalizeVector } from "../../utilities/arrays/normalize";
 

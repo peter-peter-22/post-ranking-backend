@@ -1,4 +1,4 @@
-import { lt } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { db } from "../..";
 import { pendingUploads } from "../../schema/pendingUploads";
 import { minioClient } from "../../../objectStorage/client";
@@ -49,7 +49,10 @@ export async function clearFailedUploads() {
     console.log("Deleted pending uploads from database.")
 
     // Remove the failed pending posts.
-    await db.delete(posts).where(lt(posts.createdAt, limit))
+    await db.delete(posts).where(and(
+        lt(posts.createdAt, limit),
+        eq(posts.pending,true)
+    ))
     console.log("Deleted pending posts.")
 
     console.log("All failed uploads have been deleted.")

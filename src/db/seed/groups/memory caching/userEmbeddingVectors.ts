@@ -1,5 +1,5 @@
 import { Engagement } from "../../../../bots/getEngagements";
-import { averageVector, maxUserEmbeddingHistory, Vector } from "../../../../embedding/updateUserEmbedding";
+import { averageVector, maxUserEmbeddingHistory, Vector } from "../../../controllers/embedding/updateUserEmbedding";
 import { UserEmbeddingSnapshotToInsert } from "../../../schema/userEmbeddingSnapshots";
 
 type UserVectorAndAverage = { vectors: Vector[], average: Vector | null, nextRecalculation: number }

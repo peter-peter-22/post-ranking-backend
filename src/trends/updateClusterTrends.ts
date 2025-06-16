@@ -9,6 +9,7 @@ export async function updateClusterTrends() {
     /** The minimum posts of a keyword in a cluster to be counter as trend. */
     const minPostCount = 5;
 
+    // Each time any keyword mentioned as individual rows. 
     const clusterKeywords = db
         .select({
             clusterId: users.clusterId,
@@ -22,7 +23,8 @@ export async function updateClusterTrends() {
         ))
         .as("cluster_keywords")
 
-    const clusterKeywordMentions = db
+    // The count of keyword usage per cluster. 
+    const clusterKeywordCounts = db
         .select({
             keyword: clusterKeywords.keyword,
             clusterId: clusterKeywords.clusterId,
@@ -32,15 +34,16 @@ export async function updateClusterTrends() {
         .groupBy(clusterKeywords.clusterId, clusterKeywords.keyword)
         .as("cluster_keyword_mentions")
 
+    // Insert the cluster trends with minimal significance. 
     await db
         .insert(userClusterTrends)
         .select(db
             .select({
-                keyword: clusterKeywordMentions.keyword,
-                clusterId: clusterKeywordMentions.clusterId,
-                count:clusterKeywordMentions.count
+                keyword: clusterKeywordCounts.keyword,
+                clusterId: clusterKeywordCounts.clusterId,
+                count: clusterKeywordCounts.count
             })
-            .from(clusterKeywordMentions)
-            .where(gte(clusterKeywordMentions.count, minPostCount))
+            .from(clusterKeywordCounts)
+            .where(gte(clusterKeywordCounts.count, minPostCount))
         )
 }
