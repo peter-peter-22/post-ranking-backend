@@ -4,6 +4,7 @@ import { likes } from "../db/schema/likes";
 import { posts } from "../db/schema/posts";
 import { User, users } from "../db/schema/users";
 import { isPost } from "../posts/filters";
+import { normalizeVector } from "../utilities/arrays/normalize";
 
 /** The max count of total engagements those affect the embedding vector. */
 export const maxUserEmbeddingHistory = 1000;
@@ -25,16 +26,22 @@ export async function updateUserEmbeddingVector(user: User) {
     const userEmbeddingVector = averageVector(vectors)
 
     // Update the vector of the user.
-    await db.update(users).set({ embedding: userEmbeddingVector }).where(eq(users.id, user.id))
+    await db
+        .update(users)
+        .set({
+            embedding: userEmbeddingVector,
+            embeddingNormalized: userEmbeddingVector ? normalizeVector(userEmbeddingVector) : null
+        })
+        .where(eq(users.id, user.id))
 }
 
 /** Calculate the average of an array of vectors.
  * @param vectors The vectors.
  * @returns The average vector.
  */
-export function averageVector(vectors: Vector[]): Vector|null {
+export function averageVector(vectors: Vector[]): Vector | null {
     // If no vectors, return null
-    if(vectors.length===0)
+    if (vectors.length === 0)
         return null
     // Calculate the average of each dimension
     return vectors[0].map((_, dim) =>

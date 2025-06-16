@@ -9,6 +9,7 @@ import { getRepliedByFollowedCandidates } from "./candidates/sources/repliedByFo
 import { getTrendCandidates } from "./candidates/sources/trending";
 import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "./ranker";
+import { getEmbeddingSimilarityCandidates } from "./candidates/sources/embedding";
 
 /** Get posts from the main feed of a user */
 export async function getFeed({ user, skipIds }: { user: User, skipIds?: string[] }) {
@@ -36,8 +37,9 @@ export async function getFeed({ user, skipIds }: { user: User, skipIds?: string[
     for (const sq of trendingSqs)
         candidateSqs.push(sq)
     // Embedding
-    //if (user.embedding)
-    //    promises.push(getEmbeddingSimilarityCandidates({user,skipIds}))
+    const embedding = user.embedding
+    if (embedding)
+        promises.push(getEmbeddingSimilarityCandidates({ vector: embedding, skipIds }))
 
     // Fetch candidates from the database
     promises.push(fetchCandidates(candidateSqs))

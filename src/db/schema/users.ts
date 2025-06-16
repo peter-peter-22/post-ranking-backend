@@ -14,6 +14,7 @@ export const users = pgTable('users', {
     interests: varchar({ length: 50 }).array().notNull().default([]),//what kinds of posts the bot user creates and wants to see
     bot: boolean().notNull().default(false),
     embedding: embeddingVector("embedding"),
+    embeddingNormalized:embeddingVector("embedding_normalized"),
     clusterId:integer().references(()=>clusters.id,{onDelete:"set null"})
 },(t)=>[
     index().on(t.clusterId),

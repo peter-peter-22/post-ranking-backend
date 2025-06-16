@@ -1,6 +1,7 @@
 import { PostToInsert } from "../../db/schema/posts";
 import { generateEmbeddingVectors } from "../../embedding";
 import emojiRegex from "emoji-regex";
+import { normalizeVector } from "../../utilities/arrays/normalize";
 
 /** Calculate the metadata of posts before insert. */
 export async function preparePosts(data: PostToInsert[]) {
@@ -19,6 +20,7 @@ export async function preparePosts(data: PostToInsert[]) {
         (post, i) => ({
             ...post,
             embedding: embeddingTexts[i] ? embeddings[i] : null, // Add the embedding vector only if there is an embedding text
+            embeddingNormalized: embeddingTexts[i] ? normalizeVector(embeddings[i]) : null,
             keywords: [...new Set([...keywords[i], ...hashtags[i]])], // Add the hashtags and the keywords
             embeddingText: embeddingTexts[i] // The embedding text is added only for debugging purposes
         })
@@ -46,12 +48,12 @@ function getEmbeddingTextAndHashtasgs(post: PostToInsert) {
         embeddingText = post.text.replace(hashtagRegex, (hashtag) => {
             const hashtagText = hashtag.toLowerCase().slice(1)
             hashtags.push(hashtagText)
-            return hashtagText+"."
+            return hashtagText + "."
         })
     // Remove urls from the post text
     embeddingText = embeddingText?.replace(urlRegex, "")
     // Remove emojis
-    embeddingText=embeddingText?.replace(emojiRegex(),"")
+    embeddingText = embeddingText?.replace(emojiRegex(), "")
     // Extract text from the media files and add them to the embedding text
     if (post.media)
         for (const file of post.media)

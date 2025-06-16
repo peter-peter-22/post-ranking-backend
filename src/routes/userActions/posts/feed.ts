@@ -15,19 +15,19 @@ const FeedSchema = z.object({
 router.post('/', async (req: Request, res: Response) => {
     const { skipIds, limit } = FeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const posts = await getFeed({ user,skipIds });
+    const posts = await getFeed({ user, skipIds });
     res.json(splitPosts(posts, limit))
 });
 
-const HydrateSchema=z.object({
-    dehydrated:PostCandidateSchema.array()
+const HydrateSchema = z.object({
+    dehydrated: PostCandidateSchema.array()
 })
 
 router.post('/hydrate', async (req: Request, res: Response) => {
     const { dehydrated } = HydrateSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const hydrated = await hydratePostsWithMeta(dehydrated,user)
-    res.json({hydrated})
+    const hydrated = await hydratePostsWithMeta(dehydrated, user)
+    res.json({ hydrated })
 });
 
 export default router;

@@ -1,14 +1,16 @@
 ### feed
 POST http://localhost:3000/userActions/feed HTTP/1.1
 Authorization: userhandle main-user
+content-type: application/json
 
 {
     "limit":50
 }
 
-### feed
+### hydrate
 POST http://localhost:3000/userActions/feed/hydrate HTTP/1.1
 Authorization: userhandle main-user
+content-type: application/json
 
 {
     "dehydrated":[
