@@ -7,6 +7,7 @@ import { getTrendCandidates } from "../forYou/candidates/sources/trending";
 import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "../forYou/ranker";
 import { getCandidateIds, hydratePosts } from "../hydratePosts";
+import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
 
 /** Get posts from the main feed of a user. */
 export async function getRelevantPosts({ user, postId, skipIds }: { user: User, postId: string, skipIds?: string[] }) {
@@ -28,8 +29,8 @@ export async function getRelevantPosts({ user, postId, skipIds }: { user: User, 
             candidateSqs.push(sq)
     }
     // Embedding
-    //if (post.embedding)
-    //    promises.push(getPostEmbeddingSimilarityCandidates(post.embedding))
+    if (post.embedding)
+        promises.push(getPostEmbeddingSimilarityCandidates(post.embedding, skipIds))
 
     // Fetch candidates from the database
     promises.push(fetchCandidates(candidateSqs))

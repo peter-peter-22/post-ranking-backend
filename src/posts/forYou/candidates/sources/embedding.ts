@@ -1,4 +1,4 @@
-import { and, asc, desc, inArray, l2Distance } from "drizzle-orm";
+import { and, asc, inArray, l2Distance } from "drizzle-orm";
 import { db } from "../../../../db";
 import { getTimeBuckets } from "../../../../db/controllers/posts/timeBuckets";
 import { posts } from "../../../../db/schema/posts";
@@ -9,7 +9,9 @@ import { maxAge, minimalEngagement, notDisplayed } from "../../../filters";
 /** Max count of posts. */
 const count = 500;
 
-/** Selecting candidate posts those embedding is similar to a provided vector. */
+/** Selecting candidate posts those embedding is similar to a provided vector.
+ * @todo This possibbly causes issues at large offsets. 
+ */
 export async function getEmbeddingSimilarityCandidates({ vector, skipIds }: { vector: Vector, skipIds?: string[] }) {
     // Get time buckets
     const timeBuckets = getTimeBuckets(maxAge(), new Date(), false, true)
@@ -23,7 +25,7 @@ export async function getEmbeddingSimilarityCandidates({ vector, skipIds }: { ve
             .where(
                 inArray(posts.timeBucket, timeBuckets)
             )
-            .orderBy(asc(l2Distance(posts.embedding, vector)))
+            .orderBy(asc(l2Distance(posts.embeddingNormalized, vector)))
             .limit(count + (skipIds?.length || 0)) // Any additional filter breaks the index, so the number of the selected rows in increased here, then filtered later
     )
 

@@ -11,7 +11,9 @@ import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "./ranker";
 import { getEmbeddingSimilarityCandidates } from "./candidates/sources/embedding";
 
-/** Get posts from the main feed of a user */
+/** Get posts from the main feed of a user 
+ * @todo Separating skipIds per candidate source would improve performance.
+*/
 export async function getFeed({ user, skipIds }: { user: User, skipIds?: string[] }) {
     // Get common data
     const [trends, followedUsers] = await Promise.all([
