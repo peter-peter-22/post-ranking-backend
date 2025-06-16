@@ -12,7 +12,7 @@ const count = 500;
 const maxDistance = 0.5
 
 /** Selecting candidate posts those embedding is similar to a provided vector, with a minimum threshold. */
-export async function getPostEmbeddingSimilarityCandidates(embedding: Vector, skipIds?: string[] ) {
+export function getPostEmbeddingSimilarityCandidates(embedding: Vector, skipIds?: string[] ) {
     // Get time buckets
     const timeBuckets = getTimeBuckets(maxAge(), new Date(), false, true)
     console.log(`Selecting embedding similarity candidates from the following time buckets: ${timeBuckets.join(', ')}`)

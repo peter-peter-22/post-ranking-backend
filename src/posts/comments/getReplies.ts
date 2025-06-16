@@ -3,12 +3,12 @@ import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
 import { noPending, replyOfPost } from "../filters"
-import { fetchCandidates } from "../forYou/candidates/fetchPosts"
 import { PostCandidate } from "../common"
 import { hydratePostsWithMeta } from "../hydratePosts"
 import { getFollowedComments } from "./sections/followed"
 import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
+import { fetchCandidates } from "../forYou/candidates/fetchPosts"
 
 export async function getReplies(postId: string, user: User, skip: string[]) {
     // Get the main post 
@@ -24,13 +24,13 @@ export async function getReplies(postId: string, user: User, skip: string[]) {
     const replies: PostCandidate[] = []
     // If this is the first page, add the replies of the publisher and the followed users
     if (isFirstPage) {
-        const [publisherComments, followedComments] = await Promise.all([
+        const priorityComments = await fetchCandidates([
             // The comments of the publisher
-            fetchCandidates([getPublisherComments(post, commonFilters)]),
+            getPublisherComments(post, commonFilters),
             // The comments of followed users 
-            fetchCandidates([getFollowedComments(user, post, commonFilters)])
+            getFollowedComments(user, post, commonFilters)
         ])
-        replies.push(...publisherComments, ...followedComments)
+        replies.push(...priorityComments)
         skip.push(...replies.map(p => p.id))
     }
     // Get the other replies

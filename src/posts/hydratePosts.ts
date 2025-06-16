@@ -7,13 +7,15 @@ import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
 import { CandidateSource, PostCandidate } from "./common"
 
-/** Use an array of post ids to fetch posts and their data. */
+/** Use an array of post ids to fetch posts and their data.
+ * @todo The candidate selection and the hydration can be merged.
+ */
 export async function hydratePosts(candidates: string[], user: User | undefined) {
     if (candidates.length === 0)
         return []
 
     // With query to get the posts of the provided ids
-    const hydratePosts = db.$with("post_ids_to_hydrate").as(
+    const postsToHydrate = db.$with("post_ids_to_hydrate").as(
         db
             .select()
             .from(posts)
@@ -27,7 +29,7 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             .from(follows)
             .where(and(
                 eq(follows.followerId, user.id),
-                eq(follows.followedId, hydratePosts.userId)
+                eq(follows.followedId, postsToHydrate.userId)
             )))
     ) : (
         sql<boolean>`false::boolean`
@@ -40,7 +42,7 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             .select()
             .from(replies)
             .where(and(
-                eq(replies.replyingTo, hydratePosts.id),
+                eq(replies.replyingTo, postsToHydrate.id),
             ))
             .innerJoin(follows, and(
                 eq(follows.followedId, replies.userId),
@@ -56,7 +58,7 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             .select()
             .from(likes)
             .where(and(
-                eq(likes.postId, hydratePosts.id),
+                eq(likes.postId, postsToHydrate.id),
                 eq(likes.userId, user.id)
             ))
         )
@@ -66,43 +68,43 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
 
     // Embedding similarty between the viewer and the post
     const similarity = (user?.embedding ? (
-        sql<number>`1 - (${cosineDistance(hydratePosts.embedding, user.embedding)})`
+        sql<number>`1 - (${cosineDistance(postsToHydrate.embedding, user.embedding)})`
     ) : (
         sql<number>`0::real`
     )).as("embedding_similarity")
 
     // The main query
     const query = db
-        .with(hydratePosts)
+        .with(postsToHydrate)
         .select({
-            id: hydratePosts.id,
-            text: hydratePosts.text,
-            createdAt: hydratePosts.createdAt,
-            likes: hydratePosts.likeCount,
-            replies: hydratePosts.replyCount,
-            clicks: hydratePosts.clickCount,
-            views: hydratePosts.viewCount,
+            id: postsToHydrate.id,
+            text: postsToHydrate.text,
+            createdAt: postsToHydrate.createdAt,
+            likes: postsToHydrate.likeCount,
+            replies: postsToHydrate.replyCount,
+            clicks: postsToHydrate.clickCount,
+            views: postsToHydrate.viewCount,
             similarity: similarity,
             engagementHistory: user ? engagementHistory : sql<EngagementHistory>`null`,
             followed: isFollowedSq,
             repliedByFollowed: isRepliedByFollowedSq,
             liked: likedByViewerSq,
             user: users,
-            media: hydratePosts.media,
+            media: postsToHydrate.media,
             //debug
-            keywords: hydratePosts.keywords,
-            embeddingText: hydratePosts.embeddingText,
-            commentScore: hydratePosts.commentScore,
+            keywords: postsToHydrate.keywords,
+            embeddingText: postsToHydrate.embeddingText,
+            commentScore: postsToHydrate.commentScore,
         })
-        .from(hydratePosts)
-        .innerJoin(users, eq(users.id, hydratePosts.userId))
+        .from(postsToHydrate)
+        .innerJoin(users, eq(users.id, postsToHydrate.userId))
         .$dynamic()
 
     // Engagement history between the viewer and the poster
     if (user)
         query.leftJoin(engagementHistory, and(
             eq(engagementHistory.viewerId, user.id),
-            eq(engagementHistory.publisherId, hydratePosts.userId)
+            eq(engagementHistory.publisherId, postsToHydrate.userId)
         ))
 
 

@@ -12,7 +12,7 @@ const count = 500;
 /** Selecting candidate posts those embedding is similar to a provided vector.
  * @todo This possibbly causes issues at large offsets. 
  */
-export async function getEmbeddingSimilarityCandidates({ vector, skipIds }: { vector: Vector, skipIds?: string[] }) {
+export function getEmbeddingSimilarityCandidates({ vector, skipIds }: { vector: Vector, skipIds?: string[] }) {
     // Get time buckets
     const timeBuckets = getTimeBuckets(maxAge(), new Date(), false, true)
     console.log(`Selecting embedding similarity candidates from the following time buckets: ${timeBuckets.join(', ')}`)

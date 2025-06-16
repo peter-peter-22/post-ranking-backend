@@ -18,8 +18,6 @@ export async function getRelevantPosts({ user, postId, skipIds }: { user: User, 
 
     // Get the subqueries of the candidate sources and union them
     const candidateSqs: CandidateSubquery[] = []
-    // Promises to fetch the candidates
-    const promises = []
 
     // Same keywords
     const keywords = post.keywords
@@ -30,15 +28,10 @@ export async function getRelevantPosts({ user, postId, skipIds }: { user: User, 
     }
     // Embedding
     if (post.embedding)
-        promises.push(getPostEmbeddingSimilarityCandidates(post.embedding, skipIds))
+        candidateSqs.push(getPostEmbeddingSimilarityCandidates(post.embedding, skipIds))
 
-    // Fetch candidates from the database
-    promises.push(fetchCandidates(candidateSqs))
-
-    // Await the promises to get all candidates
-    const allCandidates = (await Promise.all(promises)).flat()
-    // Deduplicate
-    let candidates = deduplicatePosts(allCandidates)
+    // Fetch and deduplicate
+    let candidates = deduplicatePosts(await fetchCandidates(candidateSqs))
     // Remove the main post from the candidate list
     candidates = candidates.filter(p => p.id !== postId)
     // Hydrate

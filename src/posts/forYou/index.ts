@@ -23,8 +23,6 @@ export async function getFeed({ user, skipIds }: { user: User, skipIds?: string[
 
     /** The subqueries to get the candidates */
     const candidateSqs: CandidateSubquery[] = []
-    /** The promises to get the candidates */
-    const promises = []
 
     // Followed
     candidateSqs.push(getFollowedCandidates({ followedUsers, skipIds }))
@@ -41,16 +39,10 @@ export async function getFeed({ user, skipIds }: { user: User, skipIds?: string[
     // Embedding
     const embedding = user.embedding
     if (embedding)
-        promises.push(getEmbeddingSimilarityCandidates({ vector: embedding, skipIds }))
+        candidateSqs.push(getEmbeddingSimilarityCandidates({ vector: embedding, skipIds }))
 
-    // Fetch candidates from the database
-    promises.push(fetchCandidates(candidateSqs))
-
-    // Await the promises to get all candidates
-    const allCandidates = (await Promise.all(promises)).flat()
-
-    // Deduplicate
-    const deduplicated = deduplicatePosts(allCandidates)
+    // Fetch and deduplicate
+    const deduplicated = deduplicatePosts(await fetchCandidates(candidateSqs))
 
     // Hydrate
     let finalPosts = await hydratePostsWithMeta(deduplicated, user)
