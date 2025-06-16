@@ -1,8 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { updateUserClusters } from '../../db/controllers/clusters/updateClusters';
-import { updateAllEngagementHistory } from '../../db/controllers/engagementHistory/updateAll';
 import { updateTrends } from '../../trends/updateTrends';
-import { updateClusterTrends } from '../../trends/updateClusterTrends';
+import { updateAllEngagementHistory } from '../../db/controllers/engagementHistory/updateAll';
 
 const router = Router();
 
@@ -23,7 +22,7 @@ router.get('/engagementHistory', async (req: Request, res: Response) => {
 });
 
 router.get('/clusterTrends', async (req: Request, res: Response) => {
-    await updateClusterTrends()
+    await updateUserClusters()
     res.sendStatus(200)
 });
 

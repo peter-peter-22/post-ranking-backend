@@ -1,11 +1,11 @@
 import { aliasedTable, and, eq, gt, SQL } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
-import { db } from "../..";
-import { clicks } from "../../schema/clicks";
 import { engagementHistory, EngagementHistoryToInsert } from "../../schema/engagementHistory";
-import { likes } from "../../schema/likes";
-import { posts } from "../../schema/posts";
+import { db } from "../..";
 import { chunkedInsert } from "../../utils/chunkedInsert";
+import { posts } from "../../schema/posts";
+import { likes } from "../../schema/likes";
+import { clicks } from "../../schema/clicks";
 
 /** Filter out the engagements those are older than 30 days
  * @param column The date column.
