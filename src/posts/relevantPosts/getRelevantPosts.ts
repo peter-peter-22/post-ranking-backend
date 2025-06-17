@@ -2,13 +2,13 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
+import { HttpError } from "../../middlewares/errorHandler";
+import { CandidateSubquery, deduplicatePosts } from "../common";
 import { fetchCandidates } from "../forYou/candidates/fetchPosts";
 import { getTrendCandidates } from "../forYou/candidates/sources/trending";
-import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "../forYou/ranker";
-import { getCandidateIds, hydratePosts, hydratePostsWithMeta } from "../hydratePosts";
+import { hydratePostsWithMeta } from "../hydratePosts";
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
-import { HttpError } from "../../middlewares/errorHandler";
 
 /** Get posts from the main feed of a user. */
 export async function getRelevantPosts({ user, postId, skipIds }: { user: User, postId: string, skipIds?: string[] }) {

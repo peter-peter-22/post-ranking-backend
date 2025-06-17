@@ -71,3 +71,8 @@ export function countCandidateSources(posts:PostCandidate[]){
     })
     return candidateSourceCounts
 }
+
+export const BasicFeedSchema = z.object({
+    skipIds: z.array(z.string()).optional(),
+    limit: z.number()
+})

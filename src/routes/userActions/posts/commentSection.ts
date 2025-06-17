@@ -2,22 +2,18 @@ import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import { getReplies } from '../../../posts/comments/getReplies';
 import { authRequestStrict } from '../../../authentication';
+import { BasicFeedSchema } from '../../../posts/common';
 
 const router = Router();
 
-const commentSectionUrlSchema = z.object({
+const CommentSectionUrlSchema = z.object({
     postId: z.string(),
-})
-
-const commentSectionBodySchema = z.object({
-    skipIds: z.array(z.string()).optional(),
-    limit: z.number()
 })
 
 router.post('/:postId', async (req: Request, res: Response) => {
     // Get params
-    const { postId } = commentSectionUrlSchema.parse(req.params)
-    const { skipIds, limit } = commentSectionBodySchema.parse(req.body)
+    const { postId } = CommentSectionUrlSchema.parse(req.params)
+    const { skipIds, limit } = BasicFeedSchema.parse(req.body)
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
