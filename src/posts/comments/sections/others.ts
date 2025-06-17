@@ -3,11 +3,8 @@ import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { candidateColumns } from "../../common";
 
-/** Max comments returned per fetch. */
-const commentsPerPage = 50;
-
 /** Get the rest of the replies.  */
-export function getOtherComments(commonFilters: SQL[], skip: string[]=[]) {
+export function getOtherComments(commonFilters: SQL[], limit: number, skip: string[] = []) {
     return db
         .select(candidateColumns("Rest"))
         .from(posts)
@@ -16,7 +13,7 @@ export function getOtherComments(commonFilters: SQL[], skip: string[]=[]) {
             // Skip the already seen replies
             notInArray(posts.id, skip)
         ))
-        .limit(commentsPerPage)
+        .limit(limit)
         .orderBy(desc(posts.commentScore), desc(posts.createdAt))
         .$dynamic()
 }

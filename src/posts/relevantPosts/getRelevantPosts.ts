@@ -8,13 +8,14 @@ import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "../forYou/ranker";
 import { getCandidateIds, hydratePosts } from "../hydratePosts";
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
+import { HttpError } from "../../middlewares/errorHandler";
 
 /** Get posts from the main feed of a user. */
 export async function getRelevantPosts({ user, postId, skipIds }: { user: User, postId: string, skipIds?: string[] }) {
     // Select the main post
     const [post] = await db.select().from(posts).where(eq(posts.id, postId))
     if (!post)
-        throw new Error("Post not found")
+        throw new HttpError(404, "Post not found")
 
     // Get the subqueries of the candidate sources and union them
     const candidateSqs: CandidateSubquery[] = []

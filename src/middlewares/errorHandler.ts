@@ -20,8 +20,8 @@ export class HttpError extends Error {
 export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
     // Log
     if (err instanceof AxiosError)
-        console.error('Error:', err, err.response);
-    else console.error('Error:', err);
+        console.error(err, err.response);
+    else console.error(err);
     // Handle http errors
     if (err instanceof HttpError) {
         res.status(err.statusCode).json({ message: err.message })
@@ -29,7 +29,8 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
     }
     // Handle zod errors
     if(err instanceof ZodError){
-        res.status(422).json({ message: err.errors[0].message })
+        const displayedError=err.errors[0]
+        res.status(422).json({ message: `Validation error. Path: ${displayedError.path}, Message: ${displayedError.message}` })
         return
     }
     // Otherwise, send the default error

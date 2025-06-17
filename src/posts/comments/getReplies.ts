@@ -10,7 +10,7 @@ import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
 import { fetchCandidates } from "../forYou/candidates/fetchPosts"
 
-export async function getReplies(postId: string, user: User, skipIds?: string[]) {
+export async function getReplies(postId: string, user: User, limit: number, skipIds?: string[]) {
     // Get the main post 
     const post = await getMainPost(postId)
     /** Filters shared by all comment selectors */
@@ -30,12 +30,12 @@ export async function getReplies(postId: string, user: User, skipIds?: string[])
                 // The comments of the publisher
                 getPublisherComments(post, commonFilters),
                 // Other comments
-                getOtherComments(commonFilters)
+                getOtherComments(commonFilters, limit)
             ])
         )
     ) : (
         // If not the first page, get the other comments
-        await fetchCandidates([getOtherComments(commonFilters, skipIds)])
+        await fetchCandidates([getOtherComments(commonFilters, limit, skipIds)])
     )
 
     // Hydrate
