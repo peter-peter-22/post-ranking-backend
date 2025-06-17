@@ -6,7 +6,7 @@ import { fetchCandidates } from "../forYou/candidates/fetchPosts";
 import { getTrendCandidates } from "../forYou/candidates/sources/trending";
 import { CandidateSubquery, deduplicatePosts } from "../common";
 import { rankPosts } from "../forYou/ranker";
-import { getCandidateIds, hydratePosts } from "../hydratePosts";
+import { getCandidateIds, hydratePosts, hydratePostsWithMeta } from "../hydratePosts";
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
 import { HttpError } from "../../middlewares/errorHandler";
 
@@ -36,7 +36,7 @@ export async function getRelevantPosts({ user, postId, skipIds }: { user: User, 
     // Remove the main post from the candidate list
     candidates = candidates.filter(p => p.id !== postId)
     // Hydrate
-    const postsToRank = await hydratePosts(getCandidateIds(candidates), user)
+    const postsToRank = await hydratePostsWithMeta(candidates, user)
     // Rank
     return await rankPosts(postsToRank)
 }
