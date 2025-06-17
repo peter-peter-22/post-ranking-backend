@@ -139,7 +139,9 @@ export function getCandidateIds(candidates: PostCandidate[]) {
     return candidates.map(c => c.id)
 }
 
-/** Hydrate the posts, transfer the metadata of the candidate to the posts. */
+/** Hydrate the posts, transfer the metadata of the candidate to the posts.
+ * @warning The hydration ignores the order, re-ordering must be done after use.
+ */
 export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User) {
     const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
     addMetaToHydratedPosts(candidates, hydratedPosts);
