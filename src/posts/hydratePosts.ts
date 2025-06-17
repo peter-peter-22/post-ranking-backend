@@ -145,7 +145,7 @@ export function getCandidateIds(candidates: PostCandidate[]) {
 }
 
 /** Hydrate the posts, transfer the metadata of the candidate to the posts. */
-export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User) {
+export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User|undefined) {
     const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
     addMetaToHydratedPosts(candidates, hydratedPosts);
     return hydratedPosts
