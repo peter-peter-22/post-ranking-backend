@@ -25,10 +25,10 @@ export async function getReplies(postId: string, user: User, limit: number, skip
         // If this is the first page, add the replies of the publisher and the followed users
         deduplicatePosts(
             await fetchCandidates([
-                // The comments of followed users 
-                getFollowedComments(user, post, commonFilters),
                 // The comments of the publisher
                 getPublisherComments(post, commonFilters),
+                // The comments of followed users 
+                getFollowedComments(user, post, commonFilters),
                 // Other comments
                 getOtherComments(commonFilters, limit)
             ])
@@ -40,8 +40,7 @@ export async function getReplies(postId: string, user: User, limit: number, skip
 
     // Hydrate
     const hydrated = await hydratePostsWithMeta(replies, user)
-
-    // Order (The hydration ruins the order)
+    // Order (The comments have special ordering)
     return orderReplies(hydrated, post.userId)
 }
 
@@ -58,6 +57,8 @@ function orderReplies(replies: HydratedPost[], publisherId: string) {
         // Get the group priorities
         const groupA = getReplyGroup(a, publisherId)
         const groupB = getReplyGroup(b, publisherId)
+        // If both comments are from the publisher, order by date
+        if (groupA === 2 && groupB === 2) return b.createdAt.getTime() - a.createdAt.getTime()
         // Order by group priority if not equal
         if (groupA !== groupB) return groupB - groupA
         // Order by score if the scores are not equal

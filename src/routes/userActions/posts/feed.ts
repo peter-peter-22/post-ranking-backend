@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
-import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
-import { BasicFeedSchema, PostCandidateSchema, splitPosts } from '../../../posts/common';
+import { BasicFeedSchema, splitPosts } from '../../../posts/common';
 import { getFeed } from '../../../posts/forYou';
 
 const router = Router();

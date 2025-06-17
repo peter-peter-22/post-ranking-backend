@@ -118,19 +118,24 @@ export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number] & {
     source?: CandidateSource
 };
 
-/** Set the candidate source of the hydrated posts based on the canditates those were used to create them. */
+/** Set the candidate source of the hydrated posts based on the canditates those were used to create them.
+ * Preserve the order of the candidates.
+ */
 export function addMetaToHydratedPosts(candidates: PostCandidate[], hydratedPosts: HydratedPost[]) {
-    // Create a map of ids and candidate sources
-    const candidatesMap: Map<string, PostCandidate> = new Map()
-    candidates.forEach(c => {
-        candidatesMap.set(c.id, c)
+    // Create a map to find the hydrated posts quickly
+    const postsMap: Map<string, HydratedPost> = new Map()
+    hydratedPosts.forEach(c => {
+        postsMap.set(c.id, c)
     });
 
     // Set the candidate sources of the posts
-    hydratedPosts.forEach(post => {
-        const candidate = candidatesMap.get(post.id)
+    // Copy the order of the candidates to the posts
+    return candidates.map(candidate => {
+        const post = postsMap.get(candidate.id)
+        if (!post) throw new Error("A candidate does not have it's hydrated post");
         post.source = candidate?.source || "Unknown"
         post.score = candidate?.score || 0
+        return post
     })
 }
 
@@ -139,9 +144,7 @@ export function getCandidateIds(candidates: PostCandidate[]) {
     return candidates.map(c => c.id)
 }
 
-/** Hydrate the posts, transfer the metadata of the candidate to the posts.
- * @warning The hydration ignores the order, re-ordering must be done after use.
- */
+/** Hydrate the posts, transfer the metadata of the candidate to the posts. */
 export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User) {
     const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
     addMetaToHydratedPosts(candidates, hydratedPosts);

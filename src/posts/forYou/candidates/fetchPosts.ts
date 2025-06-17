@@ -19,7 +19,8 @@ export async function fetchCandidates(candidateSqs: CandidateSubquery[]) {
         unionSq = unionSq.unionAll(sq)
 
     // Fetch
-    return await db
+    return db
         .select()
         .from(unionSq.as("all_candidates"))
+        .$dynamic()
 }
