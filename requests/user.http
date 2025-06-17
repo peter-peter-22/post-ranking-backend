@@ -8,7 +8,7 @@ content-type: application/json
 }
 
 ### hydrate
-POST http://localhost:3000/userActions/feed/hydrate HTTP/1.1
+POST http://localhost:3000/userActions/hydratePosts HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
 
