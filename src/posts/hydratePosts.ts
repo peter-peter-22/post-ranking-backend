@@ -6,6 +6,7 @@ import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
 import { CandidateSource, PostCandidate } from "./common"
+import { getUserColumns } from "../db/controllers/users/getUser"
 
 /** Use an array of post ids to fetch posts and their data.
  * @todo The candidate selection and the hydration can be merged.
@@ -21,19 +22,6 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             .from(posts)
             .where(inArray(posts.id, candidates))
     )
-
-    // Followed by viewer
-    const isFollowedSq = (user ? (
-        exists(db
-            .select()
-            .from(follows)
-            .where(and(
-                eq(follows.followerId, user.id),
-                eq(follows.followedId, postsToHydrate.userId)
-            )))
-    ) : (
-        sql<boolean>`false::boolean`
-    )).as<boolean>("followed_by_viewer")
 
     // Replied by followed user
     const replies = aliasedTable(posts, "replies")
@@ -86,10 +74,9 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             views: postsToHydrate.viewCount,
             similarity: similarity,
             engagementHistory: user ? engagementHistory : sql<EngagementHistory>`null`,
-            followed: isFollowedSq,
             repliedByFollowed: isRepliedByFollowedSq,
             liked: likedByViewerSq,
-            user: users,
+            user: getUserColumns(user?.id),
             media: postsToHydrate.media,
             //debug
             keywords: postsToHydrate.keywords,

@@ -36,7 +36,7 @@ export async function rankPosts(posts: HydratedPost[]): Promise<HydratedPost[]> 
         }
         // Format the posts for the ranker
         const rankerInputs: PostToRank[] = posts.map((post) => ({
-            age: (post.createdAt.getTime() - Date.now()) / 1000 / 60 / 60, // age in hours
+            age: (Date.now() - post.createdAt.getTime()) / 1000 / 60 / 60, // age in hours
             like_count: post.likes,
             reply_count: post.replies,
             click_count: post.clicks,
@@ -44,7 +44,7 @@ export async function rankPosts(posts: HydratedPost[]): Promise<HydratedPost[]> 
             like_history: post.engagementHistory?.likes || 0,
             reply_history: post.engagementHistory?.replies || 0,
             click_history: post.engagementHistory?.clicks || 0,
-            followed: post.followed,
+            followed: post.user.followed,
             replied_by_followed: post.repliedByFollowed
         }))
         // Fetch the post scores

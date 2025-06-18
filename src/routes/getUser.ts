@@ -6,6 +6,7 @@ import { db } from '../db';
 import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
 import { HttpError } from '../middlewares/errorHandler';
+import { getUserColumns } from '../db/controllers/users/getUser';
 
 const router = Router();
 
@@ -15,9 +16,9 @@ const GetUserSchema = z.object({
 
 router.get('/:handle', async (req: Request, res: Response) => {
     const { handle } = GetUserSchema.parse(req.params)
-    //const user=await authRequest(req)
+    const authUser = await authRequest(req)
     const [user] = await db
-        .select()
+        .select(getUserColumns(authUser?.id))
         .from(users)
         .where(eq(users.handle, handle))
     if (!user) throw new HttpError(404, "User not found")
