@@ -4,7 +4,6 @@ import signUpload from "./posts/requestUploadKey"
 import createPost from './posts/createPost';
 import feed from "./posts/feed";
 import hydratePosts from "./posts/hydratePosts";
-import getPost from "./posts/getPost";
 import relevantPosts from "./posts/relevantPosts";
 import commentSection from "./posts/commentSection";
 import contentsOfuser from "./posts/getContentsOfUser";
@@ -15,7 +14,6 @@ router.use("/signUpload", signUpload)
 router.use("/create", createPost)
 router.use("/feed", feed)
 router.use("/hydratePosts", hydratePosts)
-router.use("/getPost", getPost)
 router.use("/relevantPosts", relevantPosts)
 router.use("/commentSection", commentSection)
 router.use("/userContents", contentsOfuser)

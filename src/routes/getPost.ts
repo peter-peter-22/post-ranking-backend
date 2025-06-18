@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { authRequest } from '../../../authentication';
-import { hydratePosts } from '../../../posts/hydratePosts';
+import { authRequest } from '../authentication';
+import { hydratePosts } from '../posts/hydratePosts';
 
 const router = Router();
 
