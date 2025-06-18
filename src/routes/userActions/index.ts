@@ -7,6 +7,7 @@ import hydratePosts from "./posts/hydratePosts";
 import relevantPosts from "./posts/relevantPosts";
 import commentSection from "./posts/commentSection";
 import contentsOfuser from "./posts/getContentsOfUser";
+import follow from "./users/follow";
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use("/hydratePosts", hydratePosts)
 router.use("/relevantPosts", relevantPosts)
 router.use("/commentSection", commentSection)
 router.use("/userContents", contentsOfuser)
+router.use("/follow", follow)
 
 export default router;

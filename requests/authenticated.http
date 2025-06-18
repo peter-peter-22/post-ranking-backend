@@ -43,3 +43,21 @@ content-type: application/json
 {
     "limit":50
 }
+
+### follow
+POST http://localhost:3000/userActions/follow/create HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
+
+{
+    "followedId":"edd2df9b-7680-4ffa-b909-19f8819ae2d4"
+}
+
+### unfollow
+POST http://localhost:3000/userActions/follow/remove HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
+
+{
+    "followedId":"edd2df9b-7680-4ffa-b909-19f8819ae2d4"
+}
