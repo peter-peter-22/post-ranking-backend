@@ -70,5 +70,5 @@ function orderReplies(replies: HydratedPost[], publisherId: string) {
 
 /** Return the group priority of a reply. 2=publisher, 1=following, 0=other */
 function getReplyGroup(reply: HydratedPost, publisherId: string) {
-    return reply.user.id === publisherId ? 2 : reply.followed ? 1 : 0
+    return reply.user.id === publisherId ? 2 : reply.user.followed ? 1 : 0
 }
