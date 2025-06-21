@@ -66,6 +66,7 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
         .with(postsToHydrate)
         .select({
             id: postsToHydrate.id,
+            userId:postsToHydrate.userId,
             text: postsToHydrate.text,
             createdAt: postsToHydrate.createdAt,
             likes: postsToHydrate.likeCount,

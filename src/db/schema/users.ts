@@ -24,9 +24,5 @@ export type User = InferSelectModel<typeof users>;
 
 export type UserToInsert = InferInsertModel<typeof users>;
 
-const { embedding, ...rest } = getTableColumns(users)
-/** User columns without the embedding vector. */
-export const UserCommonColumns = rest;
-
 /** User without the embedding vector. */
 export type UserCommon = Omit<User, "embedding">

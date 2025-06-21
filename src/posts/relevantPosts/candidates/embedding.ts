@@ -9,7 +9,7 @@ import { maxAge, minimalEngagement, notDisplayed } from "../../filters";
 /** Max count of posts. */
 const count = 500;
 /** Maximum l2 distance of the selected posts */
-const maxDistance = 0.5
+const maxDistance = 1
 
 /** Selecting candidate posts those embedding is similar to a provided vector, with a minimum threshold. */
 export function getPostEmbeddingSimilarityCandidates(embedding: Vector, skipIds?: string[] ) {

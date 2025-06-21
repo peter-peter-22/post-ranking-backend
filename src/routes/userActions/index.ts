@@ -8,6 +8,7 @@ import relevantPosts from "./posts/relevantPosts";
 import commentSection from "./posts/commentSection";
 import contentsOfuser from "./posts/getContentsOfUser";
 import follow from "./users/follow";
+import whoToFollow from "./users/whoToFollow";
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use("/relevantPosts", relevantPosts)
 router.use("/commentSection", commentSection)
 router.use("/userContents", contentsOfuser)
 router.use("/follow", follow)
+router.use("/whoToFollow", whoToFollow)
 
 export default router;

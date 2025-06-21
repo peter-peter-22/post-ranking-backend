@@ -28,7 +28,7 @@ router.post('/:userId/replies', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequest(req);
     // Get posts
-    const posts = await getUserContents(userId, limit, user, false, skipIds);
+    const posts = await getUserContents(userId, limit, user, true, skipIds);
     res.json({ posts })
 });
 
