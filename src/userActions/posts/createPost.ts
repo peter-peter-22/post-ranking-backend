@@ -27,20 +27,18 @@ async function insertPosts(postsToInsert: PostToInsert[]) {
 
     // Insert to db and return
     console.log(`Inserting posts`)
-    const createdPosts = (
+    await db.transaction(async tx => {
         await chunkedInsert(
             postsToInsert,
             async (rows) => (
-                await db
+                await tx
                     .insert(posts)
                     .values(rows)
-                    .returning()
+                    .onConflictDoNothing()
             )
         )
-    ).flat()
-    console.log(`Posts inserted`)
-
-    return createdPosts
+        console.log(`Posts inserted`)
+    })
 }
 
 /** Validate and finalize a post and it's media files. */

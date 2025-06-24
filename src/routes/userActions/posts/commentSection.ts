@@ -13,11 +13,11 @@ const CommentSectionUrlSchema = z.object({
 router.post('/:postId', async (req: Request, res: Response) => {
     // Get params
     const { postId } = CommentSectionUrlSchema.parse(req.params)
-    const { skipIds, limit } = BasicFeedSchema.parse(req.body)
+    const {  } = BasicFeedSchema.parse(req.body)
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getReplies(postId, user, limit, skipIds);
+    const posts = await getReplies(postId, user);
     res.json({ posts })
 });
 

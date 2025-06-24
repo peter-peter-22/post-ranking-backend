@@ -1,9 +1,9 @@
 import { and, desc, eq, notInArray } from "drizzle-orm";
-import { db } from "../../../../db";
-import { posts } from "../../../../db/schema/posts";
-import { User, users } from "../../../../db/schema/users";
-import { isPost, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../../filters";
-import { candidateColumns } from "../../../common";
+import { candidateColumns } from "../../common";
+import { db } from "../../../db";
+import { posts } from "../../../db/schema/posts";
+import { isPost, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../filters";
+import { User, users } from "../../../db/schema/users";
 
 /** Max count of posts */
 const count = 500;

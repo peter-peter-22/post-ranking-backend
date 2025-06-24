@@ -2,22 +2,17 @@ import { and, desc, eq } from "drizzle-orm"
 import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { candidateColumns } from "../common"
-import { fetchCandidates } from "../forYou/candidates/fetchPosts"
-import { hydratePostsWithMeta } from "../hydratePosts"
 import { User } from "../../db/schema/users"
 import { noPending, notDisplayed } from "../filters"
+import { personalizePosts } from "../hydratePosts"
+import { postsPerRequest } from "../postMemory"
 
-export async function getUserContents(userId: string, limit: number, user: User|undefined, replies: boolean, skipIds?: string[]) {
-    // Get the candidates
-    const candidates = await fetchCandidates([
-        userContentCandidates(userId, replies, limit, skipIds)
-    ])
-    // Hydrate
-    return await hydratePostsWithMeta(candidates, user)
+export async function getUserContents(userId: string, user: User | undefined, replies: boolean, skipIds?: string[]) {
+    return await personalizePosts(userContentCandidates(userId, replies, skipIds), user)
 }
 
 /** Get the replies or posts of a user.  */
-export function userContentCandidates(userId: string, replies: boolean, limit: number, skipIds?: string[]) {
+export function userContentCandidates(userId: string, replies: boolean, skipIds?: string[]) {
     return db
         .select(candidateColumns("Unknown"))
         .from(posts)
@@ -28,6 +23,6 @@ export function userContentCandidates(userId: string, replies: boolean, limit: n
             notDisplayed(skipIds)
         ))
         .orderBy(desc(posts.createdAt))
-        .limit(limit)
+        .limit(postsPerRequest)
         .$dynamic()
 }

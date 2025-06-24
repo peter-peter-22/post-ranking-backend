@@ -1,8 +1,8 @@
 import { aliasedTable, and, desc, eq, gt, inArray } from "drizzle-orm";
-import { db } from "../../../../db";
-import { posts } from "../../../../db/schema/posts";
-import { candidateColumns } from "../../../common";
-import { isPost, maxAge, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../../filters";
+import { db } from "../../../db";
+import { posts } from "../../../db/schema/posts";
+import { candidateColumns } from "../../common";
+import { isPost, maxAge, minimalEngagement, noPending, notDisplayed, recencyFilter } from "../../filters";
 
 /** Max count of posts */
 const count = 200;

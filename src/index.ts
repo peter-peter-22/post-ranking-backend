@@ -3,6 +3,8 @@ import express from 'express';
 import "express-async-errors";
 import { errorHandler } from './middlewares/errorHandler';
 import routes from "./routes";
+import { redisClient } from './redis/connect';
+import { db } from './db';
 
 const app = express();
 const PORT = 3000;
@@ -21,3 +23,24 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+// Close connections on shutdown
+function shutdown() {
+  console.log('Shutting down gracefully...');
+  Promise.all([
+    redisClient.quit(),
+    db.$client.end()
+  ])
+    .then(() => {
+      console.log('Connections closed.');
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error('Error during shutdown:', err);
+      process.exit(1);
+    });
+}
+
+// Listen for termination signals
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

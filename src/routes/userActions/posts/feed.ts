@@ -1,15 +1,21 @@
 import { Request, Response, Router } from 'express';
 import { authRequestStrict } from '../../../authentication';
-import { BasicFeedSchema, splitPosts } from '../../../posts/common';
-import { getFeed } from '../../../posts/forYou';
+import { BasicFeedSchema } from '../../../posts/common';
+import { ForYouPageParams, getMainFeed } from '../../../posts/forYou';
+import { getPaginatedPosts } from '../../../posts/postMemory';
 
 const router = Router();
 
 router.post('/', async (req: Request, res: Response) => {
-    const { skipIds, limit } = BasicFeedSchema.parse(req.body)
+    const { offset } = BasicFeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const posts = await getFeed({ user, skipIds });
-    res.json(splitPosts(posts, limit))
+    const posts = await getPaginatedPosts({
+        getMore: async (pageParams?: ForYouPageParams) => await getMainFeed({ user, pageParams,firstPage:!offset }),
+        feedName: "foryou",
+        user,
+        offset
+    });
+    res.json({ posts })
 });
 
 export default router;

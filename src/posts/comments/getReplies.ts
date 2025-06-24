@@ -2,15 +2,15 @@ import { eq } from "drizzle-orm"
 import { db } from "../../db"
 import { posts } from "../../db/schema/posts"
 import { User } from "../../db/schema/users"
+import { CandidateSubquery } from "../common"
 import { noPending, replyOfPost } from "../filters"
-import { deduplicatePosts, PostCandidate } from "../common"
-import { HydratedPost, hydratePostsWithMeta } from "../hydratePosts"
+import { personalizePosts, PersonalPost } from "../hydratePosts"
 import { getFollowedComments } from "./sections/followed"
 import { getOtherComments } from "./sections/others"
 import { getPublisherComments } from "./sections/publisher"
-import { fetchCandidates } from "../forYou/candidates/fetchPosts"
+import { postsPerRequest } from "../postMemory"
 
-export async function getReplies(postId: string, user: User, limit: number, skipIds?: string[]) {
+export async function getReplies(postId: string, user: User, skipIds?: string[]) {
     // Get the main post 
     const post = await getMainPost(postId)
     /** Filters shared by all comment selectors */
@@ -21,25 +21,23 @@ export async function getReplies(postId: string, user: User, limit: number, skip
     // Assume this is the first page if no comments were displayed so far
     const isFirstPage = !skipIds || skipIds.length === 0
 
-    let replies: PostCandidate[] = isFirstPage ? (
+    let candidateSqs:CandidateSubquery[] = isFirstPage ? (
         // If this is the first page, add the replies of the publisher and the followed users
-        deduplicatePosts(
-            await fetchCandidates([
-                // The comments of the publisher
-                getPublisherComments(post, commonFilters),
-                // The comments of followed users 
-                getFollowedComments(user, post, commonFilters),
-                // Other comments
-                getOtherComments(commonFilters, limit)
-            ])
-        )
+        [
+            // The comments of the publisher
+            getPublisherComments(post, commonFilters),
+            // The comments of followed users 
+            getFollowedComments(user, post, commonFilters),
+            // Other comments
+            getOtherComments(commonFilters, postsPerRequest)
+        ]
     ) : (
         // If not the first page, get the other comments
-        await fetchCandidates([getOtherComments(commonFilters, limit, skipIds)])
+        [getOtherComments(commonFilters, postsPerRequest, skipIds)]
     )
 
-    // Hydrate
-    const hydrated = await hydratePostsWithMeta(replies, user)
+    // Fetch
+    const hydrated = await personalizePosts(candidateSqs[0], user)
     // Order (The comments have special ordering)
     return orderReplies(hydrated, post.userId)
 }
@@ -52,7 +50,7 @@ async function getMainPost(postId: string) {
 }
 
 /** Order the replies by group then importance */
-function orderReplies(replies: HydratedPost[], publisherId: string) {
+function orderReplies(replies: PersonalPost[], publisherId: string) {
     return replies.sort((a, b) => {
         // Get the group priorities
         const groupA = getReplyGroup(a, publisherId)
@@ -69,6 +67,6 @@ function orderReplies(replies: HydratedPost[], publisherId: string) {
 }
 
 /** Return the group priority of a reply. 2=publisher, 1=following, 0=other */
-function getReplyGroup(reply: HydratedPost, publisherId: string) {
+function getReplyGroup(reply: PersonalPost, publisherId: string) {
     return reply.user.id === publisherId ? 2 : reply.user.followed ? 1 : 0
 }

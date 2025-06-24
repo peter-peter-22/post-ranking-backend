@@ -1,27 +1,17 @@
-import { aliasedTable, and, cosineDistance, eq, exists, inArray, sql } from "drizzle-orm"
+import { aliasedTable, and, cosineDistance, eq, exists, sql } from "drizzle-orm"
 import { db } from "../db"
+import { getUserColumns } from "../db/controllers/users/getUser"
 import { EngagementHistory, engagementHistory } from "../db/schema/engagementHistory"
 import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
-import { CandidateSource, PostCandidate } from "./common"
-import { getUserColumns } from "../db/controllers/users/getUser"
+import { CandidateSubquery } from "./common"
 
-/** Use an array of post ids to fetch posts and their data.
- * @todo The candidate selection and the hydration can be merged.
- */
-export async function hydratePosts(candidates: string[], user: User | undefined) {
-    if (candidates.length === 0)
-        return []
-
-    // With query to get the posts of the provided ids
-    const postsToHydrate = db.$with("post_ids_to_hydrate").as(
-        db
-            .select()
-            .from(posts)
-            .where(inArray(posts.id, candidates))
-    )
+/** Add personal data and other things to the posts. */
+export async function personalizePosts(source:CandidateSubquery, user: User | undefined) {
+    // With query to get the posts
+    const postsToHydrate = db.$with("post_ids_to_hydrate").as(source)
 
     // Replied by followed user
     const replies = aliasedTable(posts, "replies")
@@ -79,10 +69,11 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
             liked: likedByViewerSq,
             user: getUserColumns(user?.id),
             media: postsToHydrate.media,
+            commentScore: postsToHydrate.commentScore,
             //debug
             keywords: postsToHydrate.keywords,
             embeddingText: postsToHydrate.embeddingText,
-            commentScore: postsToHydrate.commentScore,
+            source:postsToHydrate.source
         })
         .from(postsToHydrate)
         .innerJoin(users, eq(users.id, postsToHydrate.userId))
@@ -101,40 +92,6 @@ export async function hydratePosts(candidates: string[], user: User | undefined)
     return hydratedPosts
 }
 
-export type HydratedPost = Awaited<ReturnType<typeof hydratePosts>>[number] & {
+export type PersonalPost = Awaited<ReturnType<typeof personalizePosts>>[number] & {
     score?: number
-    source?: CandidateSource
 };
-
-/** Set the candidate source of the hydrated posts based on the canditates those were used to create them.
- * Preserve the order of the candidates.
- */
-export function addMetaToHydratedPosts(candidates: PostCandidate[], hydratedPosts: HydratedPost[]) {
-    // Create a map to find the hydrated posts quickly
-    const postsMap: Map<string, HydratedPost> = new Map()
-    hydratedPosts.forEach(c => {
-        postsMap.set(c.id, c)
-    });
-
-    // Set the candidate sources of the posts
-    // Copy the order of the candidates to the posts
-    return candidates.map(candidate => {
-        const post = postsMap.get(candidate.id)
-        if (!post) throw new Error("A candidate does not have it's hydrated post");
-        post.source = candidate?.source || "Unknown"
-        post.score = candidate?.score || 0
-        return post
-    })
-}
-
-/** Return the ids of the provided post candidates. */
-export function getCandidateIds(candidates: PostCandidate[]) {
-    return candidates.map(c => c.id)
-}
-
-/** Hydrate the posts, transfer the metadata of the candidate to the posts. */
-export async function hydratePostsWithMeta(candidates: PostCandidate[], user: User|undefined) {
-    const hydratedPosts = await hydratePosts(getCandidateIds(candidates), user);
-    addMetaToHydratedPosts(candidates, hydratedPosts);
-    return hydratedPosts
-}

@@ -13,22 +13,22 @@ const UserContentsSchema = z.object({
 router.post('/:userId/posts', async (req: Request, res: Response) => {
     // Get params
     const { userId } = UserContentsSchema.parse(req.params)
-    const { skipIds, limit } = BasicFeedSchema.parse(req.body)
+    const {  } = BasicFeedSchema.parse(req.body)
     // Get user
     const user = await authRequest(req);
     // Get posts
-    const posts = await getUserContents(userId, limit, user, false, skipIds);
+    const posts = await getUserContents(userId, user, false);
     res.json({ posts })
 });
 
 router.post('/:userId/replies', async (req: Request, res: Response) => {
     // Get params
     const { userId } = UserContentsSchema.parse(req.params)
-    const { skipIds, limit } = BasicFeedSchema.parse(req.body)
+    const {  } = BasicFeedSchema.parse(req.body)
     // Get user
     const user = await authRequest(req);
     // Get posts
-    const posts = await getUserContents(userId, limit, user, true, skipIds);
+    const posts = await getUserContents(userId, user, true);
     res.json({ posts })
 });
 

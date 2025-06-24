@@ -3,11 +3,10 @@ import { db } from "../../db";
 import { posts } from "../../db/schema/posts";
 import { User } from "../../db/schema/users";
 import { HttpError } from "../../middlewares/errorHandler";
-import { CandidateSubquery, deduplicatePosts } from "../common";
-import { fetchCandidates } from "../forYou/candidates/fetchPosts";
-import { getTrendCandidates } from "../forYou/candidates/sources/trending";
-import { rankPosts } from "../forYou/ranker";
-import { hydratePostsWithMeta } from "../hydratePosts";
+import { CandidateSubquery } from "../common";
+import { getTrendCandidates } from "../forYou/candidates/trending";
+import { rankPosts } from "../ranker";
+import { personalizePosts } from "../hydratePosts";
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
 
 /** Get posts from the main feed of a user. */
@@ -31,12 +30,12 @@ export async function getRelevantPosts({ user, postId, skipIds }: { user: User, 
     if (post.embedding)
         candidateSqs.push(getPostEmbeddingSimilarityCandidates(post.embedding, skipIds))
 
-    // Fetch and deduplicate
-    let candidates = deduplicatePosts(await fetchCandidates(candidateSqs))
-    // Remove the main post from the candidate list
-    candidates = candidates.filter(p => p.id !== postId)
-    // Hydrate
-    const postsToRank = await hydratePostsWithMeta(candidates, user)
+    // Fetch
+    const postsToRank = await personalizePosts(candidateSqs[0],user)
+    // Remove the main post 
+    const mainPostIndex=postsToRank.findIndex(p => p.id !== postId)
+    if(mainPostIndex!==-1) 
+        postsToRank.splice(mainPostIndex, 1)
     // Rank
     return await rankPosts(postsToRank)
 }

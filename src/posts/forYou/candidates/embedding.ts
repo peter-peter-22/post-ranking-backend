@@ -1,10 +1,10 @@
 import { and, asc, inArray, l2Distance } from "drizzle-orm";
-import { db } from "../../../../db";
-import { getTimeBuckets } from "../../../../db/controllers/posts/timeBuckets";
-import { posts } from "../../../../db/schema/posts";
-import { Vector } from "../../../../db/controllers/embedding/updateUserEmbedding";
-import { candidateColumns } from "../../../common";
-import { maxAge, minimalEngagement, notDisplayed } from "../../../filters";
+import { db } from "../../../db";
+import { Vector } from "../../../db/controllers/embedding/updateUserEmbedding";
+import { getTimeBuckets } from "../../../db/controllers/posts/timeBuckets";
+import { posts } from "../../../db/schema/posts";
+import { candidateColumns } from "../../common";
+import { maxAge, minimalEngagement, notDisplayed } from "../../filters";
 
 /** Max count of posts. */
 const count = 500;
