@@ -1,7 +1,7 @@
 import { getTrendNames } from "../../db/controllers/trends/getTrends";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { User } from "../../db/schema/users";
-import { DatePageParams, mergePostArrays } from "../common";
+import { DatePageParams, deduplicatePosts, mergePostArrays } from "../common";
 import { rankPosts } from "../ranker";
 import { getFollowedCandidates } from "./candidates/followed";
 import { getTrendCandidates } from "./candidates/trending";
@@ -39,21 +39,24 @@ export async function getMainFeed({ user, pageParams, firstPage }: { user: User,
     //if (embedding)
     //    candidateSqs.push(getEmbeddingSimilarityCandidates({ vector: embedding, skipIds }))
 
+    // Get the candidate posts
     const [followedPosts, trendPosts] = await Promise.all([
         getFollowedCandidates({ followedUsers, count: 30, user, pageParams: pageParams?.followed, firstPage }),
         getTrendCandidates({ trends, user, count: 30, pageParams: pageParams?.trends, firstPage })
     ])
-
+    // Merge the posts
     let allPosts = mergePostArrays([followedPosts?.posts, trendPosts?.posts])
+    // Exit if no posts
     if (allPosts.length === 0) return
-
+    // Deduplicate
+    allPosts=deduplicatePosts(allPosts)
+    // Merge page params
     const allPageParams: ForYouPageParams = {
         followed: followedPosts?.pageParams,
         trends: trendPosts?.pageParams
     }
-    
     // Rank
     allPosts = await rankPosts(allPosts)
-
+    // Return the ranked posts and the page params
     return { posts: allPosts, pageParams: allPageParams }
 }

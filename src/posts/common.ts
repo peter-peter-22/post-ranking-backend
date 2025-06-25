@@ -58,3 +58,19 @@ export function mergePostArrays(postArrays: (PersonalPost[] | undefined)[]) {
     })
     return total
 }
+
+
+/** Remove posts with duplicated ids. */
+export function deduplicatePosts(posts: PersonalPost[]) {
+    const seen = new Set<string>();
+    const deduplicated= posts.filter(post => {
+        if (seen.has(post.id))
+            return false;
+        else {
+            seen.add(post.id);
+            return true;
+        }
+    })
+    console.log("Before deduplication:",countCandidateSources(posts),"After deduplication:",countCandidateSources(deduplicated))
+    return deduplicated
+}
