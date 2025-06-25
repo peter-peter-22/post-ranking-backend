@@ -3,6 +3,7 @@ import { z } from "zod"
 import { db } from "../db"
 import { posts } from "../db/schema/posts"
 import { PersonalPost } from "./hydratePosts"
+import { User } from "../db/schema/users"
 
 /** The type of the post candidate. */
 export const CandidateSourceSchema = z.enum(["Followed", "RepliedByFollowed", "GraphClusters", "EmbeddingSimilarity", "Trending", "Rest", "Publisher", "Unknown"])
@@ -22,7 +23,7 @@ export type PostCandidate = z.infer<typeof PostCandidateSchema>
 export const exampleCandiadteQuery = db.select(candidateColumns("Unknown")).from(posts).$dynamic()
 export type CandidateSubquery = typeof exampleCandiadteQuery
 
-/** The columns those are selected from the post candidates. */
+/** The columns those are selected from the post candidates. @todo reuse values of candidate selectors*/
 export function candidateColumns(candidateType: CandidateSource) {
     return {
         ...getTableColumns(posts),
@@ -63,7 +64,7 @@ export function mergePostArrays(postArrays: (PersonalPost[] | undefined)[]) {
 /** Remove posts with duplicated ids. */
 export function deduplicatePosts(posts: PersonalPost[]) {
     const seen = new Set<string>();
-    const deduplicated= posts.filter(post => {
+    const deduplicated = posts.filter(post => {
         if (seen.has(post.id))
             return false;
         else {
@@ -71,6 +72,6 @@ export function deduplicatePosts(posts: PersonalPost[]) {
             return true;
         }
     })
-    console.log("Before deduplication:",countCandidateSources(posts),"After deduplication:",countCandidateSources(deduplicated))
+    console.log("Before deduplication:", countCandidateSources(posts), "After deduplication:", countCandidateSources(deduplicated))
     return deduplicated
 }

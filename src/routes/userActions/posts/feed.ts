@@ -10,7 +10,7 @@ router.post('/', async (req: Request, res: Response) => {
     const { offset } = BasicFeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
     const posts = await getPaginatedPosts({
-        getMore: async (pageParams?: ForYouPageParams) => await getMainFeed({ user, pageParams,firstPage:!offset }),
+        getMore: async (pageParams?: ForYouPageParams) => await getMainFeed({ user, pageParams,offset }),
         feedName: "foryou",
         user,
         offset
