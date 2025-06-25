@@ -20,10 +20,15 @@ export async function getTrendCandidates({
     pageParams?: DatePageParams,
     firstPage: boolean
 }) {
-    if (!firstPage && !pageParams) return { posts: [] as PersonalPost[] }
+    if (!firstPage && !pageParams || trends.length===0) return { posts: [] as PersonalPost[] }
 
     console.log(`Getting post candidates for the following trends: ${trends.join(", ")}`)
     // Get the posts
+    if(pageParams){
+        const start=new Date(pageParams.skipStart)
+        const end=new Date(pageParams.skipEnd)
+        console.log(start,end)
+    }
     const q = db
         .select(candidateColumns("Trending"))
         .from(posts)
@@ -38,6 +43,7 @@ export async function getTrendCandidates({
         .orderBy(desc(posts.createdAt))
         .limit(count)
         .$dynamic()
+        console.log(q.toSQL())
     const myPosts = await personalizePosts(q, user)
     // Get next page params
     const nextPageParams: DatePageParams | undefined = myPosts.length === count ? {
