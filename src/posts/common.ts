@@ -2,6 +2,7 @@ import { getTableColumns, sql } from "drizzle-orm"
 import { z } from "zod"
 import { db } from "../db"
 import { posts } from "../db/schema/posts"
+import { PersonalPost } from "./hydratePosts"
 
 /** The type of the post candidate. */
 export const CandidateSourceSchema = z.enum(["Followed", "RepliedByFollowed", "GraphClusters", "EmbeddingSimilarity", "Trending", "Rest", "Publisher", "Unknown"])
@@ -18,8 +19,8 @@ export const PostCandidateSchema = z.object({
 export type PostCandidate = z.infer<typeof PostCandidateSchema>
 
 /** A candidate selector subquery. */
-const exampleQuery = db.select(candidateColumns("Unknown")).from(posts).$dynamic()
-export type CandidateSubquery = typeof exampleQuery
+export const exampleCandiadteQuery = db.select(candidateColumns("Unknown")).from(posts).$dynamic()
+export type CandidateSubquery = typeof exampleCandiadteQuery
 
 /** The columns those are selected from the post candidates. */
 export function candidateColumns(candidateType: CandidateSource) {
@@ -47,4 +48,13 @@ export const BasicFeedSchema = z.object({
 export type DatePageParams = {
     skipStart: string,
     skipEnd: string
+}
+
+/** Merge the contents of arrays of posts where the arrays can be undefined */
+export function mergePostArrays(postArrays: (PersonalPost[] | undefined)[]) {
+    const total: PersonalPost[] = []
+    postArrays.forEach(postArray => {
+        if (postArray) total.push(...postArray)
+    })
+    return total
 }

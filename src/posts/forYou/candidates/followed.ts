@@ -20,7 +20,7 @@ export async function getFollowedCandidates({
     pageParams?: DatePageParams,
     firstPage:boolean
 }) {
-    if (!firstPage && !pageParams) return { posts: [] as PersonalPost[] }
+    if (!firstPage && !pageParams) return 
 
     // Get the posts
     const q = db

@@ -1,14 +1,10 @@
+import { getTrendNames } from "../../db/controllers/trends/getTrends";
 import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { User } from "../../db/schema/users";
-import { getTrendNames } from "../../db/controllers/trends/getTrends";
-import { getFollowedCandidates } from "./candidates/followed";
-import { getGraphClusterCandidates } from "./candidates/graphCluster";
-import { getRepliedByFollowedCandidates } from "./candidates/repliedByFollowed";
-import { getTrendCandidates } from "./candidates/trending";
-import { CandidateSubquery, DatePageParams } from "../common";
+import { DatePageParams, mergePostArrays } from "../common";
 import { rankPosts } from "../ranker";
-import { getEmbeddingSimilarityCandidates } from "./candidates/embedding";
-import { personalizePosts } from "../hydratePosts";
+import { getFollowedCandidates } from "./candidates/followed";
+import { getTrendCandidates } from "./candidates/trending";
 
 export type ForYouPageParams = {
     followed?: DatePageParams,
@@ -43,17 +39,19 @@ export async function getMainFeed({ user, pageParams, firstPage }: { user: User,
     //if (embedding)
     //    candidateSqs.push(getEmbeddingSimilarityCandidates({ vector: embedding, skipIds }))
 
-    const [followed, followed2] = await Promise.all([
+    const [followedPosts, trendPosts] = await Promise.all([
         getFollowedCandidates({ followedUsers, count: 30, user, pageParams: pageParams?.followed, firstPage }),
         getTrendCandidates({ trends, user, count: 30, pageParams: pageParams?.trends, firstPage })
     ])
-    let allPosts = [...followed.posts, ...followed2.posts]
-    const allPageParams: ForYouPageParams = {
-        followed: followed.pageParams,
-        trends: followed2.pageParams
-    }
-    if(allPosts.length===0) return 
 
+    let allPosts = mergePostArrays([followedPosts?.posts, trendPosts?.posts])
+    if (allPosts.length === 0) return
+
+    const allPageParams: ForYouPageParams = {
+        followed: followedPosts?.pageParams,
+        trends: trendPosts?.pageParams
+    }
+    
     // Rank
     allPosts = await rankPosts(allPosts)
 

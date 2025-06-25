@@ -7,7 +7,7 @@ import { users } from './users';
 
 // Main feed, embedding similarity candidates: recentPostsESimIndex
 // Relevant posts, embedding similarity candidates with threshold: recentPostsESimIndex
-// Main feed and relevant posts, trend candidates: postsKeywordIndex
+// Main feed and relevant posts, trend candidates: postsKeywordIndex ERROR: not used currently, incompatible with date filtering
 // Replies, publisher candidates: replyingToIndex
 // Replies, followed candidates: replyingToIndex?
 // Replies, rest of candidates: orderRepliesByScoreIndex
@@ -74,8 +74,8 @@ export const posts = pgTable('posts', {
     }).onDelete("cascade"),
     index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),
     index('userContentsIndex').on(table.userId, table.isReply, table.createdAt.desc()),
-    index('recentPostsIndex').on(table.createdAt.desc()).where(isNull(table.replyingTo)),//What this one is used for?
-    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),
+    index('recentPostsIndex').on(table.createdAt.desc()).where(isNull(table.replyingTo)),//currently used for gettings trend posts
+    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),// incompatible with date  filtering
     index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),
     index("recentPostsESimIndex").using("hnsw", table.timeBucket, table.embeddingNormalized.op("vector_l2_ops")),
     index("pendingPostsIndex").on(table.createdAt.asc()).where(eq(table.pending,true))

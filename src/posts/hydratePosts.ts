@@ -1,4 +1,4 @@
-import { aliasedTable, and, cosineDistance, eq, exists, sql } from "drizzle-orm"
+import { aliasedTable, and, cosineDistance, desc, eq, exists, sql } from "drizzle-orm"
 import { db } from "../db"
 import { getUserColumns } from "../db/controllers/users/getUser"
 import { EngagementHistory, engagementHistory } from "../db/schema/engagementHistory"
@@ -6,12 +6,14 @@ import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
 import { posts } from "../db/schema/posts"
 import { User, users } from "../db/schema/users"
-import { CandidateSubquery } from "./common"
+import { CandidateSubquery, exampleCandiadteQuery } from "./common"
+
+export const postsToHydrateQuery=exampleCandiadteQuery.as("post_ids_to_hydrate")
 
 /** Add personal data and other things to the posts. */
-export async function personalizePosts(source:CandidateSubquery, user: User | undefined) {
+export function personalizePosts(source:CandidateSubquery, user: User | undefined) {
     // With query to get the posts
-    const postsToHydrate = db.$with("post_ids_to_hydrate").as(source)
+    const postsToHydrate = source.as("post_ids_to_hydrate")
 
     // Replied by followed user
     const replies = aliasedTable(posts, "replies")
@@ -53,7 +55,6 @@ export async function personalizePosts(source:CandidateSubquery, user: User | un
 
     // The main query
     const query = db
-        .with(postsToHydrate)
         .select({
             id: postsToHydrate.id,
             userId:postsToHydrate.userId,
@@ -86,10 +87,7 @@ export async function personalizePosts(source:CandidateSubquery, user: User | un
             eq(engagementHistory.publisherId, postsToHydrate.userId)
         ))
 
-
-    // Fetch
-    const hydratedPosts = await query
-    return hydratedPosts
+    return query
 }
 
 export type PersonalPost = Awaited<ReturnType<typeof personalizePosts>>[number] & {
