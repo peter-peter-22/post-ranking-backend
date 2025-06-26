@@ -15,9 +15,7 @@ export type ForYouPageParams = {
     cluster?:DatePageParams
 }
 
-/** Get posts from the main feed of a user 
- * @todo Separating skipIds per candidate source would improve performance.
-*/
+/** Get posts from the main feed of a user */
 export async function getMainFeed({ user, pageParams, offset }: { user: User, pageParams?: ForYouPageParams, offset: number }) {
     // Get common data
     const firstPage = !offset

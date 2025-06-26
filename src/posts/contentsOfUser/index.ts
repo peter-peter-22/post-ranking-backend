@@ -5,7 +5,7 @@ import { candidateColumns } from "../common"
 import { User } from "../../db/schema/users"
 import { noPending, notDisplayed } from "../filters"
 import { personalizePosts } from "../hydratePosts"
-import { postsPerRequest } from "../postMemory"
+import { postsPerRequest } from "../../redis/postFeeds/common"
 
 export async function getUserContents(userId: string, user: User | undefined, replies: boolean, skipIds?: string[]) {
     return await personalizePosts(userContentCandidates(userId, replies, skipIds), user)

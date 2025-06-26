@@ -1,15 +1,12 @@
 import { inArray } from "drizzle-orm";
-import { db } from "../db";
-import { posts } from "../db/schema/posts";
-import { User } from "../db/schema/users";
-import { HttpError } from "../middlewares/errorHandler";
-import { redisClient } from "../redis/connect";
-import { candidateColumns } from "./common";
-import { personalizePosts, PersonalPost } from "./hydratePosts";
-
-export const postsPerRequest = 10
-export const minCandidates = 20
-export const postFeedTTL = 60 * 10
+import { db } from "../../db";
+import { posts } from "../../db/schema/posts";
+import { User } from "../../db/schema/users";
+import { HttpError } from "../../middlewares/errorHandler";
+import { redisClient } from "../connect";
+import { candidateColumns } from "../../posts/common";
+import { personalizePosts, PersonalPost } from "../../posts/hydratePosts";
+import { minCandidates, postFeedTTL, postsPerRequest } from "./common";
 
 type PostFeedMeta<TPageParams> = {
     previousPostCount?: number,
@@ -22,7 +19,7 @@ type ZSetEntry = {
     score: number
 }
 
-export async function getPaginatedPosts<TPageParams>({
+export async function getPaginatedRankedPosts<TPageParams>({
     getMore,
     feedName,
     user,
@@ -37,7 +34,7 @@ export async function getPaginatedPosts<TPageParams>({
     minRemaining?: number,
     ttl?: number
 }) {
-    console.log(`Requested "${feedName}" for user "${user.id}", offset: ${offset}`)
+    console.log(`Requested ranked post feed "${feedName}" for user "${user.id}", offset: ${offset}`)
     const key = `postFeeds/${feedName}/${user.id}`
     const metaKey = key + ":meta"
     const listKey = key + ":list"
@@ -76,8 +73,9 @@ export async function getPaginatedPosts<TPageParams>({
     }
     else {
         // Fetch the metadata and the post count from redis
-        let [meta_, postCount_] = await redisClient.multi()
-            .get(metaKey)
+        let [meta_, postCount_] = await redisClient.multi()//TODO: extend expiration
+            .getEx(metaKey,{EX:ttl})
+            .expire(listKey, ttl)
             .zCard(listKey)
             .exec()
 

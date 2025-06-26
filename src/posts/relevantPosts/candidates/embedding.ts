@@ -1,45 +1,77 @@
-import { and, asc, inArray, l2Distance, lt } from "drizzle-orm";
+import { and, asc, getTableColumns, gt, inArray, l2Distance, lt } from "drizzle-orm";
 import { db } from "../../../db";
+import { Vector } from "../../../db/controllers/embedding/updateUserEmbedding";
 import { getTimeBuckets } from "../../../db/controllers/posts/timeBuckets";
 import { posts } from "../../../db/schema/posts";
-import { Vector } from "../../../db/controllers/embedding/updateUserEmbedding";
+import { User } from "../../../db/schema/users";
 import { candidateColumns } from "../../common";
-import { maxAge, minimalEngagement, notDisplayed } from "../../filters";
-
-/** Max count of posts. */
-const count = 500;
-/** Maximum l2 distance of the selected posts */
-const maxDistance = 1
+import { maxAge, minimalEngagement } from "../../filters";
+import { ESimPageParams } from "../../forYou/candidates/embedding";
+import { personalizePosts } from "../../hydratePosts";
 
 /** Selecting candidate posts those embedding is similar to a provided vector, with a minimum threshold. */
-export function getPostEmbeddingSimilarityCandidates(embedding: Vector, skipIds?: string[] ) {
-    // Get time buckets
+export async function getPostEmbeddingSimilarityCandidates({
+    skipped,
+    count,
+    pageParams,
+    firstPage,
+    user,
+    vector,
+    maxDistance
+}: {
+    skipped: number,
+    firstPage: boolean,
+    pageParams?: ESimPageParams,
+    count: number,
+    user: User,
+    vector?: Vector,
+    maxDistance: number
+}) {
+    if (!firstPage && !pageParams || !vector || maxDistance) return
+
+    // Get the searched time buckets
     const timeBuckets = getTimeBuckets(maxAge(), new Date(), false, true)
     console.log(`Selecting embedding similarity candidates from the following time buckets: ${timeBuckets.join(', ')}`)
 
     // Select the recent relevant posts.
     const relevantPostsUnfiltered = db.$with("posts").as(
         db
-            .select()
+            .select({
+                ...getTableColumns(posts),
+                distance: l2Distance(posts.embeddingNormalized, vector)
+            })
             .from(posts)
             .where(
                 inArray(posts.timeBucket, timeBuckets)
             )
-            .orderBy(asc(l2Distance(posts.embeddingNormalized, embedding)))
-            .limit(count + (skipIds?.length || 0)) // Any additional filter breaks the index, so the number of the selected rows in increased here, then filtered later
+            .orderBy(asc(l2Distance(posts.embeddingNormalized, vector)))
+            .limit(count + skipped) // Any additional filter breaks the index, so the number of the selected rows in increased here, then filtered later
     )
 
     // Filter the selected posts.
-    return db
+    const q = db
         .with(relevantPostsUnfiltered)
         .select(candidateColumns("EmbeddingSimilarity"))
         .from(relevantPostsUnfiltered)
         .where(
             and(
-                notDisplayed(skipIds),
+                pageParams && gt(relevantPostsUnfiltered.distance, pageParams.minDistance),
+                lt(relevantPostsUnfiltered.distance, maxDistance),
                 minimalEngagement(),
-                lt(l2Distance(posts.embeddingNormalized, embedding), maxDistance)
+                // Filtering out the pending posts and the replies is not necessary, because these have no embedding vector
             )
         )
         .$dynamic()
+
+    // Fetch
+    const myPosts = await personalizePosts(q, user)
+    console.log(myPosts.map(p => p.similarity))
+
+    // Get next page params
+    const nextPageParams: ESimPageParams | undefined = myPosts.length === count ? {
+        minDistance: 1 - myPosts[myPosts.length - 1].similarity
+    } : undefined
+
+    // Return
+    return { posts: myPosts, pageParams: nextPageParams }
 }

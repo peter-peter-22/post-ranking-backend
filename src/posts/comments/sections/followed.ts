@@ -1,17 +1,30 @@
-import { and, desc, eq, not, SQL } from "drizzle-orm";
+import { and, desc, eq, not } from "drizzle-orm";
 import { db } from "../../../db";
+import { follows } from "../../../db/schema/follows";
 import { Post, posts } from "../../../db/schema/posts";
 import { User } from "../../../db/schema/users";
-import { follows } from "../../../db/schema/follows";
 import { candidateColumns } from "../../common";
+import { personalizePosts } from "../../hydratePosts";
+import { replyCommonFilters } from "../getReplies";
 
 /** Get the replies of the followed users.  */
-export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]) {
-    return db
+export async function getFollowedComments({
+    user,
+    firstPage,
+    post
+}: {
+    user: User,
+    firstPage: boolean,
+    post: Post
+}) {
+    if (!firstPage) return
+
+    // Query
+    const q= db
         .select(candidateColumns("Followed"))
         .from(posts)
         .where(and(
-            ...commonFilters,
+            ...replyCommonFilters(post.id),
             // Skip the comments of the poster
             not(eq(posts.userId, post.userId))
         ))
@@ -19,6 +32,12 @@ export function getFollowedComments(user: User, post: Post, commonFilters: SQL[]
             eq(follows.followerId, user.id),
             eq(follows.followedId, posts.userId),
         ))
-        .orderBy(desc(posts.commentScore),desc(posts.createdAt))
+        .orderBy(desc(posts.commentScore), desc(posts.createdAt))
         .$dynamic()
+
+    // Fetch
+    const myPosts = await personalizePosts(q, user)
+
+    // Return
+    return { posts: myPosts }
 }

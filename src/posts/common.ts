@@ -51,6 +51,10 @@ export type DatePageParams = {
     skipEnd: string
 }
 
+export type SingleDatePageParams = {
+    maxDate: string
+}
+
 /** Merge the contents of arrays of posts where the arrays can be undefined */
 export function mergePostArrays(postArrays: (PersonalPost[] | undefined)[]) {
     const total: PersonalPost[] = []

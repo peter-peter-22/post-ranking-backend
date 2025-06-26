@@ -1,8 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { getReplies } from '../../../posts/comments/getReplies';
+import { CommentsPageParams, getReplies } from '../../../posts/comments/getReplies';
 import { authRequestStrict } from '../../../authentication';
 import { BasicFeedSchema } from '../../../posts/common';
+import { getPaginatedDirectPosts } from '../../../redis/postFeeds/directPosts';
 
 const router = Router();
 
@@ -13,11 +14,16 @@ const CommentSectionUrlSchema = z.object({
 router.post('/:postId', async (req: Request, res: Response) => {
     // Get params
     const { postId } = CommentSectionUrlSchema.parse(req.params)
-    const {  } = BasicFeedSchema.parse(req.body)
+    const { offset } = BasicFeedSchema.parse(req.body)
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getReplies(postId, user);
+    const posts = await getPaginatedDirectPosts<CommentsPageParams>({
+        getMore: async (pageParams) => await getReplies({ user, postId, offset, pageParams }),
+        feedName: `replies/${postId}`,
+        user,
+        offset
+    });
     res.json({ posts })
 });
 

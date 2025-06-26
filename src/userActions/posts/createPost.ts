@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { pendingUploads } from "../../db/schema/pendingUploads";
-import { posts, PostToInsert } from "../../db/schema/posts";
+import { Post, posts, PostToInsert } from "../../db/schema/posts";
 import { chunkedInsert } from "../../db/utils/chunkedInsert";
 import { PostToFinalize } from "../../routes/userActions/posts/createPost";
 import { preparePosts, prepareReplies } from "./preparePost";
@@ -24,21 +24,24 @@ export async function createReplies(data: PostToInsert[]) {
  * @tood bulk insert combined with vector index is not recommended.
 */
 async function insertPosts(postsToInsert: PostToInsert[]) {
-
     // Insert to db and return
     console.log(`Inserting posts`)
+    const inserted: Post[] = []
     await db.transaction(async tx => {
         await chunkedInsert(
             postsToInsert,
-            async (rows) => (
-                await tx
+            async (rows) => {
+                const res = await tx
                     .insert(posts)
                     .values(rows)
                     .onConflictDoNothing()
-            )
+                    .returning()
+                inserted.push(...res)
+            }
         )
         console.log(`Posts inserted`)
     })
+    return inserted
 }
 
 /** Validate and finalize a post and it's media files. */
