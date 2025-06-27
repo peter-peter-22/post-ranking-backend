@@ -17,7 +17,7 @@ export const minimalEngagement = () => or(gte(posts.engagementCount, 5), lte(pos
 
 /** Get the date of the max age of the posts. */
 export const maxAge = () => {
-    const maxAge = 1000 * 60 * 60 * 24 * 2 // 2 days
+    const maxAge = 1000 * 60 * 60 * 24 * 2*10 // 2 days
     return new Date(Date.now() - maxAge)
 }
 
