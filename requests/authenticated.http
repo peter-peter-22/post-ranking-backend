@@ -52,17 +52,17 @@ Authorization: userhandle main_user
 content-type: application/json
 
 ### search latest posts
-POST http://localhost:3000/userActions/searchPosts/latestPosts?text=car HTTP/1.1
+POST http://localhost:3000/userActions/searchPosts/latest?text=car HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
 
 ### search top posts
-POST http://localhost:3000/userActions/searchPosts/topPosts?text=car HTTP/1.1
+POST http://localhost:3000/userActions/searchPosts/top?text=car HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
 
 ### search latest posts from a user
-POST http://localhost:3000/userActions/searchPosts/latestPosts?text=car&userHandle=main_user HTTP/1.1
+POST http://localhost:3000/userActions/searchPosts/latest?text=car&userHandle=main_user HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
 

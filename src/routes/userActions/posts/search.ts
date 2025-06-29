@@ -15,7 +15,7 @@ const SearchSchema = z.object({
     userHandle: z.string().optional(),
 })
 
-router.post('/latestPosts', async (req: Request, res: Response) => {
+router.post('/latest', async (req: Request, res: Response) => {
     // Get params
     const query = SearchSchema.parse(req.query)
     const { text, userHandle } = query
@@ -33,7 +33,7 @@ router.post('/latestPosts', async (req: Request, res: Response) => {
     res.json({ posts })
 });
 
-router.post('/topPosts', async (req: Request, res: Response) => {
+router.post('/top', async (req: Request, res: Response) => {
     // Get params
     const query = SearchSchema.parse(req.query)
     const { text, userHandle } = query

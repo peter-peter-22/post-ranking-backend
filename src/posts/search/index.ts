@@ -73,18 +73,3 @@ export async function searchTopPosts({
     // Return the ranked posts and the page params
     return { data: myPosts, pageParams: nextPageParams }
 }
-
-/** Process the user filter in the search text */
-function getSearchConditions(text: string) {
-    let userFilter: string | undefined = undefined
-    const cleanText = text
-        .replace(/from:(\S+)/gm, (_, captured) => {
-            userFilter = captured as string;
-            return ""
-        })
-        .trim()
-    return {
-        text: cleanText,
-        userFilter
-    }
-}
