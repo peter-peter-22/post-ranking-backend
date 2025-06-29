@@ -8,6 +8,8 @@ import commentSection from "./posts/commentSection";
 import contentsOfuser from "./posts/getContentsOfUser";
 import follow from "./users/follow";
 import whoToFollow from "./users/whoToFollow";
+import searchPosts from "./posts/search";
+import searchUsers from "./users/search";
 
 const router = Router();
 
@@ -19,5 +21,7 @@ router.use("/commentSection", commentSection)
 router.use("/userContents", contentsOfuser)
 router.use("/follow", follow)
 router.use("/whoToFollow", whoToFollow)
+router.use("/searchPosts", searchPosts)
+router.use("/searchUsers", searchUsers)
 
 export default router;

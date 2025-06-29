@@ -1,5 +1,5 @@
 import { eq, InferInsertModel, InferSelectModel, isNotNull, isNull, SQL, sql } from 'drizzle-orm';
-import { boolean, check, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar, vector } from 'drizzle-orm/pg-core';
+import { boolean, foreignKey, index, integer, jsonb, pgTable, real, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector, keyword, MediaFile } from '../common';
 import { users } from './users';
 
@@ -13,6 +13,10 @@ import { users } from './users';
 // Main feed and relevant posts: trend candidates, counting keywords between date intervals for trend and cluster trend updates: recentPostsIndex
 // Posts and replies of a user, replies of engagement history: userContentsIndex
 // Deleting expired pending posts: pendingPostsIndex
+// Searching latest posts globally: searchLatestPostsIndex
+// Searching top posts globally: searchtopPostsIndex
+// Searching latest posts of user: searchLatestUserPostsIndex
+// Searching top posts of user: searchTopUserPostsIndex
 
 /** The posts. */
 export const posts = pgTable('posts', {
@@ -74,10 +78,13 @@ export const posts = pgTable('posts', {
     index('replyingToIndex').on(table.replyingTo, table.userId, table.createdAt.desc()),
     index('userContentsIndex').on(table.userId, table.isReply, table.createdAt.desc()),
     index('recentPostsIndex').on(table.createdAt.desc()).where(isNull(table.replyingTo)),
-    index('postsKeywordIndex').using("gin", table.keywords).where(isNull(table.replyingTo)),
     index('orderRepliesByScoreIndex').on(table.replyingTo, table.commentScore.desc(), table.createdAt.desc()).where(isNotNull(table.replyingTo)),
     index("recentPostsESimIndex").using("hnsw", table.timeBucket, table.embeddingNormalized.op("vector_l2_ops")),
-    index("pendingPostsIndex").on(table.createdAt.asc()).where(eq(table.pending,true))
+    index("pendingPostsIndex").on(table.createdAt.asc()).where(eq(table.pending, true)),
+    index('searchLatestPostsIndex').using('gin', table.createdAt.desc(), sql`to_tsvector('english', ${table.text})`),
+    index('searchtopPostsIndex').using('gin', table.engagementCount.desc(), sql`to_tsvector('english', ${table.text})`),
+    index('searchLatestUserPostsIndex').on(table.userId, table.createdAt.desc()),
+    index('searchTopUserPostsIndex').on(table.userId, table.engagementCount.desc()),
 ]);
 
 export type Post = InferSelectModel<typeof posts>;

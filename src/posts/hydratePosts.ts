@@ -64,6 +64,7 @@ export function personalizePosts(source:CandidateSubquery, user: User | undefine
             replies: postsToHydrate.replyCount,
             clicks: postsToHydrate.clickCount,
             views: postsToHydrate.viewCount,
+            engagementCount:postsToHydrate.engagementCount,
             similarity: similarity,
             engagementHistory: user ? engagementHistory : sql<EngagementHistory>`null`,
             repliedByFollowed: isRepliedByFollowedSq,

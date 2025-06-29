@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
 import { BasicFeedSchema } from '../../../posts/common';
 import { getUserContents, UserContentsPageParams } from '../../../posts/contentsOfUser';
-import { getPaginatedDirectPosts } from '../../../redis/postFeeds/directPosts';
+import { PersonalPost } from '../../../posts/hydratePosts';
+import { getPaginatedData } from '../../../redis/pagination';
+import { postFeedTTL } from '../../../redis/postFeeds/common';
 
 const router = Router();
 
@@ -18,11 +20,12 @@ router.post('/:userId/posts', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedDirectPosts<UserContentsPageParams>({
+    const posts = await getPaginatedData<UserContentsPageParams,PersonalPost[]>({
         getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: false }),
-        feedName: `userContent/${userId}/posts`,
+        feedName: `posts/userContent/${userId}/posts`,
         user,
-        offset
+        offset,
+        ttl:postFeedTTL
     });
     res.json({ posts })
 });
@@ -34,11 +37,12 @@ router.post('/:userId/replies', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedDirectPosts<UserContentsPageParams>({
+    const posts = await getPaginatedData<UserContentsPageParams,PersonalPost[]>({
         getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: true }),
-        feedName: `userContent/${userId}/replies`,
+        feedName: `posts/userContent/${userId}/replies`,
         user,
-        offset
+        offset,
+        ttl:postFeedTTL
     });
     res.json({ posts })
 });

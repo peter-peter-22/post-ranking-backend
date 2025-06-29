@@ -25,3 +25,7 @@ export function getUserColumns(viewerId?: string) {
         followed: isFollowedSq
     })
 }
+
+const exampleUserQuery=db.select(getUserColumns()).from(users)
+
+export type PersonalUser=Awaited<typeof exampleUserQuery>[number]

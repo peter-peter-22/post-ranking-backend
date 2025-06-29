@@ -3,7 +3,6 @@ import { z } from "zod"
 import { db } from "../db"
 import { posts } from "../db/schema/posts"
 import { PersonalPost } from "./hydratePosts"
-import { User } from "../db/schema/users"
 
 /** The type of the post candidate. */
 export const CandidateSourceSchema = z.enum(["Followed", "RepliedByFollowed", "GraphClusters", "EmbeddingSimilarity", "Trending", "Rest", "Publisher", "Unknown"])

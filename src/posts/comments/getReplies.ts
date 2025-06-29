@@ -40,7 +40,7 @@ export async function getReplies({ user, pageParams, offset, postId }: { user: U
     // Rank
     allPosts = await orderReplies(allPosts,post.userId)
     // Return the ranked posts and the page params
-    return { posts: allPosts, pageParams: allPageParams }
+    return { data: allPosts, pageParams: allPageParams }
 }
 
 async function getMainPost(postId: string) {

@@ -35,7 +35,7 @@ export async function getUserContents({
         main: data?.pageParams,
     }
     // Return the ranked posts and the page params
-    return { posts: data?.posts||[], pageParams: allPageParams }
+    return { data: data?.data||[], pageParams: allPageParams }
 }
 
 /** Get the replies or posts of a user.  */
@@ -77,5 +77,5 @@ export async function userContentCandidates({
     } : undefined
 
     // Return
-    return { posts: myPosts, pageParams: nextPageParams }
+    return { data: myPosts, pageParams: nextPageParams }
 }
