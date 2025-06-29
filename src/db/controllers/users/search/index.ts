@@ -28,7 +28,7 @@ export async function userSearch({
     if (offset !== 0 && !pageParams) return
 
     // Query
-    const fetchedUsers = await db
+    const q = db
         .select(getUserColumns(user?.id))
         .from(users)
         .where(
@@ -45,6 +45,14 @@ export async function userSearch({
         )
         .orderBy(desc(users.followerCount), desc(users.id))
         .limit(usersPerRequest)
+
+    const info = q.toSQL()
+    console.log(info)
+    const explain = await db.$client.query(`EXPLAIN ${info.sql}`, info.params)
+    console.log(explain)
+
+    //Fetch
+    const fetchedUsers = await q
 
     // Exit if no users
     if (fetchedUsers.length === 0) return
