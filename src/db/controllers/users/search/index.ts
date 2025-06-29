@@ -37,10 +37,7 @@ export async function userSearch({
                     lte(users.followerCount, pageParams?.followerCount),
                     lte(users.id, pageParams?.lastId)
                 ) : undefined,
-                or(
-                    ilike(users.name, `%${text}%`),
-                    ilike(users.handle, `%${text}%`)
-                )
+                ilike(users.fullName, `%${text}%`),
             )
         )
         .orderBy(desc(users.followerCount), desc(users.id))

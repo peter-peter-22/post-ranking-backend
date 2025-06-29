@@ -1,4 +1,4 @@
-import { getTableColumns, InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
 import { boolean, index, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector } from '../common';
 import { clusters } from '../schema/clusters';
@@ -10,14 +10,18 @@ export const users = pgTable('users', {
     name: varchar({ length: 50 }).notNull(),
     createdAt: timestamp().defaultNow(),
     followerCount: integer().notNull().default(0),
-    followingCount:integer().notNull().default(0),
+    followingCount: integer().notNull().default(0),
     interests: varchar({ length: 50 }).array().notNull().default([]),//what kinds of posts the bot user creates and wants to see
     bot: boolean().notNull().default(false),
     embedding: embeddingVector("embedding"),
-    embeddingNormalized:embeddingVector("embedding_normalized"),
-    clusterId:integer().references(()=>clusters.id,{onDelete:"set null"})
-},(t)=>[
-    index().on(t.clusterId),
+    embeddingNormalized: embeddingVector("embedding_normalized"),
+    clusterId: integer().references(() => clusters.id, { onDelete: "set null" }),
+    fullName: varchar({ length: 101 }).generatedAlwaysAs((): SQL => sql`${users.name} || ' ' || ${users.handle}`)
+}, (t) => [
+    index().on(t.clusterId), 
+    index('user_name_search_index').using('gin', t.fullName.op("gin_trgm_ops")), // user search
+    index().on(t.followerCount.desc(), t.id.desc()), // user search
+    //index().on(t.handle,t.followerCount.desc()) mention prediction
 ]);
 
 export type User = InferSelectModel<typeof users>;
