@@ -5,7 +5,7 @@ import { Router } from 'express';
 import bot from "./bots";
 import reset from "./development/reset";
 import home from './home';
-import authenticate from "./register";
+import authenticate from "./authenticate";
 import update from "./update";
 import userActions from "./userActions/index";
 import getPost from "./getPost";

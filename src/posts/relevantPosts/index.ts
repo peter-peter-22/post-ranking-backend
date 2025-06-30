@@ -25,7 +25,7 @@ export async function getRelevantPosts({ user, pageParams, offset, postId }: { u
     // Get the candidate posts
     const [trendPosts, embeddingPosts] = await Promise.all([
         getTrendCandidates({ trends: post.keywords ?? [], user, count: 30, pageParams: pageParams?.trends, firstPage }),
-        getPostEmbeddingSimilarityCandidates({ user, count: 30, pageParams: pageParams?.embedding, firstPage, skipped: offset, maxDistance: 1 }),
+        getPostEmbeddingSimilarityCandidates({ user, count: 30, pageParams: pageParams?.embedding, firstPage, skipped: offset, maxDistance: 1, vectorNormalized: post.embeddingNormalized }),
     ])
     // Merge the posts
     let allPosts = mergePostArrays([trendPosts?.posts, embeddingPosts?.posts])

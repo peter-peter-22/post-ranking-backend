@@ -141,6 +141,27 @@
       "when": 1751220321190,
       "tag": "0019_user_search",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1751284309390,
+      "tag": "0020_index_follow_lists",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1751287071121,
+      "tag": "0021_index_user_handle",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1751287236501,
+      "tag": "0022_make_user_createdAt_notNull",
+      "breakpoints": true
     }
   ]
 }

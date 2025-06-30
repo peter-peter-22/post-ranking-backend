@@ -10,6 +10,7 @@ import follow from "./users/follow";
 import whoToFollow from "./users/whoToFollow";
 import searchPosts from "./posts/search";
 import searchUsers from "./users/search";
+import listFollows from "./users/listFollows";
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use("/follow", follow)
 router.use("/whoToFollow", whoToFollow)
 router.use("/searchPosts", searchPosts)
 router.use("/searchUsers", searchUsers)
+router.use("/listFollows", listFollows)
 
 export default router;

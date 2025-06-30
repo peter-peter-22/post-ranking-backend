@@ -16,7 +16,7 @@ export async function getPostEmbeddingSimilarityCandidates({
     pageParams,
     firstPage,
     user,
-    vector,
+    vectorNormalized,
     maxDistance
 }: {
     skipped: number,
@@ -24,10 +24,10 @@ export async function getPostEmbeddingSimilarityCandidates({
     pageParams?: ESimPageParams,
     count: number,
     user: User,
-    vector?: Vector,
+    vectorNormalized: Vector | null,
     maxDistance: number
 }) {
-    if (!firstPage && !pageParams || !vector || maxDistance) return
+    if (!firstPage && !pageParams || !vectorNormalized) return
 
     // Get the searched time buckets
     const timeBuckets = getTimeBuckets(maxAge(), new Date(), false, true)
@@ -38,13 +38,13 @@ export async function getPostEmbeddingSimilarityCandidates({
         db
             .select({
                 ...getTableColumns(posts),
-                distance: l2Distance(posts.embeddingNormalized, vector)
+                distance: l2Distance(posts.embeddingNormalized, vectorNormalized).as("l2Distance")
             })
             .from(posts)
             .where(
                 inArray(posts.timeBucket, timeBuckets)
             )
-            .orderBy(asc(l2Distance(posts.embeddingNormalized, vector)))
+            .orderBy(asc(l2Distance(posts.embeddingNormalized, vectorNormalized)))
             .limit(count + skipped) // Any additional filter breaks the index, so the number of the selected rows in increased here, then filtered later
     )
 

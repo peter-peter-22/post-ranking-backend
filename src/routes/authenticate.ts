@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { authUser } from '../authentication';
 import { db } from '../db';
 import { users } from '../db/schema/users';
+import { getWhoToFollow } from '../db/controllers/users/whoToFollow';
+import { getTrends } from '../db/controllers/trends/getTrends';
 
 const router = Router();
 
@@ -31,8 +33,13 @@ router.post('/', async (req: Request, res: Response) => {
                 .returning()
         )[0]
     }
+    // Get common data for the user
+    const [whoToFollow, trends] = await Promise.all([
+        getWhoToFollow(user),
+        getTrends(user.clusterId)
+    ])
     // Return the user
-    res.json({ user });
+    res.json({ user, common: { whoToFollow, trends } });
 });
 
 export default router;

@@ -70,3 +70,13 @@ content-type: application/json
 POST http://localhost:3000/userActions/searchUsers?text=main HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
+
+### list followers of user
+POST http://localhost:3000/userActions/listFollows/followers/Kurt.Kling HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
+
+### list followed of user
+POST http://localhost:3000/userActions/listFollows/followed/main_user HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
