@@ -22,14 +22,14 @@ router.post('/', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get users
-    const posts = await getPaginatedData<FollowerCountPageParams,PersonalUser[]>({
+    const users = await getPaginatedData<FollowerCountPageParams, PersonalUser[]>({
         getMore: async (pageParams) => await userSearch({ user, offset, pageParams, text }),
         feedName: `users/search/${new URLSearchParams(query).toString()}`,
         user,
         offset,
-        ttl:userFeedTTL
+        ttl: userFeedTTL
     });
-    res.json({ posts })
+    res.json({ users })
 });
 
 export default router;
