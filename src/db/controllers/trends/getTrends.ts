@@ -4,15 +4,27 @@ import { getOrGenerateCache } from "../../../redis/cachedRead"
 import { trends } from "../../schema/trends"
 import { userClusterTrends } from "../../schema/userClusterTrends"
 
-function getTrendColumns(category:"global"|"personal")
-{
+export function getTrendColumns() {
     return {
-        ...getTableColumns(trends),
-        category:sql<string>`${category}::text`.as("trend_category")
+        keyword: trends.keyword,
+        postCount: trends.postCount,
+        category: sql<string>`'global'::text`.as("trend_category")
     }
 }
 
-export type TrendForClient=Awaited<ReturnType<typeof fetchTrends>>[number]
+export function getClusterTrendColumns() {
+    return {
+        keyword: userClusterTrends.keyword,
+        postCount: userClusterTrends.count,
+        category: sql<string>`'personal'::text`.as("trend_category")
+    }
+}
+
+export type TrendForClient = {
+    keyword: string,
+    postCount: number,
+    category: string
+}
 
 /** Return the the top and personalized trends. */
 async function fetchTrends(clusterId: number | null) {
@@ -21,7 +33,7 @@ async function fetchTrends(clusterId: number | null) {
 
         /** Top personalized trends */
         const personalTrends = await db
-            .select(getTrendColumns("personal"))
+            .select(getClusterTrendColumns())
             .from(userClusterTrends)
             .innerJoin(trends, eq(userClusterTrends.keyword, trends.keyword))
             .where(eq(userClusterTrends.clusterId, clusterId))
@@ -33,7 +45,7 @@ async function fetchTrends(clusterId: number | null) {
 
         /** Top global trends */
         const globalTrends = await db
-            .select(getTrendColumns("global"))
+            .select(getTrendColumns())
             .from(trends)
             .where(notInArray(trends.keyword, personalKeywords))
             .orderBy(trends.score)
@@ -45,7 +57,7 @@ async function fetchTrends(clusterId: number | null) {
         // If the cluster id is undefined, fetch only the global trends.
 
         return await db
-            .select(getTrendColumns("global"))
+            .select(getTrendColumns())
             .from(trends)
             .orderBy(trends.score)
             .limit(10)
@@ -56,11 +68,11 @@ async function fetchTrends(clusterId: number | null) {
 const expiration = 60 * 5 // 5 minutes
 
 /** Get the the top trends. */
-export async function getTrends(clusterId: number|null) {
-    return await getOrGenerateCache<TrendForClient[]>(`trends_${clusterId}`, async () => await fetchTrends(clusterId), expiration)
+export async function getTrends(clusterId: number | null) {
+    return await getOrGenerateCache<TrendForClient[]>(`trends/cluster/${clusterId}`, async () => await fetchTrends(clusterId), expiration)
 }
 
 /** Get the names of the top trends. */
-export async function getTrendNames(clusterId: number|null) {
+export async function getTrendNames(clusterId: number | null) {
     return (await getTrends(clusterId)).map(trend => trend.keyword)
 }

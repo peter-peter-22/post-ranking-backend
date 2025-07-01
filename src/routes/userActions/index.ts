@@ -1,16 +1,16 @@
 import { Router } from 'express';
 
-import signUpload from "./posts/requestUploadKey"
+import commentSection from "./posts/commentSection";
 import createPost from './posts/createPost';
 import feed from "./posts/feed";
-import relevantPosts from "./posts/relevantPosts";
-import commentSection from "./posts/commentSection";
 import contentsOfuser from "./posts/getContentsOfUser";
-import follow from "./users/follow";
-import whoToFollow from "./users/whoToFollow";
+import relevantPosts from "./posts/relevantPosts";
+import signUpload from "./posts/requestUploadKey";
 import searchPosts from "./posts/search";
+import trendFeeds from "./trends/trendFeeds";
+import follow from "./users/follow";
 import searchUsers from "./users/search";
-import listFollows from "./users/listFollows";
+import whoToFollow from "./users/whoToFollow";
 
 const router = Router();
 
@@ -24,6 +24,6 @@ router.use("/follow", follow)
 router.use("/whoToFollow", whoToFollow)
 router.use("/searchPosts", searchPosts)
 router.use("/searchUsers", searchUsers)
-router.use("/listFollows", listFollows)
+router.use("/trends", trendFeeds)
 
 export default router;

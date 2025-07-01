@@ -162,6 +162,13 @@
       "when": 1751287236501,
       "tag": "0022_make_user_createdAt_notNull",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1751325877020,
+      "tag": "0023_update_trend_indexes",
+      "breakpoints": true
     }
   ]
 }

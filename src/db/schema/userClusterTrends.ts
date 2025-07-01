@@ -10,8 +10,7 @@ export const userClusterTrends = pgTable('user_cluster_trends', {
     count: integer().notNull(),
 }, (t) => [
     primaryKey({ columns: [t.clusterId, t.keyword] }),
-    index().on(t.keyword,t.clusterId,t.count),
-    index().on(t.keyword,t.count)
+    index().on(t.clusterId, t.count.desc(), t.keyword.desc()),// Get top personal trends with pagination
 ]);
 
 export type userClusterTrend = InferSelectModel<typeof userClusterTrends>;

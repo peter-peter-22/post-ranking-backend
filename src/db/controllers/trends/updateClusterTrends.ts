@@ -24,6 +24,7 @@ export async function updateClusterTrends() {
         .as("cluster_keywords")
 
     // The count of keyword usage per cluster. 
+    // TODO: save only the top 100 trends per cluster to save space?
     const clusterKeywordCounts = db
         .select({
             keyword: clusterKeywords.keyword,
