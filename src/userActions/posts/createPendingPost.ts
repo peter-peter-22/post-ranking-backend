@@ -5,7 +5,8 @@ import { posts } from "../../db/schema/posts";
 export async function createPendingPost(userId: string) {
     const created = await db.insert(posts).values({
         userId,
-        text: ""
+        text: "",
+        pending:true
     }).returning({id:posts.id})
     return created[0].id
 }

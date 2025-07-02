@@ -4,6 +4,8 @@ import { mediaFileSchema } from '../../../db/common';
 import { createPendingPost } from '../../../userActions/posts/createPendingPost';
 import { createPosts, createReplies, finalizePost } from '../../../userActions/posts/createPost';
 import { authRequestStrict } from '../../../authentication';
+import { personalizePosts } from '../../../posts/hydratePosts';
+import { getOnePost } from '../../getPost';
 
 const router = Router();
 
@@ -29,8 +31,11 @@ router.post('/post', async (req: Request, res: Response) => {
         await createReplies([{ ...post, userId: user.id }])
         :
         await createPosts([{ ...post, userId: user.id }])
+    // Format the post to the standard format
+    const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return created posts
-    res.status(201).json({ created })
+    res.status(201).json({ created: personalPost })
+    console.log("Post created")
 });
 
 router.post('/finalizePost', async (req: Request, res: Response) => {
@@ -40,8 +45,11 @@ router.post('/finalizePost', async (req: Request, res: Response) => {
     const post = finalizePostSchema.parse(req.body);
     // Update the posts
     const [created] = await finalizePost({ ...post, userId: user.id })
+    // Format the post to the standard format
+    const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return updated posts
-    res.status(201).json({ created })
+    res.status(201).json({ created:personalPost })
+    console.log("Post finalized")
 });
 
 router.post('/pendingPost', async (req: Request, res: Response) => {
@@ -51,6 +59,7 @@ router.post('/pendingPost', async (req: Request, res: Response) => {
     const id = await createPendingPost(user.id)
     // Send back the id
     res.status(201).json({ id })
+    console.log("Pending post created")
 });
 
 export default router;

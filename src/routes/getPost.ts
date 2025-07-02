@@ -20,7 +20,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.json({ post })
 });
 
-function getOnePost(id: string) {
+export function getOnePost(id: string) {
     return db
         .select(candidateColumns("Unknown"))
         .from(posts)

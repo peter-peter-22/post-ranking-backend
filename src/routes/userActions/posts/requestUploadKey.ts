@@ -32,7 +32,7 @@ const signProfileUploadSchema = z.object({
     mimeType: z.enum(acceptedImageTypes),
 })
 
-/** The expiration of all upload keys */
+/** The expiration of all upload keys in seconds*/
 const expiration = 20
 
 /** Create an upload key for an image uploaded by an user. */
@@ -51,7 +51,7 @@ router.post('/image', async (req: Request, res: Response) => {
         convert_to: "WEBP",
         quality: 70,
         limit_resolution: { x: 1920, y: 1080 },
-        max_size: 10_000,
+        max_size: 10_000_000,
         describe: true,
     }
     // Create upload key
@@ -75,7 +75,7 @@ router.post('/video', async (req: Request, res: Response) => {
         convert_to: "mp4",
         bitrate: "1000k",
         limit_resolution: { x: 1920, y: 1080 },
-        max_size: 10_000,
+        max_size: 50_000_000,
         describe: true,
     }
     // Create upload key
