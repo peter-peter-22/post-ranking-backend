@@ -72,6 +72,7 @@ export function personalizePosts(source:CandidateSubquery, user: User | undefine
             user: getUserColumns(user?.id),
             media: postsToHydrate.media,
             commentScore: postsToHydrate.commentScore,
+            replyingTo:postsToHydrate.replyingTo,
             //debug
             keywords: postsToHydrate.keywords,
             embeddingText: postsToHydrate.embeddingText,
