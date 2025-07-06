@@ -56,7 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 function mediaEqual(a: MediaFile, b: MediaFile) {
-    return a.objectName === b.objectName && a.bucketName === b.bucketName && a.lastModified === b.lastModified
+    return a.objectName === b.objectName && a.bucketName === b.bucketName
 }
 
 /** Validate and finalize the media files of a post. */
@@ -73,7 +73,7 @@ async function updateMediaOfPost(oldMedia: MediaFile[], newMedia: MediaFile[]) {
 
 async function deleteFiles(deletedFiles: MediaFile[]) {
     if (deletedFiles.length === 0) return
-    console.log(`Deleting ${deleteFiles.length} files`)
+    console.log(`Deleting ${deletedFiles.length} files`)
     const bucketName = getBucketName(deletedFiles)
     // Remove the deleted files from the object storage
     const oldObjectNames = deletedFiles.map(file => file.objectName)
@@ -82,6 +82,7 @@ async function deleteFiles(deletedFiles: MediaFile[]) {
 
 async function addFiles(newUploads: MediaFile[]) {
     if (newUploads.length === 0) return
+    console.log(`Adding ${newUploads.length} files`)
     const bucketName = getBucketName(newUploads)
     const newObjectnames = newUploads.map(file => file.objectName)
     const [validUploads] = await Promise.all([

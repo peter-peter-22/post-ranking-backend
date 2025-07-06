@@ -76,3 +76,12 @@ Authorization: userhandle main_user
     "id": "24dc47ef-e7f2-4454-9391-5223a76d239d",
     "text":"hello world2"
 }
+
+### Delete a post
+POST http://localhost:3000/userActions/deletePost HTTP/1.1
+content-type: application/json
+Authorization: userhandle main_user
+
+{
+    "id": "24dc47ef-e7f2-4454-9391-5223a76d239d",
+}
