@@ -34,6 +34,15 @@ export async function prepareReplies(data: PostToInsert[]) {
     return data
 }
 
+/** Calculate the medadata of a post or a reply before insert. */
+export async function prepareAnyPost(data: PostToInsert) {
+    const [postToInsert] = data.replyingTo ?
+        await prepareReplies([data])
+        :
+        await preparePosts([data])
+    return postToInsert
+}
+
 export const hashtagRegex = /#[^#\s]+/gm
 const urlRegex = /(https|http):\/\/\S+/gm
 

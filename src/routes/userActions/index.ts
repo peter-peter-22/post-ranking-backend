@@ -11,6 +11,7 @@ import trendFeeds from "./trends/trendFeeds";
 import follow from "./users/follow";
 import searchUsers from "./users/search";
 import whoToFollow from "./users/whoToFollow";
+import updatePost from "./posts/updatePost";
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use("/whoToFollow", whoToFollow)
 router.use("/searchPosts", searchPosts)
 router.use("/searchUsers", searchUsers)
 router.use("/trends", trendFeeds)
+router.use("/updatePost", updatePost)
 
 export default router;
