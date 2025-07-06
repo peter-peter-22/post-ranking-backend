@@ -24,6 +24,8 @@ router.post('/:postId', async (req: Request, res: Response) => {
             offset
         })
     )
+        // Remove the main post
+        .filter(post => post.id !== postId)
     res.json({ posts })
 });
 
