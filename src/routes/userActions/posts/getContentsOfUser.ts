@@ -6,6 +6,7 @@ import { getUserContents, UserContentsPageParams } from '../../../posts/contents
 import { PersonalPost } from '../../../posts/hydratePosts';
 import { getPaginatedData } from '../../../redis/pagination';
 import { postFeedTTL } from '../../../redis/postFeeds/common';
+import { postProcessPosts } from '../../../posts/postProcessPosts';
 
 const router = Router();
 
@@ -20,13 +21,15 @@ router.post('/:userId/posts', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedData<UserContentsPageParams,PersonalPost[]>({
-        getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: false }),
-        feedName: `posts/userContent/${userId}/posts`,
-        user,
-        offset,
-        ttl:postFeedTTL
-    });
+    const posts = postProcessPosts(
+        await getPaginatedData<UserContentsPageParams, PersonalPost[]>({
+            getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: false }),
+            feedName: `posts/userContent/${userId}/posts`,
+            user,
+            offset,
+            ttl: postFeedTTL
+        })
+    )
     res.json({ posts })
 });
 
@@ -37,13 +40,15 @@ router.post('/:userId/replies', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedData<UserContentsPageParams,PersonalPost[]>({
-        getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: true }),
-        feedName: `posts/userContent/${userId}/replies`,
-        user,
-        offset,
-        ttl:postFeedTTL
-    });
+    const posts = postProcessPosts(
+        await getPaginatedData<UserContentsPageParams, PersonalPost[]>({
+            getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: true }),
+            feedName: `posts/userContent/${userId}/replies`,
+            user,
+            offset,
+            ttl: postFeedTTL
+        })
+    )
     res.json({ posts })
 });
 

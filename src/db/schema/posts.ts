@@ -68,7 +68,9 @@ export const posts = pgTable('posts', {
         (): SQL => sql<number>`floor(extract(epoch from ${posts.createdAt})/60/60/12)::int`
     ),
     //indicate if this is a reply
-    isReply: boolean().notNull().generatedAlwaysAs((): SQL => isNotNull(posts.replyingTo))
+    isReply: boolean().notNull().generatedAlwaysAs((): SQL => isNotNull(posts.replyingTo)),
+    //true if deleted
+    deleted: boolean().notNull().default(false)
 }, (table) => [
     foreignKey({
         columns: [table.replyingTo],

@@ -4,6 +4,7 @@ import { authRequestStrict } from '../../../authentication';
 import { BasicFeedSchema } from '../../../posts/common';
 import { getPaginatedRankedPosts } from '../../../redis/postFeeds/rankedPosts';
 import { getRelevantPosts, RelevantPostsPageParams } from '../../../posts/relevantPosts';
+import { postProcessPosts } from '../../../posts/postProcessPosts';
 
 const router = Router();
 
@@ -15,12 +16,14 @@ router.post('/:postId', async (req: Request, res: Response) => {
     const { postId } = relevantPostsUrlSchema.parse(req.params)
     const { offset } = BasicFeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const posts = await getPaginatedRankedPosts({
-        getMore: async (pageParams?: RelevantPostsPageParams) => await getRelevantPosts({ user, pageParams, offset, postId }),
-        feedName: `relevantPosts/${postId}`,
-        user,
-        offset
-    });
+    const posts = postProcessPosts(
+        await getPaginatedRankedPosts({
+            getMore: async (pageParams?: RelevantPostsPageParams) => await getRelevantPosts({ user, pageParams, offset, postId }),
+            feedName: `relevantPosts/${postId}`,
+            user,
+            offset
+        })
+    )
     res.json({ posts })
 });
 

@@ -6,6 +6,7 @@ import { db } from '../db';
 import { posts } from '../db/schema/posts';
 import { candidateColumns } from '../posts/common';
 import { personalizePosts } from '../posts/hydratePosts';
+import { postProcessPosts } from '../posts/postProcessPosts';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const GetPostSchema = z.object({
 router.get('/:id', async (req: Request, res: Response) => {
     const { id } = GetPostSchema.parse(req.params)
     const user = await authRequest(req)
-    const [post] = await personalizePosts(getOnePost(id), user)
+    const [post] = postProcessPosts(await (personalizePosts(getOnePost(id), user)))
     res.json({ post })
 });
 

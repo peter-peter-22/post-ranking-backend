@@ -12,6 +12,7 @@ import follow from "./users/follow";
 import searchUsers from "./users/search";
 import whoToFollow from "./users/whoToFollow";
 import updatePost from "./posts/updatePost";
+import deletePost from "./posts/deletePost";
 
 const router = Router();
 
@@ -27,5 +28,6 @@ router.use("/searchPosts", searchPosts)
 router.use("/searchUsers", searchUsers)
 router.use("/trends", trendFeeds)
 router.use("/updatePost", updatePost)
+router.use("/deletePost", deletePost)
 
 export default router;

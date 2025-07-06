@@ -6,6 +6,7 @@ import { BasicFeedSchema } from '../../../posts/common';
 import { PersonalPost } from '../../../posts/hydratePosts';
 import { getPaginatedData } from '../../../redis/pagination';
 import { postFeedTTL } from '../../../redis/postFeeds/common';
+import { postProcessPosts } from '../../../posts/postProcessPosts';
 
 const router = Router();
 
@@ -20,13 +21,15 @@ router.post('/:postId', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedData<CommentsPageParams, PersonalPost[]>({
-        getMore: async (pageParams) => await getReplies({ user, postId, offset, pageParams }),
-        feedName: `posts/replies/${postId}`,
-        user,
-        offset,
-        ttl: postFeedTTL
-    });
+    const posts = postProcessPosts(
+        await getPaginatedData<CommentsPageParams, PersonalPost[]>({
+            getMore: async (pageParams) => await getReplies({ user, postId, offset, pageParams }),
+            feedName: `posts/replies/${postId}`,
+            user,
+            offset,
+            ttl: postFeedTTL
+        })
+    )
     res.json({ posts })
 });
 

@@ -8,6 +8,7 @@ import { ESimPageParams } from "../forYou/candidates/embedding";
 import { getTrendCandidates } from "../forYou/candidates/trending";
 import { rankPosts } from "../ranker";
 import { getPostEmbeddingSimilarityCandidates } from "./candidates/embedding";
+import { postProcessPosts } from "../postProcessPosts";
 
 export type RelevantPostsPageParams = {
     trends?: DatePageParams,
@@ -41,5 +42,5 @@ export async function getRelevantPosts({ user, pageParams, offset, postId }: { u
     // Rank
     allPosts = await rankPosts(allPosts)
     // Return the ranked posts and the page params
-    return { posts: allPosts, pageParams: allPageParams }
+    return { posts: postProcessPosts(allPosts), pageParams: allPageParams }
 }

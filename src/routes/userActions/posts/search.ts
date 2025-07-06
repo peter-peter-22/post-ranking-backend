@@ -7,6 +7,7 @@ import { PersonalPost } from '../../../posts/hydratePosts';
 import { searchLatestPosts, searchTopPosts, TopPostsPageParam } from '../../../posts/search';
 import { getPaginatedData } from '../../../redis/pagination';
 import { postFeedTTL } from '../../../redis/postFeeds/common';
+import { postProcessPosts } from '../../../posts/postProcessPosts';
 
 const router = Router();
 
@@ -23,13 +24,15 @@ router.post('/latest', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedData<SingleDatePageParams,PersonalPost[]>({
-        getMore: async (pageParams) => await searchLatestPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
-        feedName: `searchPosts/latest/${new URLSearchParams(query).toString()}`,
-        user,
-        offset,
-        ttl:postFeedTTL
-    });
+    const posts = postProcessPosts(
+        await getPaginatedData<SingleDatePageParams, PersonalPost[]>({
+            getMore: async (pageParams) => await searchLatestPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
+            feedName: `searchPosts/latest/${new URLSearchParams(query).toString()}`,
+            user,
+            offset,
+            ttl: postFeedTTL
+        })
+    )
     res.json({ posts })
 });
 
@@ -41,13 +44,15 @@ router.post('/top', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = await getPaginatedData<TopPostsPageParam,PersonalPost[]>({
-        getMore: async (pageParams) => await searchTopPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
-        feedName: `searchPosts/top/${new URLSearchParams(query).toString()}`,
-        user,
-        offset,
-        ttl:postFeedTTL
-    });
+    const posts = postProcessPosts(
+        await getPaginatedData<TopPostsPageParam, PersonalPost[]>({
+            getMore: async (pageParams) => await searchTopPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
+            feedName: `searchPosts/top/${new URLSearchParams(query).toString()}`,
+            user,
+            offset,
+            ttl: postFeedTTL
+        })
+    )
     res.json({ posts })
 });
 

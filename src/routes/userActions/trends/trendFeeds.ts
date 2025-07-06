@@ -20,7 +20,7 @@ router.post('/global', async (req: Request, res: Response) => {
         user: viewer,
         offset,
         ttl: userFeedTTL
-    });
+    })
     res.json({ trends })
 });
 
