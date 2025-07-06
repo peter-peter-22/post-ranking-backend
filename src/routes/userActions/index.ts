@@ -13,6 +13,7 @@ import searchUsers from "./users/search";
 import whoToFollow from "./users/whoToFollow";
 import updatePost from "./posts/updatePost";
 import deletePost from "./posts/deletePost";
+import postCreatorTextPrediction from "./posts/postCreatorTextPrediction";
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use("/searchUsers", searchUsers)
 router.use("/trends", trendFeeds)
 router.use("/updatePost", updatePost)
 router.use("/deletePost", deletePost)
+router.use("/postCreatorTextPrediction", postCreatorTextPrediction)
 
 export default router;

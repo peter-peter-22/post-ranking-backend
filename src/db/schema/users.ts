@@ -18,11 +18,11 @@ export const users = pgTable('users', {
     clusterId: integer().references(() => clusters.id, { onDelete: "set null" }),
     fullName: varchar({ length: 101 }).generatedAlwaysAs((): SQL => sql`${users.name} || ' ' || ${users.handle}`)
 }, (t) => [
-    index().on(t.clusterId), 
+    index().on(t.clusterId),
     index('user_name_search_index').using('gin', t.fullName.op("gin_trgm_ops")), // user search
     index().on(t.followerCount.desc(), t.id.desc()), // user search
-    index().on(t.handle)
-    //index().on(t.handle,t.followerCount.desc()) mention prediction
+    index().on(t.handle),
+    index().on(t.handle, t.followerCount.desc()) //mention prediction
 ]);
 
 export type User = InferSelectModel<typeof users>;

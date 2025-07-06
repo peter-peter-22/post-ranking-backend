@@ -6,9 +6,10 @@ import { topics } from "../../bots/examplePosts";
 export const mainUser = { handle: "main_user", name: "Main User" }
 
 function createRandomUser(): UserToInsert {
+    const name=faker.person.fullName()
     return {
-        handle: faker.internet.username(),
-        name: faker.person.fullName(),
+        handle: name.toLocaleLowerCase().replace(" ","_"),
+        name: name,
         interests: Array(1).fill(null).map(() => randomTopic()),
         bot: true
     };
