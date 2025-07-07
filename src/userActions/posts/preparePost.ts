@@ -56,7 +56,7 @@ function getEmbeddingTextAndHashtasgs(post: PostToInsert) {
     if (post.text)
         embeddingText = post.text.replace(hashtagRegex, (hashtag) => {
             const hashtagText = hashtag.toLowerCase().slice(1)
-            hashtags.push(hashtagText)
+            hashtags.push(hashtagText.replace("_"," "))// Replace _ with space to use the same format as the keyword detector
             return hashtagText + "."
         })
     // Remove urls from the post text

@@ -183,6 +183,13 @@
       "when": 1751836550572,
       "tag": "0025_user_prediction_indexing",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1751839814175,
+      "tag": "0026_hashtag_prediction_indexing",
+      "breakpoints": true
     }
   ]
 }

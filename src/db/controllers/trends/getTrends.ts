@@ -1,4 +1,4 @@
-import { desc, eq, getTableColumns, notInArray, sql } from "drizzle-orm"
+import { desc, eq, notInArray, sql } from "drizzle-orm"
 import { db } from "../.."
 import { getOrGenerateCache } from "../../../redis/cachedRead"
 import { trends } from "../../schema/trends"
