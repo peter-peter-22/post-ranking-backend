@@ -1,12 +1,10 @@
 import { and, eq, exists, getTableColumns, sql } from "drizzle-orm";
 import { db } from "../..";
-import { users } from "../../schema/users";
+import { userColumns, users } from "../../schema/users";
 import { follows } from "../../schema/follows";
 
-const { embedding, embeddingNormalized, ...userColumns } = getTableColumns(users)
-
 /** The columns of the users those will be displayed in the client. */
-export function getUserColumns(viewerId?: string) {
+export function personalUserColumns(viewerId?: string) {
     // Followed by viewer
     const isFollowedSq = (viewerId ? (
         exists(db
@@ -26,6 +24,6 @@ export function getUserColumns(viewerId?: string) {
     })
 }
 
-const exampleUserQuery=db.select(getUserColumns()).from(users)
+const exampleUserQuery=db.select(personalUserColumns()).from(users)
 
 export type PersonalUser=Awaited<typeof exampleUserQuery>[number]

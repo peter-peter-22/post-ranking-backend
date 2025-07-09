@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import { authUser } from '../authentication';
 import { db } from '../db';
-import { users } from '../db/schema/users';
+import { userColumns, users } from '../db/schema/users';
 import { getWhoToFollow } from '../db/controllers/users/whoToFollow';
 import { getTrends } from '../db/controllers/trends/getTrends';
 
@@ -30,7 +30,7 @@ router.post('/', async (req: Request, res: Response) => {
                     handle: data.handle,
                     name: data.handle,
                 }])
-                .returning()
+                .returning(userColumns)
         )[0]
     }
     // Get common data for the user

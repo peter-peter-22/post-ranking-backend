@@ -5,7 +5,7 @@ import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
 import { MediaFileSchema } from '../../../db/common';
 import { updateMedia } from '../../../db/controllers/pendingUploads/updateMedia';
-import { users } from '../../../db/schema/users';
+import { userColumns, users } from '../../../db/schema/users';
 
 const router = Router();
 
@@ -32,7 +32,7 @@ router.post('/', async (req: Request, res: Response) => {
         .update(users)
         .set(newUser)
         .where(eq(users.id, user.id))
-        .returning()
+        .returning(userColumns)
     // Return updated user
     res.status(201).json({ user: updatedUser })
 });

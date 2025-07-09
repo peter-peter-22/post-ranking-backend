@@ -1,4 +1,4 @@
-import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
+import { getTableColumns, InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
 import { boolean, index, integer, jsonb, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { embeddingVector, MediaFile } from '../common';
 import { clusters } from '../schema/clusters';
@@ -32,5 +32,6 @@ export type User = InferSelectModel<typeof users>;
 
 export type UserToInsert = InferInsertModel<typeof users>;
 
-/** User without the embedding vector. */
-export type UserCommon = Omit<User, "embedding">
+const {embedding,embeddingNormalized,bot,fullName,interests,...userColumns}=getTableColumns(users)
+export {userColumns}
+export type UserCommon = Pick<User, keyof typeof userColumns>;

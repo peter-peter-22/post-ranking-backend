@@ -9,7 +9,7 @@ import { users } from "../../schema/users";
 //** A post appears with all kinds of replies to test the reply ranker. */
 export async function testCommentRanker() {
     const mainUser = await clearMainUser()
-    const [followedUser,publisher,otherUser] = await db.select().from(users).where(not(eq(users.id, mainUser.id))).limit(3)
+    const [followedUser,publisher,otherUser] = await db.select({id:users.id}).from(users).where(not(eq(users.id, mainUser.id))).limit(3)
     await db.insert(follows).values([{ followerId: mainUser.id, followedId: followedUser.id }])
     const [post] = await createPosts([{ userId: publisher.id, text: "Comment ranking test" }])
     const publisherReplies = createRandomReplies(post.id, 5, "Publisher", [publisher.id])

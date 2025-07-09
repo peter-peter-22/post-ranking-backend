@@ -2,7 +2,7 @@ import { and, desc, ilike, lt, lte, or } from "drizzle-orm"
 import { db } from "../../.."
 import { usersPerRequest } from "../../../../redis/userFeeds/common"
 import { User, users } from "../../../schema/users"
-import { getUserColumns } from "../getUser"
+import { personalUserColumns } from "../getUser"
 
 export type FollowerCountPageParams = {
     followerCount: number,
@@ -29,7 +29,7 @@ export async function userSearch({
 
     // Query
     const q = db
-        .select(getUserColumns(user?.id))
+        .select(personalUserColumns(user?.id))
         .from(users)
         .where(
             and(

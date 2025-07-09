@@ -1,14 +1,14 @@
 import { and, desc, eq, notExists } from "drizzle-orm";
 import { db } from "../..";
 import { engagementHistory } from "../../schema/engagementHistory";
-import { User, users } from "../../schema/users";
-import { getUserColumns } from "./getUser";
 import { follows } from "../../schema/follows";
+import { UserCommon, users } from "../../schema/users";
+import { personalUserColumns } from "./getUser";
 
 /** Get the top engaged but not followed users */
-export async function getWhoToFollow(user:User) {
+export async function getWhoToFollow(user:UserCommon) {
     return await db
-        .select(getUserColumns(user.id))
+        .select(personalUserColumns(user.id))
         .from(engagementHistory)
         .where(and(
             eq(engagementHistory.viewerId, user.id),

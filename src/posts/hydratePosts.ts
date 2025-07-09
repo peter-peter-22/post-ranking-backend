@@ -1,6 +1,6 @@
 import { aliasedTable, and, cosineDistance, eq, exists, sql } from "drizzle-orm"
 import { db } from "../db"
-import { getUserColumns } from "../db/controllers/users/getUser"
+import { personalUserColumns } from "../db/controllers/users/getUser"
 import { EngagementHistory, engagementHistory } from "../db/schema/engagementHistory"
 import { follows } from "../db/schema/follows"
 import { likes } from "../db/schema/likes"
@@ -69,7 +69,7 @@ export function personalizePosts(source:CandidateSubquery, user: User | undefine
             engagementHistory: user ? engagementHistory : sql<EngagementHistory>`null`,
             repliedByFollowed: isRepliedByFollowedSq,
             liked: likedByViewerSq,
-            user: getUserColumns(user?.id),
+            user: personalUserColumns(user?.id),
             media: postsToHydrate.media,
             commentScore: postsToHydrate.commentScore,
             replyingTo:postsToHydrate.replyingTo,

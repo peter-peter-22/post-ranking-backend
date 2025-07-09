@@ -3,9 +3,9 @@ import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
-import { getUserColumns, PersonalUser } from '../../../db/controllers/users/getUser';
+import { personalUserColumns, PersonalUser } from '../../../db/controllers/users/getUser';
 import { follows } from '../../../db/schema/follows';
-import { User, users } from '../../../db/schema/users';
+import { User, userColumns, UserCommon, users } from '../../../db/schema/users';
 import { HttpError } from '../../../middlewares/errorHandler';
 import { BasicFeedSchema, SingleDatePageParams } from '../../../posts/common';
 import { getPaginatedData } from '../../../redis/pagination';
@@ -45,13 +45,13 @@ async function listFollowers({
 }: {
     offset?: number,
     targetUserId: string,
-    viewer: User,
+    viewer: UserCommon,
     pageParams?: SingleDatePageParams
 }) {
     if (offset !== 0 && !pageParams) return
 
     const fetchedUsers = await db
-        .select(getUserColumns(viewer.id))
+        .select(personalUserColumns(viewer.id))
         .from(follows)
         .where(and(
             eq(follows.followedId, targetUserId),
@@ -97,13 +97,13 @@ async function listFollowed({
 }: {
     offset?: number,
     targetUserId: string,
-    viewer: User,
+    viewer: UserCommon,
     pageParams?: SingleDatePageParams
 }) {
     if (offset !== 0 && !pageParams) return
 
     const fetchedUsers = await db
-        .select(getUserColumns(viewer.id))
+        .select(personalUserColumns(viewer.id))
         .from(follows)
         .where(and(
             eq(follows.followerId, targetUserId),
@@ -123,7 +123,7 @@ async function listFollowed({
 
 async function getTargetUser(userHandle: string) {
     const user = (
-        await db.select().from(users).where(eq(users.handle, userHandle))
+        await db.select(userColumns).from(users).where(eq(users.handle, userHandle))
     )[0]
     if (!user) throw new HttpError(404, "User not found")
     return user

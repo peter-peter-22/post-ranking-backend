@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { Request } from 'express';
 import { db } from '../db';
-import { User, users } from '../db/schema/users';
+import { userColumns, UserCommon, users } from '../db/schema/users';
 import { HttpError } from '../middlewares/errorHandler';
 
 /** Get the authenticated user from the request. */
@@ -45,9 +45,9 @@ export async function authRequestStrict(req: Request) {
 }
 
 /** Get the user from the db based on the handle. */
-export async function authUser(userhandle: string): Promise<User | undefined> {
+export async function authUser(userhandle: string): Promise<UserCommon | undefined> {
     const user = (
-        await db.select()
+        await db.select(userColumns)
             .from(users)
             .where(eq(users.handle, userhandle))
     )[0]
