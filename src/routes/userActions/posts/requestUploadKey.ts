@@ -4,14 +4,12 @@ import z from "zod";
 import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
 import { posts } from '../../../db/schema/posts';
+import { acceptedImageTypes, acceptedVideoTypes, uploadKeyExpiration } from '../../../objectStorage/common';
 import { ImageUploadOptions, VideoUploadOptions } from '../../../objectStorage/uploadOptions';
 import { createImageUploadKey, createVideoUploadKey } from '../../../userActions/posts/uploadKeys';
 import { env } from '../../../zod/env';
 
 const router = Router();
-
-const acceptedImageTypes = ["image/png", "image/jpeg", "image/webp"] as const
-const acceptedVideoTypes = ["video/mp4"] as const
 
 const signPostUploadSchema = z.object({
     /** Pending post id created before the first upload */
@@ -27,13 +25,6 @@ const signPostImageUploadSchema = signPostUploadSchema.extend({
 const signPostVideoUploadSchema = signPostUploadSchema.extend({
     mimeType: z.enum(acceptedVideoTypes),
 })
-
-const signProfileUploadSchema = z.object({
-    mimeType: z.enum(acceptedImageTypes),
-})
-
-/** The expiration of all upload keys in seconds*/
-const expiration = 20
 
 /** Create an upload key for an image uploaded by an user. */
 router.post('/image', async (req: Request, res: Response) => {
@@ -55,7 +46,7 @@ router.post('/image', async (req: Request, res: Response) => {
         describe: true,
     }
     // Create upload key
-    const key = await createImageUploadKey(user.id, options, expiration)
+    const key = await createImageUploadKey(user.id, options, uploadKeyExpiration)
     res.status(201).json({ key })
 });
 
@@ -79,36 +70,7 @@ router.post('/video', async (req: Request, res: Response) => {
         describe: true,
     }
     // Create upload key
-    const key = await createVideoUploadKey(user.id, options, expiration)
-    res.status(201).json({ key })
-});
-
-/** Create an upload key for an profile picture uploaded by an user. */
-router.post('/profile', async (req: Request, res: Response) => {
-    // Get user
-    const user = await authRequestStrict(req)
-    // Parse input
-    const data = signProfileUploadSchema.parse(req.body)
-    // Define options
-    const options: ImageUploadOptions = {
-        bucket_name: env.MINIO_PUBLIC_BUCKET,
-        object_name: `users/${user.id}/profile/normal.webp`,
-        mime_type: data.mimeType,
-        upload_mime_type: "image/webp",
-        convert_to: "WEBP",
-        quality: 70,
-        limit_resolution: { x: 1920, y: 1080 },
-        max_size: 10_000,
-        describe: true,
-        variants: [
-            {
-                object_name: `users/${user.id}/profile/small.webp`,
-                limit_resolution: { x: 200, y: 200 }
-            }
-        ]
-    }
-    // Create upload key
-    const key = await createImageUploadKey(user.id, options, expiration)
+    const key = await createVideoUploadKey(user.id, options, uploadKeyExpiration)
     res.status(201).json({ key })
 });
 

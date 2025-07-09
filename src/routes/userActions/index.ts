@@ -5,7 +5,7 @@ import createPost from './posts/createPost';
 import feed from "./posts/feed";
 import contentsOfuser from "./posts/getContentsOfUser";
 import relevantPosts from "./posts/relevantPosts";
-import signUpload from "./posts/requestUploadKey";
+import signPostUpload from "./posts/requestUploadKey";
 import searchPosts from "./posts/search";
 import trendFeeds from "./trends/trendFeeds";
 import follow from "./users/follow";
@@ -14,10 +14,12 @@ import whoToFollow from "./users/whoToFollow";
 import updatePost from "./posts/updatePost";
 import deletePost from "./posts/deletePost";
 import postCreatorTextPrediction from "./posts/postCreatorTextPrediction";
+import signUserUpload from "./users/requestUploadKeys";
+import updateUser from "./users/updateUser";
 
 const router = Router();
 
-router.use("/signUpload", signUpload)
+router.use("/signPostUpload", signPostUpload)
 router.use("/create", createPost)
 router.use("/feed", feed)
 router.use("/relevantPosts", relevantPosts)
@@ -31,5 +33,7 @@ router.use("/trends", trendFeeds)
 router.use("/updatePost", updatePost)
 router.use("/deletePost", deletePost)
 router.use("/postCreatorTextPrediction", postCreatorTextPrediction)
+router.use("/signUserUpload", signUserUpload)
+router.use("/updateUser", updateUser)
 
 export default router;

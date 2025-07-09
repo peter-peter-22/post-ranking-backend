@@ -4,7 +4,7 @@ content-type: application/json
 Authorization: userhandle main_user
 
 ### Create a upload key for an image
-POST http://localhost:3000/userActions/signUpload/image HTTP/1.1
+POST http://localhost:3000/userActions/signPostUpload/image HTTP/1.1
 content-type: application/json
 Authorization: userhandle main_user
 
@@ -15,7 +15,7 @@ Authorization: userhandle main_user
 }
 
 ### Create a upload key for an video
-POST http://localhost:3000/userActions/signUpload/video HTTP/1.1
+POST http://localhost:3000/userActions/signPostUpload/video HTTP/1.1
 content-type: application/json
 Authorization: userhandle main_user
 
@@ -23,15 +23,6 @@ Authorization: userhandle main_user
     "pendingPostId": "548dc477-4066-4d42-af59-abd8f97942b8",
     "id": 1,
     "mimeType": "video/mp4"
-}
-
-### Create a upload key for a profile picture
-POST http://localhost:3000/userActions/signUpload/profile HTTP/1.1
-content-type: application/json
-Authorization: userhandle main_user
-
-{
-    "mimeType": "image/jpeg"
 }
 
 ### Finalize the post

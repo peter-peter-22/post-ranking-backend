@@ -8,11 +8,11 @@ export const embeddingVector=(name:string)=>vector(name,{ dimensions: 384 })
 export const keyword=()=>varchar({ length: 50 })
 
 /** A media file stored in minio */
-export const mediaFileSchema=z.object({
+export const MediaFileSchema=z.object({
     bucketName:z.string(),
     objectName:z.string(),
     lastModified:z.coerce.date().default(new Date()),
     mimeType:z.string(),
     description:z.string().optional()
 })
-export type MediaFile=z.infer<typeof mediaFileSchema>
+export type MediaFile=z.infer<typeof MediaFileSchema>

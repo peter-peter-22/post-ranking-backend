@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel, SQL, sql } from 'drizzle-orm';
-import { boolean, index, integer, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
-import { embeddingVector } from '../common';
+import { boolean, index, integer, jsonb, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { embeddingVector, MediaFile } from '../common';
 import { clusters } from '../schema/clusters';
 
 /** The users. */
@@ -16,7 +16,10 @@ export const users = pgTable('users', {
     embedding: embeddingVector("embedding"),
     embeddingNormalized: embeddingVector("embedding_normalized"),
     clusterId: integer().references(() => clusters.id, { onDelete: "set null" }),
-    fullName: varchar({ length: 101 }).generatedAlwaysAs((): SQL => sql`${users.name} || ' ' || ${users.handle}`)
+    fullName: varchar({ length: 101 }).generatedAlwaysAs((): SQL => sql`${users.name} || ' ' || ${users.handle}`),
+    avatar: jsonb().$type<MediaFile>(),
+    banner: jsonb().$type<MediaFile>(),
+    bio: varchar({ length: 500 })
 }, (t) => [
     index().on(t.clusterId),
     index('user_name_search_index').using('gin', t.fullName.op("gin_trgm_ops")), // user search

@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { mediaFileSchema } from '../../../db/common';
+import { MediaFileSchema } from '../../../db/common';
 import { createPendingPost } from '../../../userActions/posts/createPendingPost';
 import { createPosts, createReplies, finalizePost } from '../../../userActions/posts/createPost';
 import { authRequestStrict } from '../../../authentication';
@@ -16,7 +16,7 @@ const router = Router();
 export const createPostSchema = z.object({
     text: z.string().optional(),
     replyingTo: z.string().optional(),
-    media: z.array(mediaFileSchema).optional()
+    media: z.array(MediaFileSchema).optional()
 })
 export type PostToCreate = z.infer<typeof createPostSchema> & { userId: string }
 
