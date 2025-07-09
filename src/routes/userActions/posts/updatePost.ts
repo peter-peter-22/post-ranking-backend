@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
 import { updateMedia } from '../../../db/controllers/pendingUploads/updateMedia';
-import { posts } from '../../../db/schema/posts';
+import {  posts } from '../../../db/schema/posts';
 import { HttpError } from '../../../middlewares/errorHandler';
 import { personalizePosts } from '../../../posts/hydratePosts';
 import { prepareAnyPost } from '../../../userActions/posts/preparePost';

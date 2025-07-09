@@ -11,7 +11,7 @@ export const keyword=()=>varchar({ length: 50 })
 export const MediaFileSchema=z.object({
     bucketName:z.string(),
     objectName:z.string(),
-    lastModified:z.coerce.date().default(new Date()),
+    lastModified:z.coerce.date().default(new Date()).transform(date=>date.toISOString()),
     mimeType:z.string(),
     description:z.string().optional()
 })

@@ -19,10 +19,15 @@ function mediaEqual(a: MediaFile, b: MediaFile) {
     return a.objectName === b.objectName && a.bucketName === b.bucketName
 }
 
+function mediaVersionEqual(a: MediaFile, b: MediaFile) {
+    return a.lastModified === b.lastModified
+}
+
 /** Finalize the new uploads and delete the removed ones. */
 export async function updateMedia(oldMedia: MediaFile[], newMedia: MediaFile[]) {
     const newUploads: MediaFile[] = newMedia.filter(newFile => {
-        return !oldMedia.some(oldFile => mediaEqual(oldFile, newFile))
+        // Check the version only on the new uploads. This is to finalize the replaced files.
+        return !oldMedia.some(oldFile => mediaEqual(oldFile, newFile) && mediaVersionEqual(oldFile, newFile))
     })
     const deletedFiles: MediaFile[] = oldMedia.filter(oldFile => {
         return !newMedia.some(newFile => mediaEqual(newFile, oldFile))
