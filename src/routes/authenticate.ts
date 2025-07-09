@@ -1,10 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { authUser } from '../authentication';
+import { authUserCommon } from '../authentication';
 import { db } from '../db';
-import { userColumns, users } from '../db/schema/users';
-import { getWhoToFollow } from '../db/controllers/users/whoToFollow';
 import { getTrends } from '../db/controllers/trends/getTrends';
+import { getWhoToFollow } from '../db/controllers/users/whoToFollow';
+import { userColumns, users } from '../db/schema/users';
 
 const router = Router();
 
@@ -20,7 +20,7 @@ export const authSchema = z.object({
 router.post('/', async (req: Request, res: Response) => {
     const data = authSchema.parse(req.body)
     // Try to login
-    let user = await authUser(data.handle)
+    let user = await authUserCommon(data.handle)
     // If the user doesn't exists, register
     if (!user) {
         user = (

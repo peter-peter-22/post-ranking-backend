@@ -1,7 +1,7 @@
-import { and, eq, exists, getTableColumns, sql } from "drizzle-orm";
+import { and, eq, exists, sql } from "drizzle-orm";
 import { db } from "../..";
-import { userColumns, users } from "../../schema/users";
 import { follows } from "../../schema/follows";
+import { userColumns, users } from "../../schema/users";
 
 /** The columns of the users those will be displayed in the client. */
 export function personalUserColumns(viewerId?: string) {
