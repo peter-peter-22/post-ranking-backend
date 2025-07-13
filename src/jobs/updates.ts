@@ -3,6 +3,9 @@ import { updateLikeCount } from '../db/controllers/posts/engagement/like/count';
 import { ConnectionOptions } from "bullmq";
 import { env } from 'process';
 import { updateReplyCount } from '../db/controllers/posts/count';
+import { updateViewCounts } from '../db/controllers/posts/engagement/views/count';
+import { updateClickCount } from '../db/controllers/posts/engagement/clicks/count';
+import { updateFollowerCount, updateFollowingCount } from '../db/controllers/users/follow/count';
 
 /** Redis client config for job queue. */
 const redisJobs: ConnectionOptions = {
@@ -10,7 +13,7 @@ const redisJobs: ConnectionOptions = {
     db: 1
 }
 
-type UpdateJobCategory = "likeCount" | "followerCount" | "followingCount" | "replyCount"
+type UpdateJobCategory = "likeCount" | "followerCount" | "followingCount" | "replyCount" | "clickCount" | "viewCount"
 
 type UpdateJob = string
 
@@ -46,12 +49,25 @@ updateWorker.on('error', err => {
 
 async function processUpdateJob(job: Job<UpdateJob>): Promise<void> {
     console.log(`Processing update job. Type: ${job.name} Data: ${job.data} Id: ${job.id}`)
-    switch (job.name) {
+    switch (job.name as UpdateJobCategory) {
         case "likeCount":
             await updateLikeCount(job.data)
             break;
         case "replyCount":
             await updateReplyCount(job.data)
+            break;
+        case "viewCount":
+            await updateViewCounts(job.data)
+            break;
+        case "clickCount":
+            updateClickCount(job.data)
+            break;
+        case "followerCount":
+            updateFollowerCount(job.data)
+            break;
+        case "followingCount":
+            updateFollowingCount(job.data)
+            break;
         default:
             throw new Error(`Invalid update job type ${job.name}`)
     }

@@ -1,7 +1,7 @@
 import { db } from "..";
 import { promisesAllTracked } from "../../utilities/arrays/trackedPromises";
 import { chunkedInsert } from "../utils/chunkedInsert";
-import { updateFollowerCounts, updateFollowingCounts } from "../controllers/users/follow/count";
+import { updateFollowerCount, updateFollowingCount } from "../controllers/users/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
 import { UserCommon } from "../schema/users";
 import { updateFollowSnapshots } from "./groups/memory caching/updateSnapshots";
@@ -72,6 +72,6 @@ function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[])
 
 export async function seedFollows({ from, to }: { from: UserCommon[], to: UserCommon[] }) {
     await createRandomFollows(from, to)
-    await updateFollowerCounts()
-    await updateFollowingCounts()
+    await updateFollowerCount()
+    await updateFollowingCount()
 }

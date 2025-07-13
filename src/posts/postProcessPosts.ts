@@ -1,3 +1,6 @@
+import { postClickCounterRedis } from "../jobs/clickCount";
+import { postReplyCounterRedis } from "../jobs/replyCount";
+import { postViewCounterRedis } from "../jobs/viewCount";
 import { redisClient } from "../redis/connect";
 import { postLikeCounterRedis } from "../userActions/posts/like";
 import { PersonalPost } from "./hydratePosts";
@@ -21,9 +24,9 @@ async function applyRealtimeEngagements(posts: PersonalPost[]) {
     const tx = redisClient.multi()
     for (const post of posts) {
         tx.get(postLikeCounterRedis(post.id))
-        tx.get(postLikeCounterRedis(post.id))
-        tx.get(postLikeCounterRedis(post.id))
-        tx.get(postLikeCounterRedis(post.id))
+        tx.get(postClickCounterRedis(post.id))
+        tx.get(postReplyCounterRedis(post.id))
+        tx.get(postViewCounterRedis(post.id))
     }
     const results = await tx.exec()
     // Add the results to the posts

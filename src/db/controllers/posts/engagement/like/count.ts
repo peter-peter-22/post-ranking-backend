@@ -8,7 +8,7 @@ import { posts } from "../../../../schema/posts";
 
 /** Recalculate the like count on a single post. */
 export async function updateLikeCount(postId: string) {
-    const [updated]= await db.update(posts)
+    const [updated] = await db.update(posts)
         .set({
             likeCount: db.$count(likes, eq(posts.id, likes.postId)),
         })
@@ -16,10 +16,7 @@ export async function updateLikeCount(postId: string) {
             eq(posts.id, postId)
         )
         .returning({ likeCount: posts.likeCount })
-    if(!updated) {
-        console.warn("Attempted to update the like count of a post that does not exists")
-        return
-    }
+    if (!updated) return
     // Update the counter in Redis
-    await redisClient.set(postLikeCounterRedis(postId),updated.likeCount)
+    await redisClient.set(postLikeCounterRedis(postId), updated.likeCount)
 }
