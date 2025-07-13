@@ -2,6 +2,7 @@ import { Job, Queue, Worker } from 'bullmq';
 import { updateLikeCount } from '../db/controllers/posts/engagement/like/count';
 import { ConnectionOptions } from "bullmq";
 import { env } from 'process';
+import { updateReplyCount } from '../db/controllers/posts/count';
 
 /** Redis client config for job queue. */
 const redisJobs: ConnectionOptions = {
@@ -9,7 +10,7 @@ const redisJobs: ConnectionOptions = {
     db: 1
 }
 
-type UpdateJobCategory = "likeCount" | "followerCount" | "followingCount"
+type UpdateJobCategory = "likeCount" | "followerCount" | "followingCount" | "replyCount"
 
 type UpdateJob = string
 
@@ -28,19 +29,19 @@ export const updateWorker = new Worker<UpdateJob>(
 );
 
 updateWorker.on('active', job => {
-  console.log(`Job ${job.id} started`);
+    console.log(`Job ${job.id} started`);
 });
 
 updateWorker.on('completed', job => {
-  console.log(`Job ${job.id} completed`);
+    console.log(`Job ${job.id} completed`);
 });
 
 updateWorker.on('failed', (job, err) => {
-  console.error(`Job ${job?.id} failed:`, err);
+    console.error(`Job ${job?.id} failed:`, err);
 });
 
 updateWorker.on('error', err => {
-  console.error('Worker error:', err);
+    console.error('Worker error:', err);
 });
 
 async function processUpdateJob(job: Job<UpdateJob>): Promise<void> {
@@ -49,12 +50,14 @@ async function processUpdateJob(job: Job<UpdateJob>): Promise<void> {
         case "likeCount":
             await updateLikeCount(job.data)
             break;
+        case "replyCount":
+            await updateReplyCount(job.data)
         default:
             throw new Error(`Invalid update job type ${job.name}`)
     }
 }
 
-export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob, delay:number=60_000) {
+export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob, delay: number = 60_000) {
     return await updateQueue.add(
         category,
         data,

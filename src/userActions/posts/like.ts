@@ -1,15 +1,15 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { likes } from "../../db/schema/likes";
-import { addUpdateJob } from "../../jobs/updates";
+import { incrementLikeCounter } from "../../jobs/likeCount";
 import { redisClient } from "../../redis/connect";
 
 export async function likePost(postId: string, userId: string, value: boolean) {
     // Handle changes in the DB
     if (value) await createLike(postId, userId);
     else await deleteLike(postId, userId);
-    // Schelude counter update
-    await addUpdateJob("likeCount", postId);
+    // Update counter
+    await incrementLikeCounter(postId, value ? 1 : -1);
 }
 
 async function createLike(postId: string, userId: string) {
@@ -18,8 +18,6 @@ async function createLike(postId: string, userId: string) {
         .insert(likes)
         .values({ userId, postId })
         .onConflictDoNothing()
-    // Increment the like counter in redis
-    await redisClient.incr(postLikeCounterRedis(postId))
 }
 
 async function deleteLike(postId: string, userId: string) {

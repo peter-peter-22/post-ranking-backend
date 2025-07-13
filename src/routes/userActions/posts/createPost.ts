@@ -10,6 +10,7 @@ import { db } from '../../../db';
 import { posts } from '../../../db/schema/posts';
 import { eq } from 'drizzle-orm';
 import { HttpError } from '../../../middlewares/errorHandler';
+import { incrementReplyCounter } from '../../../jobs/replyCount';
 
 const router = Router();
 
@@ -35,6 +36,8 @@ router.post('/post', async (req: Request, res: Response) => {
         await createReplies([{ ...post, userId: user.id }])
         :
         await createPosts([{ ...post, userId: user.id }])
+    // Update reply count of replied post if exists
+    if (created.replyingTo) await incrementReplyCounter(created.replyingTo, 1)
     // Format the post to the standard format
     const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return created posts
@@ -59,6 +62,8 @@ router.post('/finalizePost', async (req: Request, res: Response) => {
     if (previousPost.pending !== true) throw new HttpError(400, "This post is not pending")
     // Update the posts
     const [created] = await finalizePost({ ...post, userId: user.id })
+    // Update reply count of replied post if exists
+    if (created.replyingTo) await incrementReplyCounter(created.replyingTo, 1)
     // Format the post to the standard format
     const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return updated posts
