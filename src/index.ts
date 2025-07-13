@@ -3,8 +3,9 @@ import express from 'express';
 import "express-async-errors";
 import { errorHandler } from './middlewares/errorHandler';
 import routes from "./routes";
-import { redisClient, redisJobs } from './redis/connect';
+import { redisClient } from './redis/connect';
 import { db } from './db';
+import { updateQueue, updateWorker } from './jobs/updates';
 
 const app = express();
 const PORT = 3000;
@@ -29,7 +30,8 @@ function shutdown() {
   console.log('Shutting down gracefully...');
   Promise.all([
     redisClient.quit(),
-    redisJobs.quit(),
+    updateQueue.close(),
+    updateWorker.close(),
     db.$client.end()
   ])
     .then(() => {

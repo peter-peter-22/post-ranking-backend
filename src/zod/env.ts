@@ -8,8 +8,7 @@ const envModel=z.object({
     CLUSTERING_API_URL:z.string().url(),
     RANKER_API_URL:z.string().url(),
     
-    REDIS_HOST:z.string(),
-    REDIS_PORT:z.coerce.number(),
+    REDIS_URL:z.string(),
 
     MINIO_ACCESS_KEY:z.string(),
     MINIO_SECRET_KEY:z.string(),

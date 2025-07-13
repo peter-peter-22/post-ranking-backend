@@ -1,18 +1,25 @@
-import { eq, SQL } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../../..";
+import { redisClient } from "../../../../../redis/connect";
+import { postLikeCounterRedis } from "../../../../../userActions/posts/like";
 import { likes } from "../../../../schema/likes";
 import { posts } from "../../../../schema/posts";
 
-/**Recalculate the like count on the selected posts. */
-export async function updateLikeCounts(where: SQL | undefined=undefined) {
-    await db.update(posts)
+
+/** Recalculate the like count on a single post. */
+export async function updateLikeCount(postId: string) {
+    const [updated]= await db.update(posts)
         .set({
             likeCount: db.$count(likes, eq(posts.id, likes.postId)),
         })
         .where(
-            where
+            eq(posts.id, postId)
         )
-        .catch(
-            error => console.error("error while updating like count:", error)
-        )
+        .returning({ likeCount: posts.likeCount })
+    if(!updated) {
+        console.warn("Attempted to update the like count of a post that does not exists")
+        return
+    }
+    // Update the counter in Redis
+    await redisClient.set(postLikeCounterRedis(postId),updated.likeCount)
 }

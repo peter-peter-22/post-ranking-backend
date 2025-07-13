@@ -16,6 +16,7 @@ import deletePost from "./posts/deletePost";
 import postCreatorTextPrediction from "./posts/postCreatorTextPrediction";
 import signUserUpload from "./users/requestUploadKeys";
 import updateUser from "./users/updateUser";
+import like from "./posts/like";
 
 const router = Router();
 
@@ -35,5 +36,6 @@ router.use("/deletePost", deletePost)
 router.use("/postCreatorTextPrediction", postCreatorTextPrediction)
 router.use("/signUserUpload", signUserUpload)
 router.use("/updateUser", updateUser)
+router.use("/like", like)
 
 export default router;

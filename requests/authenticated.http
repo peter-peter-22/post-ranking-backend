@@ -80,3 +80,13 @@ content-type: application/json
 POST http://localhost:3000/userActions/listFollows/followed/main_user HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
+
+### like a post
+POST http://localhost:3000/userActions/like HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
+
+{
+    "postId":"8d70970b-70d8-475a-8f2c-4f5a57d01ff6",
+    "value":true
+}
