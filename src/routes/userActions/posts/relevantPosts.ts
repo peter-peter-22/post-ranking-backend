@@ -16,13 +16,15 @@ router.post('/:postId', async (req: Request, res: Response) => {
     const { postId } = relevantPostsUrlSchema.parse(req.params)
     const { offset } = BasicFeedSchema.parse(req.body)
     const user = await authRequestStrict(req);
-    const posts = postProcessPosts(
-        await getPaginatedRankedPosts({
-            getMore: async (pageParams?: RelevantPostsPageParams) => await getRelevantPosts({ user, pageParams, offset, postId }),
-            feedName: `relevantPosts/${postId}`,
-            user,
-            offset
-        })
+    const posts = (
+        await postProcessPosts(
+            await getPaginatedRankedPosts({
+                getMore: async (pageParams?: RelevantPostsPageParams) => await getRelevantPosts({ user, pageParams, offset, postId }),
+                feedName: `relevantPosts/${postId}`,
+                user,
+                offset
+            })
+        )
     )
         // Remove the main post
         .filter(post => post.id !== postId)

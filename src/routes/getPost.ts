@@ -17,7 +17,7 @@ const GetPostSchema = z.object({
 router.get('/:id', async (req: Request, res: Response) => {
     const { id } = GetPostSchema.parse(req.params)
     const user = await authRequest(req)
-    const [post] = postProcessPosts(await (personalizePosts(getOnePost(id), user)))
+    const [post] = await postProcessPosts(await (personalizePosts(getOnePost(id), user)))
     res.json({ post })
 });
 

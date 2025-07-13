@@ -21,7 +21,7 @@ router.post('/:postId', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = postProcessPosts(
+    const posts = await postProcessPosts(
         await getPaginatedData<CommentsPageParams, PersonalPost[]>({
             getMore: async (pageParams) => await getReplies({ user, postId, offset, pageParams }),
             feedName: `posts/replies/${postId}`,

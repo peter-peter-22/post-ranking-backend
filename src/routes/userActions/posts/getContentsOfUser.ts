@@ -21,7 +21,7 @@ router.post('/:userId/posts', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = postProcessPosts(
+    const posts = await postProcessPosts(
         await getPaginatedData<UserContentsPageParams, PersonalPost[]>({
             getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: false }),
             feedName: `posts/userContent/${userId}/posts`,
@@ -40,7 +40,7 @@ router.post('/:userId/replies', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = postProcessPosts(
+    const posts = await postProcessPosts(
         await getPaginatedData<UserContentsPageParams, PersonalPost[]>({
             getMore: async (pageParams) => await getUserContents({ user, targetUserId: userId, offset, pageParams, replies: true }),
             feedName: `posts/userContent/${userId}/replies`,

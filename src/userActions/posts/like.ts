@@ -31,7 +31,7 @@ async function deleteLike(postId: string, userId: string) {
             eq(likes.postId, postId)
         ))
     // Decrement the like counter in redis
-    await redisClient.incr(postLikeCounterRedis(postId))
+    await redisClient.decr(postLikeCounterRedis(postId))
 }
 
 export function postLikeCounterRedis(postId: string) {

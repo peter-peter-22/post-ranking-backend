@@ -60,11 +60,6 @@ export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob,
         data,
         {
             jobId: `${category}/${data}`,
-            attempts: 2,
-            backoff: {
-                type: 'exponential', // Exponential backoff for retries
-                delay: 1000
-            },
             delay,
             removeOnComplete: true,
             removeOnFail: true

@@ -24,7 +24,7 @@ router.post('/latest', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = postProcessPosts(
+    const posts = await postProcessPosts(
         await getPaginatedData<SingleDatePageParams, PersonalPost[]>({
             getMore: async (pageParams) => await searchLatestPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
             feedName: `searchPosts/latest/${new URLSearchParams(query).toString()}`,
@@ -44,7 +44,7 @@ router.post('/top', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get posts
-    const posts = postProcessPosts(
+    const posts = await postProcessPosts(
         await getPaginatedData<TopPostsPageParam, PersonalPost[]>({
             getMore: async (pageParams) => await searchTopPosts({ user, filterUserHandle: userHandle, offset, pageParams, text }),
             feedName: `searchPosts/top/${new URLSearchParams(query).toString()}`,

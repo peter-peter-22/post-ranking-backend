@@ -42,5 +42,5 @@ export async function getRelevantPosts({ user, pageParams, offset, postId }: { u
     // Rank
     allPosts = await rankPosts(allPosts)
     // Return the ranked posts and the page params
-    return { posts: postProcessPosts(allPosts), pageParams: allPageParams }
+    return { posts: await postProcessPosts(allPosts), pageParams: allPageParams }
 }
