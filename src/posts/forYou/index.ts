@@ -1,5 +1,4 @@
 import { getTrendNames } from "../../db/controllers/trends/getTrends";
-import { getFollowedUsers } from "../../db/controllers/users/getFollowers";
 import { User } from "../../db/schema/users";
 import { DatePageParams, deduplicatePosts, mergePostArrays } from "../common";
 import { rankPosts } from "../ranker";
@@ -19,17 +18,16 @@ export type ForYouPageParams = {
 export async function getMainFeed({ user, pageParams, offset }: { user: User, pageParams?: ForYouPageParams, offset: number }) {
     // Get common data
     const firstPage = !offset
-    const [trends, followedUsers] = await Promise.all([
+    const [trends] = await Promise.all([
         getTrendNames(user.clusterId),
-        getFollowedUsers({ user })
     ])
 
     // Get the candidate posts
     const [followedPosts, trendPosts, embeddingPosts,clusterPosts] = await Promise.all([
-        getFollowedCandidates({ followedUsers, count: 30, user, pageParams: pageParams?.followed, firstPage }),
+        getFollowedCandidates({ count: 30, user, pageParams: pageParams?.followed, firstPage }),
         getTrendCandidates({ trends, user, count: 30, pageParams: pageParams?.trends, firstPage }),
         getEmbeddingSimilarityCandidates({ user, count: 30, pageParams: pageParams?.embedding, firstPage, skipped: offset }),
-        getGraphClusterCandidates({ followedUsers, count: 30, user, pageParams: pageParams?.followed, firstPage })
+        getGraphClusterCandidates({  count: 30, user, pageParams: pageParams?.followed, firstPage })
     ])
     // Merge the posts
     let allPosts = mergePostArrays([followedPosts?.posts, trendPosts?.posts, embeddingPosts?.posts,clusterPosts?.posts])

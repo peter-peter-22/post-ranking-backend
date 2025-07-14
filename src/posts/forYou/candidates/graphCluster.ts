@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, lt, notInArray, or } from "drizzle-orm";
+import { and, desc, eq, gt, lt, or } from "drizzle-orm";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
 import { User, users } from "../../../db/schema/users";
@@ -10,13 +10,11 @@ import { personalizePosts } from "../../hydratePosts";
  * @todo The user is added to the posts again later.
 */
 export async function getGraphClusterCandidates({
-    followedUsers,
     user,
     count,
     pageParams,
     firstPage
 }: {
-    followedUsers: string[],
     user: User,
     count: number,
     pageParams?: DatePageParams,
@@ -39,7 +37,6 @@ export async function getGraphClusterCandidates({
                 recencyFilter(),
                 noPending(),
                 eq(users.clusterId, user.clusterId),
-                notInArray(posts.userId, followedUsers),
             )
         )
         .innerJoin(users, eq(users.id, posts.userId))

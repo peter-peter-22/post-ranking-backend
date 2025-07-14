@@ -1,20 +1,19 @@
-import { and, desc, gt, inArray, lt, or } from "drizzle-orm";
+import { and, desc, eq, exists, gt, inArray, lt, or } from "drizzle-orm";
 import { db } from "../../../db";
 import { posts } from "../../../db/schema/posts";
-import { User } from "../../../db/schema/users";
+import { User, users } from "../../../db/schema/users";
 import { candidateColumns, DatePageParams } from "../../common";
 import { isPost, noPending, recencyFilter } from "../../filters";
 import { personalizePosts } from "../../hydratePosts";
+import { follows } from "../../../db/schema/follows";
 
 /** Selecting candidate posts from the users those the viewer follows */
 export async function getFollowedCandidates({
-    followedUsers,
     user,
     count,
     pageParams,
     firstPage
 }: {
-    followedUsers: string[],
     user: User,
     count: number,
     pageParams?: DatePageParams,
@@ -35,7 +34,15 @@ export async function getFollowedCandidates({
                 recencyFilter(),
                 isPost(),
                 noPending(),
-                inArray(posts.userId, followedUsers),
+                exists(
+                    db
+                        .select()
+                        .from(follows)
+                        .where(and(
+                            eq(follows.followerId, user.id),
+                            eq(follows.followedId, posts.userId)
+                        ))
+                )
             )
         )
         .orderBy(desc(posts.createdAt))

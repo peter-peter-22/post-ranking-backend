@@ -3,6 +3,11 @@ POST http://localhost:3000/userActions/feed HTTP/1.1
 Authorization: userhandle main_user
 content-type: application/json
 
+### followed feed
+POST http://localhost:3000/userActions/feed/followed HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json
+
 ### one post
 POST  http://localhost:3000/userActions/getPost/48540ad2-a0fe-4655-9cdc-efc6993aa161 HTTP/1.1
 Authorization: userhandle main_user
