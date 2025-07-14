@@ -17,6 +17,7 @@ import postCreatorTextPrediction from "./posts/postCreatorTextPrediction";
 import signUserUpload from "./users/requestUploadKeys";
 import updateUser from "./users/updateUser";
 import like from "./posts/like";
+import regularUpdates from "./regularUpdates";
 
 const router = Router();
 
@@ -37,5 +38,6 @@ router.use("/postCreatorTextPrediction", postCreatorTextPrediction)
 router.use("/signUserUpload", signUserUpload)
 router.use("/updateUser", updateUser)
 router.use("/like", like)
+router.use("/regularUpdates", regularUpdates)
 
 export default router;

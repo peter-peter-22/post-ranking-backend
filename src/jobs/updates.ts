@@ -6,6 +6,7 @@ import { updateReplyCount } from '../db/controllers/posts/count';
 import { updateViewCounts } from '../db/controllers/posts/engagement/views/count';
 import { updateClickCount } from '../db/controllers/posts/engagement/clicks/count';
 import { updateFollowerCount, updateFollowingCount } from '../db/controllers/users/follow/count';
+import { defaultDelay } from './common';
 
 /** Redis client config for job queue. */
 const redisJobs: ConnectionOptions = {
@@ -73,7 +74,7 @@ async function processUpdateJob(job: Job<UpdateJob>): Promise<void> {
     }
 }
 
-export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob, delay: number = 60_000) {
+export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob, delay: number = defaultDelay) {
     return await updateQueue.add(
         category,
         data,
@@ -83,6 +84,21 @@ export async function addUpdateJob(category: UpdateJobCategory, data: UpdateJob,
             removeOnComplete: true,
             removeOnFail: true
         }
+    );
+}
+
+export async function addUpdateJobs(jobs: { category: UpdateJobCategory, data: UpdateJob, delay?: number }[]) {
+    return await updateQueue.addBulk(
+        jobs.map(job => ({
+            name: job.category,
+            data: job.data,
+            opts: {
+                jobId: `${job.category}/${job.data}`,
+                delay: job.delay,
+                removeOnComplete: true,
+                removeOnFail: true
+            }
+        }))
     );
 }
 

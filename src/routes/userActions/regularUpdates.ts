@@ -1,0 +1,120 @@
+import { Router } from "express";
+import { z } from "zod";
+import { authRequestStrict } from "../../authentication";
+import { db } from "../../db";
+import { clicks } from "../../db/schema/clicks";
+import { views } from "../../db/schema/views";
+import { postClickCounterRedis } from "../../jobs/clickCount";
+import { defaultDelay } from "../../jobs/common";
+import { postReplyCounterRedis } from "../../jobs/replyCount";
+import { addUpdateJobs } from "../../jobs/updates";
+import { postViewCounterRedis } from "../../jobs/viewCount";
+import { redisClient } from "../../redis/connect";
+import { postLikeCounterRedis } from "../../userActions/posts/like";
+
+const router = Router();
+
+const RegularUpdateSchema = z.object({
+    viewedPosts: z.string().array(),
+    clickedPosts: z.string().array(),
+    visiblePosts: z.string().array()
+})
+
+router.post('/', async (req, res) => {
+    const user = await authRequestStrict(req)
+    const { viewedPosts, clickedPosts, visiblePosts } = RegularUpdateSchema.parse(req.body);
+    const [engagementCounts] = await Promise.all([
+        handleVisiblePosts(visiblePosts),
+        handleViews(user.id, viewedPosts),
+        handleClicks(user.id, clickedPosts)
+    ])
+    res.json({
+        engagementCounts,
+        notificationCount: 0
+    })
+})
+
+type RealtimeEngagements = {
+    postId: string,
+    likes?: number,
+    clicks?: number,
+    views?: number,
+    replies?: number
+}
+
+async function handleVisiblePosts(visiblePosts: string[]) {
+    if (visiblePosts.length === 0) return
+    // Get the engagement counts of each post
+    const tx = redisClient.multi()
+    for (const postId of visiblePosts) {
+        tx.get(postLikeCounterRedis(postId))
+        tx.get(postClickCounterRedis(postId))
+        tx.get(postReplyCounterRedis(postId))
+        tx.get(postViewCounterRedis(postId))
+    }
+    const results = await tx.exec()
+    // Format the results
+    const parsed: RealtimeEngagements[] = []
+    for (let i = 0; i < visiblePosts.length; i++) {
+        const redisIndex = i * 4
+        const likes = results[redisIndex]
+        const clicks = results[redisIndex + 1]
+        const replies = results[redisIndex + 2]
+        const views = results[redisIndex + 3]
+        const engagements: RealtimeEngagements = { postId: visiblePosts[i] }
+        if (likes) engagements.likes = parseInt(likes.toString())
+        if (clicks) engagements.clicks = parseInt(clicks.toString())
+        if (replies) engagements.replies = parseInt(replies.toString())
+        if (views) engagements.views = parseInt(views.toString())
+        parsed.push(engagements)
+    }
+    return parsed
+}
+
+async function handleViews(userId: string, viewedPosts: string[]) {
+    if (viewedPosts.length === 0) return
+    // Create views in the database
+    const createdViews = await db
+        .insert(views)
+        .values(viewedPosts.map(postId => ({ userId, postId })))
+        .onConflictDoNothing()
+        .returning()
+    // Increase the counters in redis
+    const tx = redisClient.multi()
+    createdViews.forEach(view => {
+        tx.incr(postViewCounterRedis(view.postId))
+    });
+    // Create jobs to update the view counts in the database
+    const jobsPromise = addUpdateJobs(createdViews.map(view => ({
+        category: "viewCount",
+        data: view.postId,
+        delay: defaultDelay
+    })))
+    // Execute the promises
+    await Promise.all([jobsPromise, tx.exec()])
+}
+
+async function handleClicks(userId: string, clickedPosts: string[]) {
+    if (clickedPosts.length === 0) return
+    // Create clicks in the database
+    const createdClicks = await db
+        .insert(clicks)
+        .values(clickedPosts.map(postId => ({ userId, postId })))
+        .onConflictDoNothing()
+        .returning()
+    // Increase the counters in redis
+    const tx = redisClient.multi()
+    createdClicks.forEach(click => {
+        tx.incr(postClickCounterRedis(click.postId))
+    });
+    // Create jobs to update the click counts in the database
+    const jobsPromise = addUpdateJobs(createdClicks.map(click => ({
+        category: "clickCount",
+        data: click.postId,
+        delay: defaultDelay
+    })))
+    // Execute the promises
+    await Promise.all([jobsPromise, tx.exec()])
+}
+
+export default router
