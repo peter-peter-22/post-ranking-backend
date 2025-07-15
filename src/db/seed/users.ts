@@ -6,11 +6,13 @@ import { topics } from "../../bots/examplePosts";
 export const mainUser = { handle: "main_user", name: "Main User" }
 
 function createRandomUser(): UserToInsert {
-    const name=faker.person.fullName()
+    const name = faker.person.fullName()
+    const interests = Array(1).fill(null).map(() => randomTopic())
     return {
-        handle: name.toLocaleLowerCase().replace(" ","_"),
+        handle: name.toLocaleLowerCase().replace(" ", "_"),
         name: name,
-        interests: Array(1).fill(null).map(() => randomTopic()),
+        interests: interests,
+        bio: `My name is ${name}. I am a bot who is interested in ${interests.join(", ")}.`,
         bot: true
     };
 }
@@ -32,7 +34,6 @@ export async function seedUsers(count: number) {
 export async function createMainUser() {
     const [user] = await db.insert(users)
         .values([mainUser])
-        //.onConflictDoNothing()
         .returning();
     console.log("Created main user")
     return user;
