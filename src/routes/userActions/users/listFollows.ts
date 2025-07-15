@@ -3,9 +3,10 @@ import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
-import { personalUserColumns, PersonalUser } from '../../../db/controllers/users/getUser';
+import { PersonalUser, personalUserColumns } from '../../../db/controllers/users/getUser';
+import { postProcessUsers } from '../../../db/controllers/users/postProcessUsers';
 import { follows } from '../../../db/schema/follows';
-import { User, userColumns, UserCommon, users } from '../../../db/schema/users';
+import { userColumns, UserCommon, users } from '../../../db/schema/users';
 import { HttpError } from '../../../middlewares/errorHandler';
 import { BasicFeedSchema, SingleDatePageParams } from '../../../posts/common';
 import { getPaginatedData } from '../../../redis/pagination';
@@ -79,13 +80,15 @@ router.post('/followed/:userHandle', async (req: Request, res: Response) => {
         getTargetUser(userHandle)
     ])
     // Get users
-    const users = await getPaginatedData<SingleDatePageParams, PersonalUser[]>({
-        getMore: async (pageParams) => await listFollowed({ pageParams, offset, targetUserId: targetUser.id, viewer }),
-        feedName: `users/followers/${targetUser.id}`,
-        user: viewer,
-        offset,
-        ttl: userFeedTTL
-    });
+    const users = await postProcessUsers(
+        await getPaginatedData<SingleDatePageParams, PersonalUser[]>({
+            getMore: async (pageParams) => await listFollowed({ pageParams, offset, targetUserId: targetUser.id, viewer }),
+            feedName: `users/followers/${targetUser.id}`,
+            user: viewer,
+            offset,
+            ttl: userFeedTTL
+        })
+    )
     res.json({ users })
 });
 

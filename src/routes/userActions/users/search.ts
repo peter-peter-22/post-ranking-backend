@@ -7,6 +7,7 @@ import { FollowerCountPageParams, userSearch } from '../../../db/controllers/use
 import { BasicFeedSchema } from '../../../posts/common';
 import { getPaginatedData } from '../../../redis/pagination';
 import { userFeedTTL } from '../../../redis/userFeeds/common';
+import { postProcessUsers } from '../../../db/controllers/users/postProcessUsers';
 
 const router = Router();
 
@@ -22,13 +23,15 @@ router.post('/', async (req: Request, res: Response) => {
     // Get user
     const user = await authRequestStrict(req);
     // Get users
-    const users = await getPaginatedData<FollowerCountPageParams, PersonalUser[]>({
-        getMore: async (pageParams) => await userSearch({ user, offset, pageParams, text }),
-        feedName: `users/search/${new URLSearchParams(query).toString()}`,
-        user,
-        offset,
-        ttl: userFeedTTL
-    });
+    const users = await postProcessUsers(
+        await getPaginatedData<FollowerCountPageParams, PersonalUser[]>({
+            getMore: async (pageParams) => await userSearch({ user, offset, pageParams, text }),
+            feedName: `users/search/${new URLSearchParams(query).toString()}`,
+            user,
+            offset,
+            ttl: userFeedTTL
+        })
+    )
     res.json({ users })
 });
 

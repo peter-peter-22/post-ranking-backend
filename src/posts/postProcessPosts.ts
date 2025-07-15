@@ -1,3 +1,4 @@
+import { postProcessUsers } from "../db/controllers/users/postProcessUsers";
 import { postClickCounterRedis } from "../jobs/clickCount";
 import { postReplyCounterRedis } from "../jobs/replyCount";
 import { postViewCounterRedis } from "../jobs/viewCount";
@@ -5,17 +6,22 @@ import { redisClient } from "../redis/connect";
 import { postLikeCounterRedis } from "../userActions/posts/like";
 import { PersonalPost } from "./hydratePosts";
 
-/** Apply changes to the fetched posts before sending them to the clients.
+/** Apply changes to the fetched posts before sending them to the client.
  ** Hide the contents of the deleted posts.
+ ** Add realtime data from redis.
   */
 export async function postProcessPosts(posts: PersonalPost[]) {
+    if (posts.length === 0) return posts
     posts.forEach(post => {
         if (post.deleted) {
             post.text = null
             post.media = null
         }
     })
-    await applyRealtimeEngagements(posts)
+    await Promise.all([
+        applyRealtimeEngagements(posts),
+        postProcessUsers(posts.map(p => p.user))//TODO this can be deduplicated
+    ])
     return posts
 }
 

@@ -1,7 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { follows } from "../db/schema/follows";
-import { incrementFollowerCounter } from "../jobs/followingCount";
+import { incrementFollowingCounter } from "../jobs/followingCount";
+import { incrementFollowerCounter } from "../jobs/followerCount";
 
 /**
  * Make a user follow another
@@ -17,7 +18,10 @@ export async function follow(followerId: string, followedId: string) {
         .onConflictDoNothing()
         .returning()
     if (updated.length !== 0)
-        await incrementFollowerCounter(followerId, 1)
+        await Promise.all([
+            incrementFollowerCounter(followedId, 1),
+            incrementFollowingCounter(followerId, 1)
+        ])
 }
 
 /**
@@ -33,5 +37,8 @@ export async function unfollow(followerId: string, followedId: string) {
         ))
         .returning()
     if (updated.length !== 0)
-        await incrementFollowerCounter(followerId, -1)
+        await Promise.all([
+            incrementFollowerCounter(followerId, -1),
+            incrementFollowingCounter(followedId, -1)
+        ])
 }
