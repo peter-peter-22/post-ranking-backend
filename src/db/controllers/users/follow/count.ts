@@ -4,6 +4,7 @@ import { userFollowerCountRedis } from "../../../../jobs/followingCount";
 import { redisClient } from "../../../../redis/connect";
 import { follows } from "../../../schema/follows";
 import { users } from "../../../schema/users";
+import { userFollowingCountRedis } from "../../../../jobs/followerCount";
 
 /**Recalculate the follower count of a user. */
 export async function updateFollowerCount(userId: string) {
@@ -32,5 +33,14 @@ export async function updateFollowingCount(userId: string) {
         .returning({ followingCount: users.followingCount })
     if (!updated) return
     // Update the counter in Redis
-    await redisClient.set(userFollowerCountRedis(userId), updated.followingCount)
+    await redisClient.set(userFollowingCountRedis(userId), updated.followingCount)
+}
+
+/** Update all follower and following counts. */
+export async function updateAllFollowCounts() {
+    await db.update(users)
+        .set({
+            followerCount: db.$count(follows, eq(follows.followedId, users.id)),
+            followingCount: db.$count(follows, eq(follows.followerId, users.id))
+        })
 }

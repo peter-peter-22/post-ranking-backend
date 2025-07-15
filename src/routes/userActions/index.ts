@@ -18,6 +18,7 @@ import signUserUpload from "./users/requestUploadKeys";
 import updateUser from "./users/updateUser";
 import like from "./posts/like";
 import regularUpdates from "./regularUpdates";
+import listFollows from "./users/listFollows";
 
 const router = Router();
 
@@ -39,5 +40,6 @@ router.use("/signUserUpload", signUserUpload)
 router.use("/updateUser", updateUser)
 router.use("/like", like)
 router.use("/regularUpdates", regularUpdates)
+router.use("/listFollows", listFollows)
 
 export default router;

@@ -1,9 +1,9 @@
 import { db } from "..";
 import { promisesAllTracked } from "../../utilities/arrays/trackedPromises";
-import { chunkedInsert } from "../utils/chunkedInsert";
-import { updateFollowerCount, updateFollowingCount } from "../controllers/users/follow/count";
+import { updateAllFollowCounts } from "../controllers/users/follow/count";
 import { follows, FollowToInsert } from "../schema/follows";
-import { UserCommon } from "../schema/users";
+import { User } from "../schema/users";
+import { chunkedInsert } from "../utils/chunkedInsert";
 import { updateFollowSnapshots } from "./groups/memory caching/updateSnapshots";
 
 /** Chance to follow when the follower is interested in a topic of the followable */
@@ -18,12 +18,12 @@ const chanceToFollowIrrelevant = 0.02
  * @param posts all possibble followeds
  * @returns array of follows
  */
-async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
+async function createRandomFollows(from: User[], to: User[]) {
     console.log(`Creating follows. Max results: ${from.length * to.length}`)
     /** The total count of the inserted rows. */
     let count = 0
     /** The count of the rows the users whose follows are ready to insert. */
-    let prepared=0
+    let prepared = 0
     await promisesAllTracked(
         from.map(async (user) => {
             {
@@ -31,7 +31,7 @@ async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
                 const followsToInsert = createRandomFollowsForUser(user, to)
                 // Track the count of the prepared users
                 prepared++
-                if(prepared % 100 === 0) console.log(`Prepared ${prepared}/${from.length} users`)
+                if (prepared % 100 === 0) console.log(`Prepared ${prepared}/${from.length} users`)
                 // Track the total count
                 count += followsToInsert.length
                 // Insert the follows after creating them insted of inserting them later to avoid memory issues
@@ -55,7 +55,7 @@ async function createRandomFollows(from: UserCommon[], to: UserCommon[]) {
  * @param followables all followable users
  * @returns array of follows
  */
-function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[]): FollowToInsert[] {
+function createRandomFollowsForUser(user: User, followables: User[]): FollowToInsert[] {
     const follows: FollowToInsert[] = [];
     followables.forEach(followable => {
         /** true if the followable user has at least one topic the follower is interested about */
@@ -70,8 +70,7 @@ function createRandomFollowsForUser(user: UserCommon, followables: UserCommon[])
     return follows
 }
 
-export async function seedFollows({ from, to }: { from: UserCommon[], to: UserCommon[] }) {
+export async function seedFollows({ from, to }: { from: User[], to: User[] }) {
     await createRandomFollows(from, to)
-    await updateFollowerCount()
-    await updateFollowingCount()
+    await updateAllFollowCounts()
 }
