@@ -12,16 +12,13 @@ export function postSearchQuery({
     text?: string,
     filterUserHandle?: string,
 }) {
-    // Create search query
-    const textSearchQuery = text && text.split(" ").join(" & ")
-
     // Query
     const q = db
         .select(candidateColumns("Unknown"))
         .from(posts)
         .where(and(
             noPending(),
-            textSearchQuery ? sql`to_tsvector('english', ${posts.text}) @@  phraseto_tsquery(${textSearchQuery})` : undefined,
+            text ? sql`to_tsvector('english', ${posts.text}) @@  plainto_tsquery('english', ${text})` : undefined,
             filterUserHandle ? eq(posts.userId, filterUserHandle) : undefined,
         ))
         .limit(postsPerRequest)
