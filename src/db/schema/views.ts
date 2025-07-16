@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { index, pgTable, primaryKey, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { posts } from './posts';
 import { users } from './users';
 
@@ -7,6 +7,7 @@ import { users } from './users';
 export const views = pgTable('views', {
     postId: uuid().notNull().references(() => posts.id, { onDelete: "cascade" }),
     userId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
+    posterId: uuid().notNull().references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp().notNull().defaultNow(),
 }, (t) => [
     primaryKey({columns: [t.postId, t.userId]}),

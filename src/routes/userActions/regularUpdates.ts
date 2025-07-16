@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { Router } from "express";
 import { z } from "zod";
 import { authRequestStrict } from "../../authentication";
@@ -6,10 +7,12 @@ import { clicks } from "../../db/schema/clicks";
 import { views } from "../../db/schema/views";
 import { postClickCounterRedis } from "../../jobs/clickCount";
 import { defaultDelay } from "../../jobs/common";
+import { scheduleEngagementHistoryUpdate } from "../../jobs/engagementHistory";
 import { postReplyCounterRedis } from "../../jobs/replyCount";
-import { addUpdateJobs } from "../../jobs/updates";
+import { standardJobs } from "../../jobs/updates";
 import { postViewCounterRedis } from "../../jobs/viewCount";
 import { redisClient } from "../../redis/connect";
+import { selectTargetPosts } from "../../userActions/posts/common";
 import { postLikeCounterRedis } from "../../userActions/posts/like";
 
 const router = Router();
@@ -74,9 +77,18 @@ async function handleVisiblePosts(visiblePosts: string[]) {
 async function handleViews(userId: string, viewedPosts: string[]) {
     if (viewedPosts.length === 0) return
     // Create views in the database
+    const targetPosts = selectTargetPosts(viewedPosts)
     const createdViews = await db
         .insert(views)
-        .values(viewedPosts.map(postId => ({ userId, postId })))
+        .select(db
+            .select({
+                postId: targetPosts.id,
+                userId: sql`${userId}`.as("user_id"),
+                posterId: targetPosts.userId,
+                createdAt: sql`now()`.as("created_at"),
+            })
+            .from(targetPosts)
+        )
         .onConflictDoNothing()
         .returning()
     // Increase the counters in redis
@@ -85,7 +97,7 @@ async function handleViews(userId: string, viewedPosts: string[]) {
         tx.incr(postViewCounterRedis(view.postId))
     });
     // Create jobs to update the view counts in the database
-    const jobsPromise = addUpdateJobs(createdViews.map(view => ({
+    const jobsPromise = standardJobs.addJobs(createdViews.map(view => ({
         category: "viewCount",
         data: view.postId,
         delay: defaultDelay
@@ -97,9 +109,18 @@ async function handleViews(userId: string, viewedPosts: string[]) {
 async function handleClicks(userId: string, clickedPosts: string[]) {
     if (clickedPosts.length === 0) return
     // Create clicks in the database
+    const targetPosts = selectTargetPosts(clickedPosts)
     const createdClicks = await db
         .insert(clicks)
-        .values(clickedPosts.map(postId => ({ userId, postId })))
+        .select(db
+            .select({
+                postId: targetPosts.id,
+                userId: sql`${userId}`.as("user_id"),
+                posterId: targetPosts.userId,
+                createdAt: sql`now()`.as("created_at"),
+            })
+            .from(targetPosts)
+        )
         .onConflictDoNothing()
         .returning()
     // Increase the counters in redis
@@ -108,13 +129,15 @@ async function handleClicks(userId: string, clickedPosts: string[]) {
         tx.incr(postClickCounterRedis(click.postId))
     });
     // Create jobs to update the click counts in the database
-    const jobsPromise = addUpdateJobs(createdClicks.map(click => ({
+    const jobsPromise = standardJobs.addJobs(createdClicks.map(click => ({
         category: "clickCount",
         data: click.postId,
         delay: defaultDelay
     })))
+    // Update engagement history
+    const engagementHistoryJobPromise = scheduleEngagementHistoryUpdate(userId)
     // Execute the promises
-    await Promise.all([jobsPromise, tx.exec()])
+    await Promise.all([jobsPromise, tx.exec(), engagementHistoryJobPromise])
 }
 
 export default router

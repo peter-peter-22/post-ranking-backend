@@ -21,7 +21,7 @@ export async function createReplies(data: PostToInsert[]) {
 }
 
 /** Insert posts to the database. */
-async function insertPosts(postsToInsert: PostToInsert[]) {
+export async function insertPosts(postsToInsert: PostToInsert[]) {
     // Insert to db and return
     console.log(`Inserting posts`)
     const inserted: Post[] = []

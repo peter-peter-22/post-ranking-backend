@@ -70,7 +70,9 @@ export const posts = pgTable('posts', {
     //indicate if this is a reply
     isReply: boolean().notNull().generatedAlwaysAs((): SQL => isNotNull(posts.replyingTo)),
     //true if deleted
-    deleted: boolean().notNull().default(false)
+    deleted: boolean().notNull().default(false),
+    //the id of the poster
+    repliedUser: uuid().references(() => users.id, { onDelete: "cascade" }),
 }, (table) => [
     foreignKey({
         columns: [table.replyingTo],

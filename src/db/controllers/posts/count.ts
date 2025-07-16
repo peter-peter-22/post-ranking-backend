@@ -13,9 +13,9 @@ export async function updateReplyCount(postId: string) {
             replyCount: db.$count(posts, eq(postsToUpdate.id, posts.replyingTo))
         })
         .where(
-            eq(posts.id, postId)
+            eq(postsToUpdate.id, postId)
         )
-        .returning({ replyCount: posts.replyCount })
+        .returning({ replyCount: postsToUpdate.replyCount })
     if (!updated) return
     // Update the counter in Redis
     await redisClient.set(postReplyCounterRedis(postId), updated.replyCount)

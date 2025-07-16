@@ -1,5 +1,5 @@
 import { redisClient } from "../redis/connect";
-import { addUpdateJob } from "./updates";
+import { standardJobs } from "./updates";
 
 export function postViewCounterRedis(postId: string) {
     return `viewCount/${postId}`
@@ -8,6 +8,6 @@ export function postViewCounterRedis(postId: string) {
 export async function incrementViewCounter(postId: string, add: number) {
     await Promise.all([
         redisClient.incrBy(postViewCounterRedis(postId), add),
-        addUpdateJob("viewCount", postId)
+        standardJobs.addJob("viewCount", postId)
     ])
 }

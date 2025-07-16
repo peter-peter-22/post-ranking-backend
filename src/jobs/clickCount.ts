@@ -1,13 +1,15 @@
 import { redisClient } from "../redis/connect";
-import { addUpdateJob } from "./updates";
+import { scheduleEngagementHistoryUpdate } from "./engagementHistory";
+import { standardJobs } from "./updates";
 
 export function postClickCounterRedis(postId: string) {
     return `clickCount/${postId}`
 }
 
-export async function incrementClickCounter(postId: string, add: number) {
+export async function incrementClickCounter(postId: string, userId: string, add: number) {
     await Promise.all([
         redisClient.incrBy(postClickCounterRedis(postId), add),
-        addUpdateJob("clickCount", postId)
+        standardJobs.addJob("clickCount", postId),
+        scheduleEngagementHistoryUpdate(userId)
     ])
 }

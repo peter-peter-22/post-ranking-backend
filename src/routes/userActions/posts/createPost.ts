@@ -1,16 +1,18 @@
+import { eq } from 'drizzle-orm';
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
-import { MediaFileSchema } from '../../../db/common';
-import { createPendingPost } from '../../../userActions/posts/createPendingPost';
-import { createPosts, createReplies, finalizePost } from '../../../userActions/posts/createPost';
 import { authRequestStrict } from '../../../authentication';
-import { personalizePosts } from '../../../posts/hydratePosts';
-import { getOnePost } from '../../getPost';
 import { db } from '../../../db';
+import { MediaFileSchema } from '../../../db/common';
 import { posts } from '../../../db/schema/posts';
-import { eq } from 'drizzle-orm';
-import { HttpError } from '../../../middlewares/errorHandler';
+import { scheduleEngagementHistoryUpdate } from '../../../jobs/engagementHistory';
 import { incrementReplyCounter } from '../../../jobs/replyCount';
+import { HttpError } from '../../../middlewares/errorHandler';
+import { personalizePosts } from '../../../posts/hydratePosts';
+import { createPendingPost } from '../../../userActions/posts/createPendingPost';
+import { finalizePost, insertPosts } from '../../../userActions/posts/createPost';
+import { prepareAnyPost } from '../../../userActions/posts/preparePost';
+import { getOnePost } from '../../getPost';
 
 const router = Router();
 
@@ -32,12 +34,8 @@ router.post('/post', async (req: Request, res: Response) => {
     // Get the values of the post
     const post = createPostSchema.parse(req.body);
     // Create the posts
-    const [created] = post.replyingTo ?
-        await createReplies([{ ...post, userId: user.id }])
-        :
-        await createPosts([{ ...post, userId: user.id }])
-    // Update reply count of replied post if exists
-    if (created.replyingTo) await incrementReplyCounter(created.replyingTo, 1)
+    const [created] = await insertPosts([await prepareAnyPost({ ...post, userId: user.id })])
+    await handleUpdates(created)
     // Format the post to the standard format
     const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return created posts
@@ -62,8 +60,7 @@ router.post('/finalizePost', async (req: Request, res: Response) => {
     if (previousPost.pending !== true) throw new HttpError(400, "This post is not pending")
     // Update the posts
     const [created] = await finalizePost({ ...post, userId: user.id })
-    // Update reply count of replied post if exists
-    if (created.replyingTo) await incrementReplyCounter(created.replyingTo, 1)
+    await handleUpdates(created)
     // Format the post to the standard format
     const [personalPost] = await personalizePosts(getOnePost(created.id), user)
     // Return updated posts
@@ -81,4 +78,9 @@ router.post('/pendingPost', async (req: Request, res: Response) => {
     console.log("Pending post created")
 });
 
+async function handleUpdates(post: { replyingTo: string | null, userId: string }) {
+    if (post.replyingTo) {
+        incrementReplyCounter(post.replyingTo, post.userId, 1)
+    }
+}
 export default router;

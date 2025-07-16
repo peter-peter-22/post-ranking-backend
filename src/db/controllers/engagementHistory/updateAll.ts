@@ -2,8 +2,8 @@ import { gte } from "drizzle-orm";
 import { db } from "../..";
 import { views } from "../../schema/views";
 import { persistentDate } from "../persistentDates";
-import { updateEngagementHistory } from "./updateOne";
 import { promisesAllTracked } from "../../../utilities/arrays/trackedPromises";
+import { updateUserEngagementHistory } from "./update";
 
 /** The last time the engagement history of the users were updates. */
 const lastUpdate=persistentDate("engagementHistoryLastUpdate")
@@ -22,7 +22,7 @@ export async function updateAllEngagementHistory() {// TODO make it faster
     // Update the engagement history of the selected users.
     await promisesAllTracked(
         usersToUpdate.map(
-            user => updateEngagementHistory(user.id)
+            user => updateUserEngagementHistory(user.id)
         )
     )
     // Update the last update date.

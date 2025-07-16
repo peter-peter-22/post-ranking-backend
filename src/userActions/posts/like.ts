@@ -1,22 +1,32 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { likes } from "../../db/schema/likes";
 import { incrementLikeCounter } from "../../jobs/likeCount";
 import { redisClient } from "../../redis/connect";
+import { selectTargetPost } from "./common";
 
 export async function likePost(postId: string, userId: string, value: boolean) {
     // Handle changes in the DB
     if (value) await createLike(postId, userId);
     else await deleteLike(postId, userId);
     // Update counter
-    await incrementLikeCounter(postId, value ? 1 : -1);
+    await incrementLikeCounter(postId, userId, value ? 1 : -1);
 }
 
 async function createLike(postId: string, userId: string) {
+    const targetPost = selectTargetPost(postId)
     // Insert like into the DB
     await db
         .insert(likes)
-        .values({ userId, postId })
+        .select(db
+            .select({
+                postId: sql`${postId}`.as("postId"),
+                userId: sql`${userId}`.as("user_id"),
+                posterId: targetPost.userId,
+                createdAt: sql`now()`.as("created_at"),
+            })
+            .from(selectTargetPost(postId))
+        )
         .onConflictDoNothing()
 }
 
