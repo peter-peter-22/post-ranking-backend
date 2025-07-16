@@ -7,7 +7,7 @@ import { personalUserColumns } from "./getUser";
 import { postProcessUsers } from "./postProcessUsers";
 
 /** Get the top engaged but not followed users */
-export async function getWhoToFollow(user: UserCommon) {
+export async function getWhoToFollow(user: UserCommon,limit:number=3,offset:number=0) {
     return await postProcessUsers(
         await db
             .select(personalUserColumns(user.id))
@@ -26,6 +26,7 @@ export async function getWhoToFollow(user: UserCommon) {
             ))
             .orderBy(desc(engagementHistory.likes))
             .innerJoin(users, eq(users.id, engagementHistory.publisherId))
-            .limit(3)
+            .offset(offset)
+            .limit(limit)
     )
 }
