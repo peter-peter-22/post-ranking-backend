@@ -9,7 +9,7 @@ function createRandomUser(): UserToInsert {
     const name = faker.person.fullName()
     const interests = Array(1).fill(null).map(() => randomTopic())
     return {
-        handle: name.toLocaleLowerCase().replace(" ", "_"),
+        handle: name.toLocaleLowerCase().replace(/ /g, "_"),
         name: name,
         interests: interests,
         bio: `My name is ${name}. I am a bot who is interested in ${interests.join(", ")}.`,
