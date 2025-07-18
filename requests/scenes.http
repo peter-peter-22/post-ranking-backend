@@ -1,11 +1,9 @@
 ### new
 GET http://localhost:3000/bots/userType/new
 
-### follows one
-GET http://localhost:3000/bots/userType/followsOne
-
-### interacts with the posts of a topic
-GET http://localhost:3000/bots/userType/interactTopic
-
 ### create a post with different kinds of comments
 GET http://localhost:3000/bots/userType/commentRanking
+
+### notification test
+GET http://localhost:3000/bots/userType/notificationTest
+Authorization: userhandle main_user

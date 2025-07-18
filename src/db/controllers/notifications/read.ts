@@ -1,22 +1,40 @@
-import { and, count, desc, eq, getTableColumns, gt, gte, not, SQL, sql } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, gte, sql } from "drizzle-orm";
 import { db } from "../..";
 import { redisClient } from "../../../redis/connect";
-import { notifications } from "../../schema/notifications";
-import { notificationsRedisKey } from "./common";
-import { likes } from "../../schema/likes";
-import { posts } from "../../schema/posts";
-import { jsonb, PgColumn } from 'drizzle-orm/pg-core';
-import { users } from "../../schema/users";
 import { follows } from "../../schema/follows";
+import { likes } from "../../schema/likes";
+import { notifications } from "../../schema/notifications";
+import { posts } from "../../schema/posts";
+import { users } from "../../schema/users";
+import { notificationsRedisKey, redisSetPlaceholder } from "./common";
 
 const notificationsPerPage = 50
 const userPreviewsPerNotification = 10
 
 export async function notificationList(userId: string, offset: number, lastChecked: Date) {
-    // If this is the first page, clear redis
-    if (offset === 0)
-        await redisClient.del(notificationsRedisKey(userId));
+    // If this is the first page, calcualte the secondary data of the notifications and clear redis
+    if (offset === 0) {
+        const key = notificationsRedisKey(userId)
+        await Promise.all([
+            ensureData(userId),
+            redisClient.multi()
+                .del(key)
+                .sAdd(key, redisSetPlaceholder)
+                .exec()
+        ])
+    }
 
+    // Return the paginated notifications
+    return await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(notifications.createdAt)
+        .offset(offset)
+        .limit(notificationsPerPage)
+}
+
+async function ensureData(userId: string) {
     /** Get the columns of post previews. */
     const postJson = sql`
     json_build_object(
@@ -48,7 +66,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
             .from(likes)
             .where(and(
                 eq(likes.postId, sql`(${notifications.data}->>'postId')::uuid`),
-                gte(likes.createdAt, lastChecked)
+                gte(likes.createdAt, notifications.createdAt)
             ))
             .innerJoin(users, eq(users.id, likes.userId))
             .orderBy(desc(likes.createdAt))
@@ -64,7 +82,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
         ${db
             .select({ count: count() })
             .from(likes)
-            .where(gte(likes.createdAt, lastChecked))
+            .where(gte(likes.createdAt, notifications.createdAt))
         }
     )`
 
@@ -79,7 +97,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
             .from(posts)
             .where(and(
                 eq(posts.replyingTo, sql`(${notifications.data}->>'postId')::uuid`),
-                gte(posts.createdAt, lastChecked)
+                gte(posts.createdAt, notifications.createdAt)
             ))
             .innerJoin(users, eq(users.id, posts.userId))
             .orderBy(desc(posts.createdAt))
@@ -110,7 +128,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
             .from(follows)
             .where(and(
                 eq(follows.followedId, userId),
-                gte(follows.createdAt, lastChecked)
+                gte(follows.createdAt, notifications.createdAt)
             ))
             .innerJoin(users, eq(users.id, follows.followerId))
             .orderBy(desc(follows.createdAt))
@@ -122,7 +140,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
             .from(follows)
             .where(and(
                 eq(follows.followedId, userId),
-                gte(follows.createdAt, lastChecked)
+                gte(follows.createdAt, notifications.createdAt)
             ))
         }
     )`
@@ -144,11 +162,11 @@ export async function notificationList(userId: string, offset: number, lastCheck
     )`
 
     /** Select the notifications and generate their extra data when they are viewed for the first time. */
-    const q = db
-        .select({
-            ...getTableColumns(notifications),
-            read: not(gt(notifications.createdAt, lastChecked)),
-            extraData: sql`
+    await db
+        .update(notifications)
+        .set({
+            readAt: new Date(),
+            secondaryData: sql`
             case 
                 when ${eq(notifications.type, "like")}
                 then ${likeExtraData}
@@ -160,15 +178,8 @@ export async function notificationList(userId: string, offset: number, lastCheck
                 then ${mentionExtraData}
             else null end`
         })
-        .from(notifications)
-        .where(eq(notifications.userId, userId))
-        .orderBy(
-            desc(notifications.createdAt)
-        )
-        .offset(offset)
-        .limit(notificationsPerPage)
-
-    console.log(q.toSQL())
-
-    return await q
+        .where(and(
+            eq(notifications.userId, userId),
+            eq(notifications.read, false)
+        ))
 }

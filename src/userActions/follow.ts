@@ -11,18 +11,18 @@ import { createFollowNotification } from "../db/controllers/notifications/create
  * @param followedId The followed user
  */
 export async function follow(followerId: string, followedId: string) {
-    const updated = await db.insert(follows)
+    const [updated] = await db.insert(follows)
         .values({
             followedId,
             followerId
         })
         .onConflictDoNothing()
         .returning()
-    if (updated.length !== 0)
+    if (updated)
         await Promise.all([
             incrementFollowerCounter(followedId, 1),
             incrementFollowingCounter(followerId, 1),
-            createFollowNotification(followedId)
+            createFollowNotification(followedId, updated.createdAt)
         ])
 }
 

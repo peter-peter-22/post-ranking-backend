@@ -239,6 +239,20 @@
       "when": 1752804990541,
       "tag": "0033_post_hashtags",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1752820743842,
+      "tag": "0034_notification_read",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1752823105853,
+      "tag": "0035_notification_secondary_data",
+      "breakpoints": true
     }
   ]
 }

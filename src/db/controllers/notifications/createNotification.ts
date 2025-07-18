@@ -5,7 +5,7 @@ import { notifications } from "../../schema/notifications";
 import { notificationsRedisKey } from "./common";
 import { users } from "../../schema/users";
 
-export async function createLikeNotification(recipientId: string, postId: string) {
+export async function createLikeNotification(recipientId: string, postId: string, date:Date) {
     // Upsert the notification key to redis
     const key = `likes/${postId}`
     const isNew = await checkAndSetNotificationKey(recipientId, key)
@@ -18,13 +18,14 @@ export async function createLikeNotification(recipientId: string, postId: string
             userId: recipientId,
             type: "like",
             data: { postId: postId },
+            createdAt:date,
             key
         })
         // Handle duplicate inserts in case of redis expiration
         .onConflictDoNothing()
 }
 
-export async function createReplyNotification(recipientId: string, postId: string) {
+export async function createReplyNotification(recipientId: string, postId: string, date:Date) {
     // Upsert the notification key to redis
     const key = `reply/${postId}`
     const isNew = await checkAndSetNotificationKey(recipientId, key)
@@ -37,13 +38,14 @@ export async function createReplyNotification(recipientId: string, postId: strin
             userId: recipientId,
             type: "reply",
             data: { postId: postId },
+            createdAt:date,
             key
         })
         // Handle duplicate inserts in case of redis expiration
         .onConflictDoNothing()
 }
 
-export async function createFollowNotification(recipientId: string) {
+export async function createFollowNotification(recipientId: string, date:Date) {
     // Upsert the notification key to redis
     const key = `follow`
     const isNew = await checkAndSetNotificationKey(recipientId, key)
@@ -55,24 +57,25 @@ export async function createFollowNotification(recipientId: string) {
         .values({
             userId: recipientId,
             type: "follow",
+            createdAt:date,
             key
         })
         // Handle duplicate inserts in case of redis expiration
         .onConflictDoNothing()
 }
 
-export async function createMentionNotifications(mentionedHandles: string[]|null, postId: string) {
+export async function createMentionNotifications(mentionedHandles: string[]|null, postId: string,date:Date) {
     if (!mentionedHandles || mentionedHandles.length === 0) return
     // Select the affected users
     const mentionedUsers = await db.select({ id: users.id }).from(users).where(inArray(users.handle, mentionedHandles))
     if (mentionedUsers.length === 0) return
     // Process the notification for each mentioned user
     await Promise.all(
-        mentionedUsers.map(user => mentionSingleUser(user.id, postId))
+        mentionedUsers.map(user => mentionSingleUser(user.id, postId,date))
     )
 }
 
-async function mentionSingleUser(recipientId: string, postId: string) {
+async function mentionSingleUser(recipientId: string, postId: string,date:Date) {
     // Upsert the notification key to redis
     const key = `mention/${postId}`
     const isNew = await checkAndSetNotificationKey(recipientId, key)
@@ -85,6 +88,7 @@ async function mentionSingleUser(recipientId: string, postId: string) {
             userId: recipientId,
             type: "mention",
             data: { postId: postId },
+            createdAt:date,
             key
         })
         // Handle duplicate inserts in case of redis expiration

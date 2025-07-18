@@ -11,7 +11,7 @@ export async function likePost(postId: string, userId: string, value: boolean) {
     if (value) {
         const [created] = await createLike(postId, userId);
         if (created)
-            await createLikeNotification(created.posterId, created.postId)
+            await createLikeNotification(created.posterId, created.postId,created.createdAt)
     }
     else await deleteLike(postId, userId);
     // Update counter
