@@ -111,3 +111,8 @@ content-type: application/json
     "clickedPosts":["8d70970b-70d8-475a-8f2c-4f5a57d01ff6"],
     "visiblePosts":["8d70970b-70d8-475a-8f2c-4f5a57d01ff6"]
 }
+
+### notifications
+POST http://localhost:3000/userActions/notifications HTTP/1.1
+Authorization: userhandle main_user
+content-type: application/json

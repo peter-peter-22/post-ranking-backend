@@ -19,6 +19,7 @@ import updateUser from "./users/updateUser";
 import like from "./posts/like";
 import regularUpdates from "./regularUpdates";
 import listFollows from "./users/listFollows";
+import notifications from "./notifications/notificationList";
 
 const router = Router();
 
@@ -41,5 +42,6 @@ router.use("/updateUser", updateUser)
 router.use("/like", like)
 router.use("/regularUpdates", regularUpdates)
 router.use("/listFollows", listFollows)
+router.use("/notifications", notifications)
 
 export default router;

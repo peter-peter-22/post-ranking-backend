@@ -4,10 +4,15 @@ import { likes } from "../../db/schema/likes";
 import { incrementLikeCounter } from "../../jobs/likeCount";
 import { redisClient } from "../../redis/connect";
 import { selectTargetPost } from "./common";
+import { createLikeNotification } from "../../db/controllers/notifications/createNotification";
 
 export async function likePost(postId: string, userId: string, value: boolean) {
     // Handle changes in the DB
-    if (value) await createLike(postId, userId);
+    if (value) {
+        const [created] = await createLike(postId, userId);
+        if (created)
+            await createLikeNotification(created.posterId, created.postId)
+    }
     else await deleteLike(postId, userId);
     // Update counter
     await incrementLikeCounter(postId, userId, value ? 1 : -1);
@@ -16,7 +21,7 @@ export async function likePost(postId: string, userId: string, value: boolean) {
 async function createLike(postId: string, userId: string) {
     const targetPost = selectTargetPost(postId)
     // Insert like into the DB
-    await db
+    return await db
         .insert(likes)
         .select(db
             .select({
@@ -28,6 +33,7 @@ async function createLike(postId: string, userId: string) {
             .from(selectTargetPost(postId))
         )
         .onConflictDoNothing()
+        .returning()
 }
 
 async function deleteLike(postId: string, userId: string) {

@@ -48,8 +48,12 @@ export const posts = pgTable('posts', {
     embedding: embeddingVector("embedding"),
     //normalized embedding vector. calculated outside the DB.
     embeddingNormalized: embeddingVector("embedding_normalized"),
-    //all kinds of keywords for the post. used for trend tracking. 
+    //hashtags in the post text
+    hashtags: keyword().notNull().array(),
+    //embedding keywords combined with hashtags. used for trend tracking. 
     keywords: keyword().notNull().array(),
+    //mentioned user handles (listed even if not valid)
+    mentions: varchar({ length: 50 }).notNull().array(),
     //is the post published or not. pending posts need an id to define where their media is uploaded.
     pending: boolean().notNull().default(false),
     //the files those belong to this post.

@@ -19,4 +19,5 @@ export async function updateLikeCount(postId: string) {
     if (!updated) return
     // Update the counter in Redis
     await redisClient.set(postLikeCounterRedis(postId), updated.likeCount)
+    // TODO: the update of the engagement history and the notifications could be moved here to reduce calls to redis at the cost of 1 minute delay
 }

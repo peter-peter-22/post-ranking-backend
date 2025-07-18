@@ -10,30 +10,38 @@ import { normalizeVector } from "../../utilities/arrays/normalize";
 export async function preparePosts(data: PostToInsert[]) {
     console.log(`Preparing ${data.length} posts...`)
 
-    // Format embedding texts and get hashtags
-    const textsHashtags = data.map(getEmbeddingTextAndHashtasgs)
-    const embeddingTexts = textsHashtags.map((text) => text.embeddingText)
-    const hashtags = textsHashtags.map((text) => text.hashtags)
+    // Set text related data
+    processPostText(data)
 
     // Generate embedding vectors for texts
-    const { embeddings, keywords } = await generateEmbeddingVectors(embeddingTexts)
+    const { embeddings, keywords } = await generateEmbeddingVectors(data.map(post => post.embeddingText || ""))
 
     // Create rows to insert from the results
     const postsToInsert: PostToInsert[] = data.map(
         (post, i) => ({
             ...post,
-            embedding: embeddingTexts[i] ? embeddings[i] : null, // Add the embedding vector only if there is an embedding text
-            embeddingNormalized: embeddingTexts[i] ? normalizeVector(embeddings[i]) : null,
-            keywords: [...new Set([...keywords[i], ...hashtags[i]])], // Add the hashtags and the keywords
-            embeddingText: embeddingTexts[i] // The embedding text is added only for debugging purposes
+            embedding: post.embeddingText ? embeddings[i] : null, // Add the embedding vector only if there is an embedding text
+            embeddingNormalized: post.embeddingText ? normalizeVector(embeddings[i]) : null,
+            keywords: [...new Set([...keywords[i], ...post.hashtags || []])], // Add the hashtags and the keywords
         })
     )
     return postsToInsert
 }
 
+function processPostText(data: PostToInsert[]) {
+    data.forEach(post => {
+        if (!post.text) return
+        const textHashtags = getEmbeddingTextAndHashtasgs(post)
+        post.hashtags = textHashtags.hashtags
+        post.embeddingText = textHashtags.embeddingText
+        post.mentions = getMentions(textHashtags.embeddingText)
+    })
+}
+
 /** Calculate the metadata of replies before insert. */
 export async function prepareReplies(data: PostToInsert[]) {
     console.log(`Preparing ${data.length} replies...`)
+    processPostText(data)
     await addRepliedUser(data)
     return data
 }
@@ -62,7 +70,8 @@ export async function prepareAnyPost(data: PostToInsert) {
 }
 
 export const hashtagRegex = /#[^#\s]+/gm
-const urlRegex = /(https|http):\/\/\S+/gm
+export const mentionRegex = /@[^@\s]+/gm
+export const urlRegex = /(https|http):\/\/\S+/gm
 
 /** Remove hashtags from the text, add them to the hashtag list */
 function getEmbeddingTextAndHashtasgs(post: PostToInsert) {
@@ -89,4 +98,9 @@ function getEmbeddingTextAndHashtasgs(post: PostToInsert) {
     // Trim text
     embeddingText = embeddingText.trim()
     return { embeddingText, hashtags }
+}
+
+/** Get user mentions from the embedding text of a post. */
+function getMentions(embeddingText: string) {
+    return Array.from(embeddingText.matchAll(mentionRegex)).map(match => match[0].toLowerCase().slice(1))
 }

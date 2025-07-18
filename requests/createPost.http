@@ -55,7 +55,7 @@ content-type: application/json
 Authorization: userhandle main_user
 
 {
-    "text":"Hello #1234 #hello"
+    "text":"Hello #1234 #hello @user1 @user2"
 }
 
 ### Update a post

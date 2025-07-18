@@ -3,6 +3,7 @@ import { db } from "../db";
 import { follows } from "../db/schema/follows";
 import { incrementFollowingCounter } from "../jobs/followingCount";
 import { incrementFollowerCounter } from "../jobs/followerCount";
+import { createFollowNotification } from "../db/controllers/notifications/createNotification";
 
 /**
  * Make a user follow another
@@ -20,7 +21,8 @@ export async function follow(followerId: string, followedId: string) {
     if (updated.length !== 0)
         await Promise.all([
             incrementFollowerCounter(followedId, 1),
-            incrementFollowingCounter(followerId, 1)
+            incrementFollowingCounter(followerId, 1),
+            createFollowNotification(followedId)
         ])
 }
 

@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { authRequestStrict } from '../../../authentication';
 import { db } from '../../../db';
 import { MediaFileSchema } from '../../../db/common';
-import { posts } from '../../../db/schema/posts';
-import { scheduleEngagementHistoryUpdate } from '../../../jobs/engagementHistory';
+import { Post, posts } from '../../../db/schema/posts';
 import { incrementReplyCounter } from '../../../jobs/replyCount';
 import { HttpError } from '../../../middlewares/errorHandler';
 import { personalizePosts } from '../../../posts/hydratePosts';
@@ -13,6 +12,7 @@ import { createPendingPost } from '../../../userActions/posts/createPendingPost'
 import { finalizePost, insertPosts } from '../../../userActions/posts/createPost';
 import { prepareAnyPost } from '../../../userActions/posts/preparePost';
 import { getOnePost } from '../../getPost';
+import { createMentionNotifications, createReplyNotification } from '../../../db/controllers/notifications/createNotification';
 
 const router = Router();
 
@@ -78,9 +78,13 @@ router.post('/pendingPost', async (req: Request, res: Response) => {
     console.log("Pending post created")
 });
 
-async function handleUpdates(post: { replyingTo: string | null, userId: string }) {
-    if (post.replyingTo) {
-        incrementReplyCounter(post.replyingTo, post.userId, 1)
+async function handleUpdates(post: Post) {
+    if (post.replyingTo && post.repliedUser) {
+        await Promise.all([
+            incrementReplyCounter(post.replyingTo, post.userId, 1),
+            createReplyNotification(post.repliedUser, post.replyingTo),
+            createMentionNotifications(post.mentions, post.id),
+        ])
     }
 }
 export default router;

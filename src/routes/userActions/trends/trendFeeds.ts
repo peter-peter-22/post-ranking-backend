@@ -11,9 +11,9 @@ const router = Router();
 router.post('/global', async (req: Request, res: Response) => {
     // Get params
     const { offset } = BasicFeedSchema.parse(req.body)
-    // Get users
+    // Get the user
     const viewer = await authRequestStrict(req)
-    // Get users
+    // Get the trends
     const trends = await getPaginatedData<TrendPostScorePageParams, TrendForClient[]>({
         getMore: async (pageParams) => await globalTrendFeed({ pageParams, offset }),
         feedName: `trends/global`,
@@ -27,9 +27,9 @@ router.post('/global', async (req: Request, res: Response) => {
 router.post('/personal', async (req: Request, res: Response) => {
     // Get params
     const { offset } = BasicFeedSchema.parse(req.body)
-    // Get users
+    // Get the user
     const viewer = await authRequestStrict(req)
-    // Get users
+    // Get the trends
     const trends = await getPaginatedData<TrendPostCountPageParams, TrendForClient[]>({
         getMore: async (pageParams) => await personalTrendFeed({ pageParams, offset, user: viewer }),
         feedName: `trends/personal`,

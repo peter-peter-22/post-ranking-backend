@@ -7,6 +7,6 @@ export async function incrementLikeCounter(postId: string,userId:string, add: nu
     await Promise.all([
         redisClient.incrBy(postLikeCounterRedis(postId), add),
         standardJobs.addJob("likeCount", postId),
-        scheduleEngagementHistoryUpdate(userId)
+        scheduleEngagementHistoryUpdate(userId),
     ])
 }

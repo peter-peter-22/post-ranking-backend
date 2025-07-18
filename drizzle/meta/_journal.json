@@ -218,6 +218,27 @@
       "when": 1752626001762,
       "tag": "0030_post_replied_user",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1752735340899,
+      "tag": "0031_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1752800883713,
+      "tag": "0032_add_post_mentions",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1752804990541,
+      "tag": "0033_post_hashtags",
+      "breakpoints": true
     }
   ]
 }

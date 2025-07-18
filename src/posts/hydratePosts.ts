@@ -76,6 +76,8 @@ export function personalizePosts(source:CandidateSubquery, user: User | undefine
             deleted:postsToHydrate.deleted,
             //debug
             keywords: postsToHydrate.keywords,
+            mentions:postsToHydrate.mentions,
+            hashtags:postsToHydrate.hashtags,
             embeddingText: postsToHydrate.embeddingText,
             source:postsToHydrate.source
         })
