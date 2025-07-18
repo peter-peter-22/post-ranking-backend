@@ -1,4 +1,4 @@
-import { and, count, desc, eq, getTableColumns, gte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../..";
 import { redisClient } from "../../../redis/connect";
 import { follows } from "../../schema/follows";
@@ -6,12 +6,9 @@ import { likes } from "../../schema/likes";
 import { notifications } from "../../schema/notifications";
 import { posts } from "../../schema/posts";
 import { users } from "../../schema/users";
-import { notificationsRedisKey, redisSetPlaceholder } from "./common";
+import { notificationRedisTTL, notificationsPerPage, notificationsRedisKey, redisSetPlaceholder, userPreviewsPerNotification } from "./common";
 
-const notificationsPerPage = 50
-const userPreviewsPerNotification = 10
-
-export async function notificationList(userId: string, offset: number, lastChecked: Date) {
+export async function notificationList(userId: string, offset: number) {
     // If this is the first page, calcualte the secondary data of the notifications and clear redis
     if (offset === 0) {
         const key = notificationsRedisKey(userId)
@@ -20,6 +17,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
             redisClient.multi()
                 .del(key)
                 .sAdd(key, redisSetPlaceholder)
+                .expire(key,notificationRedisTTL)
                 .exec()
         ])
     }
@@ -29,7 +27,7 @@ export async function notificationList(userId: string, offset: number, lastCheck
         .select()
         .from(notifications)
         .where(eq(notifications.userId, userId))
-        .orderBy(notifications.createdAt)
+        .orderBy(desc(notifications.createdAt), desc(notifications.read))
         .offset(offset)
         .limit(notificationsPerPage)
 }
