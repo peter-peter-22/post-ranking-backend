@@ -6,7 +6,3 @@ export async function scheduleEngagementHistoryUpdate(userId: string) {
         standardJobs.addJob("userEngagementHistory", userId, longDelay)
     ])
 }
-
-export function updateEngagementHistoryJob(){
-    
-}

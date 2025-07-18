@@ -1,4 +1,4 @@
-import { redisClient } from "../redis/connect";
+import { incrementRedisCounter } from "./common";
 import { standardJobs } from "./updates";
 
 export function userFollowingCountRedis(userId: string) {
@@ -7,7 +7,7 @@ export function userFollowingCountRedis(userId: string) {
 
 export async function incrementFollowingCounter(userId: string, add: number) {
     await Promise.all([
-        redisClient.incrBy(userFollowingCountRedis(userId), add),
+        incrementRedisCounter(userFollowingCountRedis(userId), add),
         standardJobs.addJob("followingCount", userId)
     ])
 }
