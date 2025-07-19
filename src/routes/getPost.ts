@@ -22,6 +22,11 @@ router.get('/:id', async (req: Request, res: Response) => {
     try {
         const [post] = await postProcessPosts(await (personalizePosts(getOnePost(id), user)))
         if (!post) throw new HttpError(404, 'Post not found')
+        if (post.replyingTo) {
+            const [replied] = await postProcessPosts(await (personalizePosts(getOnePost(post.replyingTo), user)))
+            res.json({ post,replied })
+            return
+        }
         res.json({ post })
     }
     catch (e) {
