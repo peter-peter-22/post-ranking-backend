@@ -22,9 +22,12 @@ export async function searchLatestPosts({
     if (offset !== 0 && !pageParams) return
 
     // Query
-    let q = postSearchQuery({ text, filterUserHandle })
+    const q = postSearchQuery({
+        text,
+        filterUserHandle,
+        filter: pageParams && lt(posts.createdAt, new Date(pageParams.maxDate))
+    })
         .orderBy(desc(posts.createdAt))
-    if (pageParams) q = q.where(lt(posts.createdAt, new Date(pageParams.maxDate)))
 
     // Fetch
     const myPosts = await personalizePosts(q, user)
@@ -58,9 +61,12 @@ export async function searchTopPosts({
     if (offset !== 0 && !pageParams) return
 
     // Query
-    let q = postSearchQuery({ text, filterUserHandle })
+    const q = postSearchQuery({
+        text,
+        filterUserHandle,
+        filter: pageParams && lt(posts.createdAt, new Date(pageParams.maxEngagements))
+    })
         .orderBy(desc(posts.engagementCount))
-    if (pageParams) q = q.where(lt(posts.engagementCount, pageParams.maxEngagements))
 
     // Fetch
     const myPosts = await personalizePosts(q, user)
