@@ -37,7 +37,8 @@ async function ensureData(userId: string) {
     const postJson = sql`
     json_build_object(
         'text',${posts.text},
-        'media',${posts.media}
+        'media',${posts.media},
+        'id',${posts.id}
     )`
 
     /** Get the columns of user previews. */
@@ -146,7 +147,7 @@ async function ensureData(userId: string) {
     /** On-demand data for mention notifications. */
     const mentionExtraData = sql`
     json_build_object(
-        'post', 
+        'mention', 
         ${db
             .select({
                 postWithUser: postWithUserJson

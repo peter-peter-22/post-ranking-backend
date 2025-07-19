@@ -3,6 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { authRequestStrict } from "../../authentication";
 import { db } from "../../db";
+import { getNotificationCount } from "../../db/controllers/notifications/getCount";
 import { clicks } from "../../db/schema/clicks";
 import { views } from "../../db/schema/views";
 import { postClickCounterRedis } from "../../jobs/clickCount";
@@ -26,14 +27,15 @@ const RegularUpdateSchema = z.object({
 router.post('/', async (req, res) => {
     const user = await authRequestStrict(req)
     const { viewedPosts, clickedPosts, visiblePosts } = RegularUpdateSchema.parse(req.body);
-    const [engagementCounts] = await Promise.all([
+    const [engagementCounts,notificationCount] = await Promise.all([
         handleVisiblePosts(visiblePosts),
+        getNotificationCount(user.id),
         handleViews(user.id, viewedPosts),
         handleClicks(user.id, clickedPosts)
     ])
     res.json({
         engagementCounts,
-        notificationCount: 0
+        notificationCount 
     })
 })
 
