@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, or, sql } from "drizzle-orm";
 import { db } from "../..";
 import { redisClient } from "../../../redis/connect";
 import { follows } from "../../schema/follows";
@@ -8,7 +8,7 @@ import { posts } from "../../schema/posts";
 import { users } from "../../schema/users";
 import { notificationRedisTTL, notificationsPerPage, notificationsRedisKey, redisSetPlaceholder, userPreviewsPerNotification } from "./common";
 
-export async function notificationList(userId: string, offset: number) {
+export async function prepareNotifications(userId: string, offset: number) {
     // If this is the first page, calcualte the secondary data of the notifications and clear redis
     if (offset === 0) {
         const key = notificationsRedisKey(userId)
@@ -17,16 +17,35 @@ export async function notificationList(userId: string, offset: number) {
             redisClient.multi()
                 .del(key)
                 .sAdd(key, redisSetPlaceholder)
-                .expire(key,notificationRedisTTL)
+                .expire(key, notificationRedisTTL)
                 .exec()
         ])
     }
+}
 
-    // Return the paginated notifications
+export async function notificationList(userId: string, offset: number) {
+    await prepareNotifications(userId, offset)
     return await db
         .select()
         .from(notifications)
         .where(eq(notifications.userId, userId))
+        .orderBy(desc(notifications.createdAt), desc(notifications.read))
+        .offset(offset)
+        .limit(notificationsPerPage)
+}
+
+export async function notificationListMentions(userId: string, offset: number) {
+    await prepareNotifications(userId, offset)
+    return await db
+        .select()
+        .from(notifications)
+        .where(and(
+            eq(notifications.userId, userId),
+            or(
+                eq(notifications.type, "mention"),
+                eq(notifications.type, "reply")
+            )
+        ))
         .orderBy(desc(notifications.createdAt), desc(notifications.read))
         .offset(offset)
         .limit(notificationsPerPage)
@@ -81,7 +100,10 @@ async function ensureData(userId: string) {
         ${db
             .select({ count: count() })
             .from(likes)
-            .where(gte(likes.createdAt, notifications.createdAt))
+            .where(and(
+                eq(likes.postId, sql`(${notifications.data}->>'postId')::uuid`),
+                gte(likes.createdAt, notifications.createdAt)
+            ))
         }
     )`
 
@@ -112,7 +134,10 @@ async function ensureData(userId: string) {
         ${db
             .select({ count: count() })
             .from(posts)
-            .where(eq(posts.id, sql`(${notifications.data}->>'postId')::uuid`))
+            .where(and(
+                eq(posts.replyingTo, sql`(${notifications.data}->>'postId')::uuid`),
+                gte(posts.createdAt, notifications.createdAt)
+            ))
         }
     )`
 
