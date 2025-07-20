@@ -1,4 +1,4 @@
-import { DrizzleError, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 import { authRequest } from '../authentication';
@@ -9,12 +9,9 @@ import { personalizePosts } from '../posts/hydratePosts';
 import { postProcessPosts } from '../posts/postProcessPosts';
 import { DatabaseError } from 'pg';
 import { HttpError } from '../middlewares/errorHandler';
+import { GetPostResponse, GetPostSchema } from "@me/schemas/src/zod/getPost"
 
 const router = Router();
-
-const GetPostSchema = z.object({
-    id: z.string()
-})
 
 router.get('/:id', async (req: Request, res: Response) => {
     const { id } = GetPostSchema.parse(req.params)
@@ -24,13 +21,12 @@ router.get('/:id', async (req: Request, res: Response) => {
         if (!post) throw new HttpError(404, 'Post not found')
         if (post.replyingTo) {
             const [replied] = await postProcessPosts(await (personalizePosts(getOnePost(post.replyingTo), user)))
-            res.json({ post,replied })
+            res.json({ post, replied } as GetPostResponse)
             return
         }
-        res.json({ post })
+        res.json({ post } as GetPostResponse)
     }
     catch (e) {
-        console.log(typeof (e))
         if (e instanceof DatabaseError && e.routine === "MakeParseError")
             throw new HttpError(422, "Invalid post ID")
         throw e

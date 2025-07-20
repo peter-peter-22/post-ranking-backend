@@ -31,7 +31,8 @@
     "pg": "^8.16.0",
     "pg-cursor": "^2.15.0",
     "redis": "^4.7.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "@me/schemas": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
